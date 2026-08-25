@@ -20,9 +20,12 @@ async function unpackSingle(source,target,expected){
 async function unpackParts(dir,target,expected){
   const names=(await readdir(abs(dir))).filter(n=>n.endsWith('.b64')).sort();
   if(!names.length) throw new Error(`Geen bronstukken in ${dir}`);
-  const parts=[];
-  for(const name of names) parts.push((await readFile(abs(path.join(dir,name)),'utf8')).trim());
-  await writeChecked(target,gunzipSync(Buffer.from(parts.join(''),'base64')),expected);
+  const binaryParts=[];
+  for(const name of names){
+    const b64=(await readFile(abs(path.join(dir,name)),'utf8')).trim();
+    binaryParts.push(Buffer.from(b64,'base64'));
+  }
+  await writeChecked(target,gunzipSync(Buffer.concat(binaryParts)),expected);
 }
 async function fetchChecked(url,target,expected){
   const response=await fetch(url);
