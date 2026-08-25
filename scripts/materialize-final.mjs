@@ -9,7 +9,7 @@ const sha256=data=>createHash('sha256').update(data).digest('hex');
 async function parent(file){await mkdir(path.dirname(path.join(root,file)),{recursive:true});}
 async function checked(target,data,hash){const got=sha256(data);if(got!==hash)throw new Error(`${target}: ${got} != ${hash}`);await parent(target);await writeFile(path.join(root,target),data);console.log('OK',target);}
 async function unpackSingle(source,target,hash){const b64=(await readFile(path.join(root,source),'utf8')).trim();await checked(target,gunzipSync(Buffer.from(b64,'base64')),hash);}
-async function unpackParts(dir,target,hash){const names=(await readdir(path.join(root,dir))).filter(x=>x.endsWith('.gz.b64')).sort();let b64='';for(const n of names)b64+=(await readFile(path.join(root,dir,n),'utf8')).trim();await checked(target,gunzipSync(Buffer.from(b64,'base64')),hash);}
+async function unpackParts(dir,target,hash){const names=(await readdir(path.join(root,dir))).filter(x=>x.endsWith('.gz.b64')).sort();if(!names.length)throw new Error(`Geen bronstukken in ${dir}`);const parts=[];for(const n of names){const b64=(await readFile(path.join(root,dir,n),'utf8')).trim();parts.push(gunzipSync(Buffer.from(b64,'base64')));}await checked(target,Buffer.concat(parts),hash);}
 async function fetchChecked(url,target,hash){const r=await fetch(url);if(!r.ok)throw new Error(`Download ${r.status}: ${url}`);await checked(target,Buffer.from(await r.arrayBuffer()),hash);}
 async function injectMini(file){const p=path.join(root,file);let s=await readFile(p,'utf8');const tag='<script src="../../shared/assistant-mini.js" defer></script>';if(!s.includes(tag)){const i=s.toLowerCase().lastIndexOf('</body>');s=i>=0?s.slice(0,i)+tag+'\n'+s.slice(i):s+'\n'+tag+'\n';await writeFile(p,s);} }
 
@@ -24,5 +24,5 @@ await fetchChecked(`${pop}/index.html`,'tools/pop-checklist/index.html','27fdee5
 await fetchChecked(`${pop}/template.xlsx`,'tools/pop-checklist/template.xlsx','1b456732ea5a95e1dd17bb0695cf8a720022582d34cb70aaa7575629092635eb');
 for(const f of ['tools/kopermetingen/index.html','tools/tv-codes/index.html','tools/value-fiber-route/index.html','tools/pop-checklist/index.html'])await injectMini(f);
 
-for(const p of ['src-packed','src-packed2','src-packed-current','src','staging','patches','.github/workflows/materialize.yml','.github/workflows/materialize-final.yml','scripts/materialize.mjs','scripts/materialize-final.mjs'])await rm(path.join(root,p),{recursive:true,force:true});
+for(const p of ['src-packed','src-packed2','src-packed-current','src','staging','patches','.bootstrap','.github/workflows/materialize.yml','.github/workflows/materialize-final.yml','scripts/materialize.mjs','scripts/materialize-final.mjs'])await rm(path.join(root,p),{recursive:true,force:true});
 console.log('Definitieve ToolsAPK projectboom is gematerialiseerd en opgeschoond.');
