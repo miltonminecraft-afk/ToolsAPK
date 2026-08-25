@@ -1,0 +1,63 @@
+name: Finaliseer bestaande tools
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.staging/**'
+      - '.github/workflows/finalize-tools.yml'
+permissions:
+  contents: write
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Kopieer bestaande bronbestanden naar definitieve paden
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools/kopermetingen tools/tv-codes tools/value-fiber-route tools/pop-checklist
+          mkdir -p android/app/src/main/java/nl/tools/app
+
+          cat .staging/koper/part-*.bin > /tmp/kopermetingen-current.gz
+          gzip -t /tmp/kopermetingen-current.gz
+          gzip -dc /tmp/kopermetingen-current.gz > tools/kopermetingen/index.html
+          echo 'c0b827a3cf39287a072165606e7e7ad58b9b42ff9f0c49bc83ecb4a20ec16b64  tools/kopermetingen/index.html' | sha256sum -c -
+
+          base64 -d src-packed-current/tv-codes.gz.b64 | gzip -dc > tools/tv-codes/index.html
+          echo '181e9367aa4e71775bf601f5de6b40fb10d1ede2fcde8a0104eecbcaf2f34612  tools/tv-codes/index.html' | sha256sum -c -
+
+          base64 -d src-packed-current/value-fiber-route.gz.b64 | gzip -dc > tools/value-fiber-route/index.html
+          echo 'bd3fd764eb532e883c8d26e54549260526f5aafbebb36c042fd40cda1839dcf5  tools/value-fiber-route/index.html' | sha256sum -c -
+
+          base64 -d src-packed-current/HioScanActivity.java.gz.b64 | gzip -dc > android/app/src/main/java/nl/tools/app/HioScanActivity.java
+          echo 'dadfcee144e081ce712772151503e3bf1b60e2516a46d1fed1be0196cce5d005  android/app/src/main/java/nl/tools/app/HioScanActivity.java' | sha256sum -c -
+
+          POP_REF='d06eeeb2668c057fc7a9c4a3b132147178e20d28'
+          curl -fsSL --retry 3 "https://raw.githubusercontent.com/miltonminecraft-afk/pop-checklist/${POP_REF}/index.html" -o tools/pop-checklist/index.html
+          echo '27fdee56db4fe739087adf1a13d6537437661e62dbba200e686492afb8210641  tools/pop-checklist/index.html' | sha256sum -c -
+
+          curl -fsSL --retry 3 "https://raw.githubusercontent.com/miltonminecraft-afk/pop-checklist/${POP_REF}/template.xlsx" -o tools/pop-checklist/template.xlsx
+          echo '1b456732ea5a95e1dd17bb0695cf8a720022582d34cb70aaa7575629092635eb  tools/pop-checklist/template.xlsx' | sha256sum -c -
+
+          test -f tools/assistant/index.html
+          touch .nojekyll
+
+          rm -rf .bootstrap patches src src-direct src-final src-packed src-packed2 src-packed-current src-current scripts .staging
+          rm -f .github/workflows/materialize.yml .github/workflows/materialize-final.yml
+
+          echo 'Alle definitieve bronbestanden zijn exact geverifieerd.'
+
+      - name: Commit definitieve projectboom
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'Plaats alle definitieve ToolsAPK bronnen'
+          git push
