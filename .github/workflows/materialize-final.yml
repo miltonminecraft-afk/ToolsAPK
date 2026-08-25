@@ -2,11 +2,11 @@ name: Materialiseer definitieve repo
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
   materialize:
-    if: ${{ hashFiles('scripts/materialize-final.mjs') != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
