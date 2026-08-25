@@ -1,0 +1,241 @@
+lay:none!important}
+#settingsButton .settings-gear{width:30px!important;height:30px!important;display:block!important;color:currentColor!important;flex:0 0 auto!important;margin:0!important;transform:none!important}
+.header-button,.icon-button,.settings-btn{display:grid;place-items:center;padding:0;line-height:0;text-align:center}
+.header-button .settings-gear,.icon-button .settings-gear,.settings-btn .settings-gear{width:30px;height:30px;display:block;color:currentColor}
+
+.app{padding:0 18px 18px!important;max-width:100%;overflow-x:hidden}
+.header{position:sticky!important;top:0!important;z-index:20!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:12px!important;margin:0 -18px 18px!important;padding:20px 18px 18px!important;background:var(--accent)!important;color:#fff!important;border-bottom-left-radius:18px!important;border-bottom-right-radius:18px!important;box-shadow:0 12px 30px rgba(16,24,40,.14)!important}
+body.dark .header{box-shadow:0 16px 38px rgba(0,0,0,.42)!important}
+.header-left{display:flex!important;align-items:center!important;min-width:0!important;grid-column:1!important}
+.header-left h1{grid-column:auto!important;margin:0!important;color:#fff!important;font-size:22px!important;font-weight:900!important;line-height:1.1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.header .icon-bar{grid-column:2!important;display:flex!important;gap:12px!important;position:relative!important;justify-content:flex-end!important;align-items:center!important}
+.header .icon-button{width:46px!important;height:46px!important;padding:0!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:15px!important;background:rgba(255,255,255,.18)!important;color:#fff!important;display:grid!important;place-items:center!important;line-height:0!important;text-align:center!important}
+.header #homeButton{display:none!important}
+.header .settings{color:var(--text)!important;right:0!important;top:54px!important}
+.hio-scan-button{width:auto!important;min-width:190px!important;max-width:260px!important;margin:0 0 14px 0!important;padding:12px 18px!important;min-height:46px!important;display:inline-grid!important;place-items:center!important;border-radius:12px!important}
+.card.collapsed-card .hio-scan-button{margin-top:0!important;margin-bottom:4px!important;min-width:170px!important;max-width:230px!important;padding:10px 16px!important}
+@media(max-width:480px){.header-left h1{font-size:21px!important}.header .icon-bar{gap:8px!important}.hio-scan-button{min-width:170px!important;max-width:220px!important}}
+
+.hio-scan-button{width:100%!important;min-width:0!important;max-width:none!important;margin:0 0 14px 0!important;padding:13px 14px!important;min-height:48px!important;display:grid!important;place-items:center!important;border-radius:8px!important}
+.current-route-card{flex:0 0 auto!important;min-width:260px!important;max-width:none!important;width:max-content!important}
+.current-route-title{white-space:nowrap!important;min-width:max-content!important}
+.current-route-lines{overflow:visible!important;min-width:max-content!important}
+@media(max-width:900px){.current-route-card{flex-basis:auto!important;min-width:260px!important;max-width:none!important;width:max-content!important}.hio-scan-button{width:100%!important;min-width:0!important;max-width:none!important}}
+
+
+.current-route-subtitle{color:var(--text);font-weight:normal;margin:-3px 0 8px 0;white-space:nowrap;min-width:max-content}
+.new-position-grid,.route-info-line-three{grid-template-columns:auto auto minmax(44px,1fr) auto minmax(44px,1fr) auto minmax(44px,1fr)!important;column-gap:5px!important;row-gap:6px!important}
+.new-position-grid .route-info-axis,.route-info-line-three .route-info-axis{justify-self:start!important;text-align:left!important;min-width:0!important}
+.new-position-grid .route-info-column,.route-info-line-three .route-info-column{justify-self:start!important;text-align:left!important;white-space:nowrap!important}
+.new-position-grid input,.route-info-line-three input{min-width:0!important;width:100%!important;padding-left:4px!important;padding-right:4px!important}
+@media(max-width:900px){.new-position-grid,.route-info-line-three{grid-template-columns:auto auto minmax(42px,1fr) auto minmax(42px,1fr) auto minmax(42px,1fr)!important;column-gap:3px!important}.new-position-grid .route-info-column,.route-info-line-three .route-info-column{font-size:13px!important;letter-spacing:-.4px!important}.new-position-grid .route-info-axis,.route-info-line-three .route-info-axis{font-size:20px!important}.new-position-grid input,.route-info-line-three input{font-size:16px!important;padding-left:2px!important;padding-right:2px!important}.new-position-grid.kvd-mode,.route-info-line-two{grid-template-columns:auto auto minmax(58px,1fr) auto minmax(58px,1fr)!important;gap:6px!important}}
+
+.deviant-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.deviant-toggle{padding:8px 12px;font-size:13px;border-radius:8px;white-space:nowrap}
+.deviant-toggle.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.new-position-label-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 6px}
+.new-position-label-row label{margin:0}
+
+</style>
+</head>
+<body class="dark page-layout-horizontal">
+<div class="app">
+<div class="header">
+<div class="header-left"><h1>KOPERMETINGEN</h1></div>
+<div class="icon-bar">
+<button class="icon-button" id="helpButton">?</button>
+<button class="icon-button" id="settingsButton"><svg class="settings-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/><circle cx="12" cy="12" r="3.2" fill="var(--panel)"/></svg></button>
+<div class="settings" id="settingsPanel">
+<h3>Instellingen</h3>
+<div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div>
+<div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div>
+<div class="settings-section">Pagina-layout</div>
+<div class="setting-row" id="pageHorizontalButton"><span>Horizontaal</span><span id="pageHorizontalCheck">✓</span></div>
+<div class="setting-row" id="pageVerticalButton"><span>Verticaal</span><span id="pageVerticalCheck"></span></div>
+<div class="settings-section">Toetsenbord</div>
+<div class="setting-row" id="keyboardNumericButton"><span>Numeriek</span><span id="keyboardNumericCheck">✓</span></div>
+<div class="setting-row" id="keyboardAlphaButton"><span>Alpha</span><span id="keyboardAlphaCheck"></span></div>
+<div class="settings-section">Verwijderen</div>
+<div class="setting-row" id="clearDocumentButton"><span>Document legen</span><span></span></div>
+<div class="setting-row" id="clearAllButton"><span>Alles legen</span><span></span></div>
+</div>
+</div>
+</div>
+<div class="layout">
+<div>
+<button class="primary full hio-scan-button" id="hioScanButton" type="button">Scan vanaf HIO</button>
+<div class="card">
+<div class="card-title-row"><div class="card-title-main"><h2>ROUTE</h2><select id="routeServiceSelect" class="route-info-service-select hidden"></select></div><button class="collapse-toggle" id="toggleRouteButton" type="button">−</button></div>
+<div id="routePanel">
+<div class="route-entry hvd-route-entry"><label>HVD</label><input id="hvdInput" placeholder="Hoofdverdeler"><div class="route-length-field route-length-hvd"><span class="route-length-arrow">--></span><input id="hvdDistanceInput" inputmode="decimal" autocomplete="off" placeholder="0"></div><span class="route-length-meter route-length-hvd-meter">meter</span></div>
+<div id="kvdContainer"></div>
+<button class="secondary full" id="addKvdButton" type="button">+ KVD toevoegen</button>
+<div class="note">HVD mag leeg blijven. KVD is optioneel. ISRA wordt automatisch toegevoegd.</div>
+</div>
+</div>
+
+
+<div class="card">
+<div class="card-title-row"><h2>SERVICE ID'S</h2><button class="collapse-toggle" id="toggleServiceIdsButton" type="button">−</button></div>
+<div id="serviceIdsPanel">
+<div class="service-id-entry"><input id="newServiceIdInput" placeholder="Service ID" autocomplete="off"><button class="success" id="addServiceIdButton" type="button">+</button></div>
+<div id="serviceIdsList" class="service-id-list"></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title-row"><div class="card-title-main"><h2>POSITIES</h2><select id="routeInfoServiceSelect" class="route-info-service-select hidden"></select></div><button class="collapse-toggle" id="toggleRouteInfoButton" type="button">+</button></div>
+<div id="routeInfoPanel" style="display:none;"></div>
+</div>
+
+<div class="card">
+<div class="card-title-row"><div class="card-title-main"><h2>NIEUWE POSITIE</h2><select id="newPositionServiceSelect" class="route-info-service-select hidden"></select></div><button class="collapse-toggle" id="toggleNewPositionButton" type="button">−</button></div>
+<div id="newPositionPanel">
+<div class="new-position-label-row"><label>Nieuwe positie</label><button class="secondary deviant-toggle hidden" id="newPositionDeviantButton" type="button">Deviant</button></div>
+<select id="newPositionSelect"></select>
+<div id="newPositionRows" class="new-position-rows">
+<div id="newPositionHRow" class="new-position-grid">
+<div class="route-info-axis">H</div>
+<div class="route-info-column">Stijl</div>
+<input id="newPositionHStijlInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+<div class="route-info-column">Cassette</div>
+<input id="newPositionHRijInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+<div class="route-info-column">Stift</div>
+<input id="newPositionHStiftInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+</div>
+<div id="newPositionSipRow" class="new-position-grid kvd-mode hidden">
+<div class="route-info-axis">SIP</div>
+<div class="route-info-column">Stijl</div>
+<input id="newPositionSipStijlInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+<div class="route-info-column">Stift</div>
+<input id="newPositionSipStiftInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+</div>
+<div id="newPositionKvdHRow" class="new-position-grid kvd-mode hidden">
+<div class="route-info-axis">H</div>
+<div class="route-info-column">Stijl</div>
+<input id="newPositionKvdHStijlInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+<div id="newPositionKvdHRijBlock" class="route-info-column hidden">Cassette</div>
+<input id="newPositionKvdHRijInput" inputmode="numeric" pattern="[0-9]*" class="hidden" maxlength="3" autocomplete="off" placeholder="000">
+<div class="route-info-column">Stift</div>
+<input id="newPositionKvdHStiftInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+</div>
+<div id="newPositionVRow" class="new-position-grid">
+<div class="route-info-axis">V</div>
+<div class="route-info-column">Stijl</div>
+<input id="newPositionVStijlInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+<div id="newPositionVRijBlock" class="route-info-column">Cassette</div>
+<input id="newPositionVRijInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+<div class="route-info-column">Stift</div>
+<input id="newPositionVStiftInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" placeholder="000">
+</div>
+</div>
+<div id="newDikaderBlock" class="hidden">
+<label>Nieuwe dikader</label>
+<select id="newDikaderSelect"></select>
+<div id="newDikaderNote" class="note hidden"></div>
+</div>
+<button class="success full" id="saveNewPositionButton">Opslaan zonder scan</button>
+<button class="secondary full" id="clearNewPositionButton">Nieuwe positie leegmaken</button>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title-row"><h2>ACTUELE ROUTE</h2><button class="collapse-toggle" id="toggleCurrentRouteButton" type="button">−</button></div>
+<div id="currentRoutePanel"><div id="currentRouteOutput" class="current-route-wrap"></div></div>
+</div>
+
+<div class="card">
+<div class="card-title-row"><div class="card-title-main"><h2>METING</h2><select id="measurementTitleServiceSelect" class="route-info-service-select hidden"></select></div><button class="collapse-toggle" id="toggleMeasurementButton" type="button">−</button></div>
+<div id="measurementPanel">
+<label>Service ID</label>
+<div class="service-combo">
+<div class="service-input-wrap">
+<input id="serviceInput" placeholder="Kies of voer Service ID in" autocomplete="off">
+<button class="service-clear" id="serviceClearButton" type="button">×</button>
+</div>
+<div id="serviceDropdown" class="service-dropdown"></div>
+</div>
+<label>Dikader</label>
+<select id="dikaderSelect"></select>
+<div id="dikaderNote" class="note"></div>
+<div class="grid">
+<div><label>Locatie</label><select id="positionSelect"></select></div>
+<div><label>Richting</label><select id="directionSelect"></select></div>
+</div>
+</div>
+<button class="primary full" id="scanButton">Scan Argus QR-code</button>
+</div>
+
+<div class="card">
+<div class="card-title-row"><h2>LCL-METING</h2><button class="collapse-toggle" id="toggleLclButton" type="button">−</button></div>
+<div id="lclPanel">
+<label>Service ID</label>
+<select id="lclServiceSelect"></select>
+<label>Locatie</label>
+<select id="lclMeasurementSelect"></select>
+<label>LCL</label>
+<div class="grid">
+<input id="lclInput" type="number" step="0.1" placeholder="-">
+<input value="dB" disabled>
+</div>
+<button class="secondary full" id="scanLclButton">Scan LCL QR-code</button>
+<button class="success full" id="saveLclButton">Opslaan LCL</button>
+</div>
+</div>
+</div>
+
+<div class="card document-card">
+<div class="document-header">
+<h2>TEKSTDOCUMENTEN</h2>
+<div id="counterInfo" class="note">0 metingen • 0 LCL</div>
+</div>
+<div class="document-scroll-area" id="documentScrollArea">
+<div class="document-panel-card active-document-panel" data-document-id="main">
+<div class="document-panel-title"><h3>Hoofddocument</h3><div class="note">Volledig</div></div>
+<textarea id="documentOutput" class="document" readonly></textarea>
+</div>
+<div class="document-panel-card" data-document-id="short1">
+<div class="document-panel-title"><h3>OG aansturing</h3><div class="document-title-actions"><div class="note">Instelbaar</div><button class="secondary og-edit-button" id="ogEditButton" type="button">Edit</button></div></div>
+<div class="og-controls hidden" id="ogControls">
+<div class="og-service-list" id="ogServiceMeasurementList"></div>
+<div class="og-check-grid">
+<label class="og-check"><input type="checkbox" id="ogShowServiceId" checked>Service ID</label>
+<label class="og-check"><input type="checkbox" id="ogShowPosition" checked>Positie en richting</label>
+<label class="og-check"><input type="checkbox" id="ogShowRoute" checked>Route</label>
+<label class="og-check"><input type="checkbox" id="ogShowExpectedLength" checked>Verwachte lengte</label>
+<label class="og-check"><input type="checkbox" id="ogShowActualLength" checked>Actuele lengte</label>
+<label class="og-check"><input type="checkbox" id="ogShowIsolation" checked>Isolatie</label>
+<label class="og-check"><input type="checkbox" id="ogShowCapacity" checked>Capaciteit</label>
+</div>
+</div>
+<textarea id="shortDocumentOneOutput" class="document" readonly></textarea>
+</div>
+<div class="document-panel-card" data-document-id="short2">
+<div class="document-panel-title"><h3>Route hersteld</h3><div class="document-title-actions"><div class="note">Instelbaar</div><button class="secondary og-edit-button" id="routeRestoredDocEditButton" type="button">Edit</button></div></div>
+<div class="og-controls hidden" id="routeRestoredDocControls">
+<div class="og-service-list" id="routeRestoredDocServiceMeasurementList"></div>
+<div class="og-check-grid">
+<label class="og-check"><input type="checkbox" id="routeRestoredShowChangedPositions" checked>Nieuwe pos</label>
+</div>
+</div>
+<textarea id="shortDocumentTwoOutput" class="document" readonly></textarea>
+</div>
+</div>
+<button class="document-nav-button document-nav-left" id="documentPrevButton" type="button">‹</button>
+<button class="document-nav-button document-nav-right" id="documentNextButton" type="button">›</button>
+<div class="actions">
+<button class="success" id="newMeasurementButton">Scan Argus QR-code</button>
+<button class="secondary hidden" id="sipSyncButton" type="button">SIP sync</button>
+<button class="primary" id="routeRestoredButton">Route hersteld</button>
+<button class="secondary" id="copyButton">Kopieer tekst</button>
+<button class="blue" id="bluetoothButton">Verstuur via Bluetooth</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal" id="scannerModal"><div class="modal-box"><h2 id="scannerTitle">Scan Argus QR-code</h2><div id="reader"></div><div class="modal-actions"><button class="secondary" id="cancelScannerButton">Annuleren</button></div></div></div>
+<div class="modal" id="confirmModal"><div class="modal-box"><h2 id="confirmTitle"></h2><div id="confirmText"></div><div class="modal-actions"><button class="secondary" id="cancelConfirmButton">Annuleren</button><button class="primary" id="acceptConfirmButton">Bevestigen</button></div></div></div>
+
+<script>
+const state={theme:"dark",
