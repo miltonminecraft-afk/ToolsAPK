@@ -15,7 +15,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node scripts/materialize-final.mjs
+      - name: Bouw definitieve projectboom
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/materialize-final.mjs')
+          s=p.read_text()
+          old="if(b.length>=2&&b[0]===0x1f&&b[1]===0x8b){b=gunzipSync(b);continue}"
+          new="if(b.length>=2&&b[0]===0x1f&&b[1]===0x8b){try{b=gunzipSync(b);continue}catch(e){break}}"
+          if old not in s:
+              raise SystemExit('verwachte unwrap-regel niet gevonden')
+          p.write_text(s.replace(old,new,1))
+          PY
+          node scripts/materialize-final.mjs
       - name: Commit schone projectboom
         run: |
           git config user.name "github-actions[bot]"
