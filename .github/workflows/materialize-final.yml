@@ -21,11 +21,18 @@ jobs:
           from pathlib import Path
           p=Path('scripts/materialize-final.mjs')
           s=p.read_text()
-          old="if(b.length>=2&&b[0]===0x1f&&b[1]===0x8b){b=gunzipSync(b);continue}"
-          new="if(b.length>=2&&b[0]===0x1f&&b[1]===0x8b){try{b=gunzipSync(b);continue}catch(e){break}}"
+          old="""const koperBase=await materializeKoper();
+          await write('tools/kopermetingen/index.html',koperBase);
+          execFileSync('git',['apply','--check','patches/kopermetingen-latest.patch'],{cwd:root,stdio:'inherit'});
+          execFileSync('git',['apply','patches/kopermetingen-latest.patch'],{cwd:root,stdio:'inherit'});
+          let koper=await readFile(A('tools/kopermetingen/index.html'));if(sha256(koper)!==expected.koperFinal)throw new Error('Kopermetingen eindhash klopt niet');"""
+          new="""const koper=gunzipSync(Buffer.from((await readFile(A('src-current/kopermetingen-current.gz.b64'),'utf8')).replace(/\\s+/g,''),'base64'));
+          if(sha256(koper)!==expected.koperFinal)throw new Error('Actuele Kopermetingen bronhash klopt niet');"""
           if old not in s:
-              raise SystemExit('verwachte unwrap-regel niet gevonden')
-          p.write_text(s.replace(old,new,1))
+              raise SystemExit('Koper finalizerblok niet gevonden')
+          s=s.replace(old,new,1)
+          s=s.replace("'src-direct','src-final'","'src-direct','src-current','src-final'",1)
+          p.write_text(s)
           PY
           node scripts/materialize-final.mjs
       - name: Commit schone projectboom
