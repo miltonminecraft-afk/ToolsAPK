@@ -19,10 +19,12 @@ jobs:
           mkdir -p tools/kopermetingen tools/tv-codes tools/value-fiber-route tools/pop-checklist
           mkdir -p android/app/src/main/java/nl/tools/app
 
-          gzip -dc .source/kopermetingen.gz > tools/kopermetingen/index.html
+          cat .source/koper/part-*.bin > /tmp/kopermetingen.gz
+          gzip -t /tmp/kopermetingen.gz
+          gzip -dc /tmp/kopermetingen.gz > tools/kopermetingen/index.html
           echo 'c0b827a3cf39287a072165606e7e7ad58b9b42ff9f0c49bc83ecb4a20ec16b64  tools/kopermetingen/index.html' | sha256sum -c -
 
-          gzip -dc .source/tv-codes.gz > tools/tv-codes/index.html
+          base64 -d .source/tv-codes.gz.b64 | gzip -dc > tools/tv-codes/index.html
           echo '181e9367aa4e71775bf601f5de6b40fb10d1ede2fcde8a0104eecbcaf2f34612  tools/tv-codes/index.html' | sha256sum -c -
 
           base64 -d .source/value-fiber-route.gz.b64 | gzip -dc > tools/value-fiber-route/index.html
@@ -68,7 +70,6 @@ jobs:
             deploy:
               environment:
                 name: github-pages
-                url: ${{ steps.deployment.outputs.page_url }}
               runs-on: ubuntu-latest
               steps:
                 - uses: actions/checkout@v4
