@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tools</title>
+<style>
+:root{--bg:#f4f6fa;--panel:#fff;--panel2:#eef1f7;--text:#10141d;--muted:#667085;--border:#d6dbe6;--accent:#00C300;--shadow:0 12px 30px rgba(16,24,40,.14)}
+body.dark{--bg:#07090d;--panel:#11151d;--panel2:#0c0f15;--text:#f4f6fb;--muted:#a8afbd;--border:#2a303c;--accent:#e02020;--shadow:0 16px 38px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}button,a{font:inherit}.app{min-height:100vh}.top{position:sticky;top:0;z-index:10;background:var(--accent);color:#fff;border-bottom-left-radius:18px;border-bottom-right-radius:18px;box-shadow:var(--shadow)}.top-inner{max-width:760px;margin:0 auto;padding:20px 18px 18px;display:grid;grid-template-columns:1fr 46px;gap:12px;align-items:center}.title{font-size:25px;font-weight:900}.settings-btn{width:46px;height:46px;border:1px solid rgba(255,255,255,.22);border-radius:15px;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;padding:0}.settings-btn svg{width:30px;height:30px}.settings{display:none;position:absolute;right:18px;top:76px;width:280px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:var(--shadow)}.settings.open{display:block}.setting-row{display:flex;justify-content:space-between;padding:11px;border-radius:10px;cursor:pointer}.setting-row:hover{background:var(--panel2)}main{max-width:760px;margin:0 auto;padding:14px}.intro{margin:4px 2px 14px;color:var(--muted);line-height:1.45}.grid{display:grid;gap:12px}.tool{display:block;text-decoration:none;color:var(--text);background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.tool:active{transform:scale(.99)}.tool-title{font-size:20px;font-weight:900;margin-bottom:5px}.tool-sub{font-size:14px;line-height:1.4;color:var(--muted)}.status{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}@media(min-width:650px){.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body class="dark">
+<div class="app">
+<header class="top"><div class="top-inner"><div class="title">Tools</div><button class="settings-btn" id="settingsButton" type="button" aria-label="Instellingen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66-.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/><circle cx="12" cy="12" r="3.2" fill="var(--accent)"/></svg></button><div class="settings" id="settingsPanel"><div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div><div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div></div></div></header>
+<main><div class="intro">Kies een tool.</div><div class="grid">
+<a class="tool" href="tools/kopermetingen/index.html"><div class="tool-title">Kopermetingen</div><div class="tool-sub">Route, HIO-scan, Argus QR, LCL en tekstdocumenten.</div></a>
+<a class="tool" href="tools/tv-codes/index.html"><div class="tool-title">Afstandsbediening codes</div><div class="tool-sub">KPN afstandsbediening koppelen aan een televisie.</div></a>
+<a class="tool" href="tools/value-fiber-route/index.html"><div class="tool-title">Value Fiber Route</div><div class="tool-sub">Koppelbon importeren, route, locaties en OTDR.</div></a>
+<a class="tool" href="tools/pop-checklist/index.html"><div class="tool-title">PoP Checklist</div><div class="tool-sub">PoP-inspectie met foto's, Excel, ZIP en e-mail.</div></a>
+</div><div class="status">Webbasis voor GitHub Pages. Android/APK wordt hier later omheen gebouwd.</div></main>
+</div>
+<script>
+(function(){const body=document.body,settingsButton=document.getElementById('settingsButton'),settingsPanel=document.getElementById('settingsPanel'),darkCheck=document.getElementById('darkCheck'),lightCheck=document.getElementById('lightCheck');function setTheme(v){body.classList.toggle('dark',v==='dark');localStorage.setItem('toolsTheme',v);darkCheck.textContent=v==='dark'?'✓':'';lightCheck.textContent=v==='light'?'✓':''}setTheme(localStorage.getItem('toolsTheme')||'dark');settingsButton.onclick=function(e){e.stopPropagation();settingsPanel.classList.toggle('open')};settingsPanel.onclick=function(e){e.stopPropagation()};document.getElementById('darkModeButton').onclick=function(){setTheme('dark');settingsPanel.classList.remove('open')};document.getElementById('lightModeButton').onclick=function(){setTheme('light');settingsPanel.classList.remove('open')};document.addEventListener('click',function(){settingsPanel.classList.remove('open')});window.addEventListener('storage',function(e){if(e.key==='toolsTheme'&&(e.newValue==='dark'||e.newValue==='light'))setTheme(e.newValue)});})();
+</script>
+</body>
+</html>
