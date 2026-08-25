@@ -2,26 +2,187 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tools</title>
 <style>
-:root{--bg:#f4f6fa;--panel:#fff;--panel2:#eef1f7;--text:#10141d;--muted:#667085;--border:#d6dbe6;--accent:#00C300;--shadow:0 12px 30px rgba(16,24,40,.14)}
-body.dark{--bg:#07090d;--panel:#11151d;--panel2:#0c0f15;--text:#f4f6fb;--muted:#a8afbd;--border:#2a303c;--accent:#e02020;--shadow:0 16px 38px rgba(0,0,0,.42)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}button,a{font:inherit}.app{min-height:100vh}.top{position:sticky;top:0;z-index:10;background:var(--accent);color:#fff;border-bottom-left-radius:18px;border-bottom-right-radius:18px;box-shadow:var(--shadow)}.top-inner{max-width:760px;margin:0 auto;padding:20px 18px 18px;display:grid;grid-template-columns:1fr 46px;gap:12px;align-items:center}.title{font-size:25px;font-weight:900}.settings-btn{width:46px;height:46px;border:1px solid rgba(255,255,255,.22);border-radius:15px;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;padding:0}.settings-btn svg{width:30px;height:30px}.settings{display:none;position:absolute;right:18px;top:76px;width:280px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:var(--shadow)}.settings.open{display:block}.setting-row{display:flex;justify-content:space-between;padding:11px;border-radius:10px;cursor:pointer}.setting-row:hover{background:var(--panel2)}main{max-width:760px;margin:0 auto;padding:14px}.intro{margin:4px 2px 14px;color:var(--muted);line-height:1.45}.grid{display:grid;gap:12px}.tool{display:block;text-decoration:none;color:var(--text);background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.tool:active{transform:scale(.99)}.tool-title{font-size:20px;font-weight:900;margin-bottom:5px}.tool-sub{font-size:14px;line-height:1.4;color:var(--muted)}.status{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}@media(min-width:650px){.grid{grid-template-columns:1fr 1fr}}
+:root{--bg:#f4f6fa;--panel:#fff;--panel2:#eef1f7;--text:#10141d;--muted:#667085;--border:#d6dbe6;--accent:#00C300;--danger:#c91d1d;--success:#148a42;--input:#fff}
+body.dark{--bg:#07090d;--panel:#11151d;--panel2:#0c0f15;--text:#f4f6fb;--muted:#a8afbd;--border:#2a303c;--accent:#e02020;--danger:#e02020;--success:#159947;--input:#090c12}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.app{min-height:100vh;padding:18px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+h1{margin:0;font-size:30px}
+.icon-bar{display:flex;gap:10px;position:relative}
+.icon-button{width:46px;height:46px;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:10px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.settings{display:none;position:absolute;right:0;top:54px;width:310px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;z-index:80;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.settings.open{display:block}
+.settings h3{margin:0 0 10px 0}
+.setting-row{display:flex;justify-content:space-between;padding:10px;border-radius:8px;cursor:pointer}
+.setting-row:hover{background:var(--panel2)}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tool-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;min-height:120px;display:flex;align-items:center;cursor:pointer}
+.tool-card:hover{background:var(--panel2)}
+.tool-card h2{margin:0;color:var(--accent);font-size:20px}
+@media(max-width:900px){
+.tool-grid{grid-template-columns:1fr}
+.app{padding:18px}
+h1{font-size:28px}
+.tool-card{min-height:100px}
+}
+
+.header{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:1fr 46px;align-items:center;gap:12px;margin:-18px -18px 18px -18px;padding:20px 18px 18px;background:var(--accent);color:#fff;border-bottom-left-radius:18px;border-bottom-right-radius:18px;box-shadow:0 12px 30px rgba(16,24,40,.14)}
+body.dark .header{box-shadow:0 16px 38px rgba(0,0,0,.42)}
+.header h1{color:#fff;font-size:22px;font-weight:900;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header .icon-bar{justify-self:end;display:grid;place-items:center;position:relative}
+.header .icon-button{width:46px;height:46px;padding:0;border:1px solid rgba(255,255,255,.22);border-radius:15px;background:rgba(255,255,255,.18);color:#fff;font-size:0;font-weight:900;line-height:1;display:grid;place-items:center;text-align:center}
+.header .icon-button::before{content:"⚙";font-size:28px;line-height:1;display:block;transform:translateY(-1px)}
+.header .settings{color:var(--text);right:0;top:54px}
+
+
+/* Tools APK shared header/button fix */
+#settingsButton{display:grid!important;place-items:center!important;padding:0!important;line-height:0!important;text-align:center!important;font-size:0!important;overflow:hidden!important}
+#settingsButton::before{content:none!important;display:none!important}
+#settingsButton .settings-gear{width:30px!important;height:30px!important;display:block!important;color:currentColor!important;flex:0 0 auto!important;margin:0!important;transform:none!important}
+.header-button,.icon-button,.settings-btn{display:grid;place-items:center;padding:0;line-height:0;text-align:center}
+.header-button .settings-gear,.icon-button .settings-gear,.settings-btn .settings-gear{width:30px;height:30px;display:block;color:currentColor}
+
+.header{position:sticky;top:0;z-index:20;display:grid!important;grid-template-columns:minmax(0,1fr) 46px!important;align-items:center!important;gap:12px!important;margin:-18px -18px 18px -18px!important;padding:20px 18px 18px!important;background:var(--accent)!important;color:#fff!important;border-bottom-left-radius:18px!important;border-bottom-right-radius:18px!important;box-shadow:0 12px 30px rgba(16,24,40,.14)!important}
+body.dark .header{box-shadow:0 16px 38px rgba(0,0,0,.42)!important}
+.header h1{color:#fff!important;font-size:22px!important;font-weight:900!important;line-height:1.1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.header .icon-bar{justify-self:end!important;display:grid!important;place-items:center!important;position:relative!important}
+.header .icon-button{width:46px!important;height:46px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:15px!important;background:rgba(255,255,255,.18)!important;color:#fff!important}
+.header .settings{color:var(--text)!important;right:0!important;top:54px!important}
+
 </style>
 </head>
 <body class="dark">
 <div class="app">
-<header class="top"><div class="top-inner"><div class="title">Tools</div><button class="settings-btn" id="settingsButton" type="button" aria-label="Instellingen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66-.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/><circle cx="12" cy="12" r="3.2" fill="var(--accent)"/></svg></button><div class="settings" id="settingsPanel"><div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div><div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div></div></div></header>
-<main><div class="intro">Kies een tool.</div><div class="grid">
-<a class="tool" href="tools/kopermetingen/index.html"><div class="tool-title">Kopermetingen</div><div class="tool-sub">Route, HIO-scan, Argus QR, LCL en tekstdocumenten.</div></a>
-<a class="tool" href="tools/tv-codes/index.html"><div class="tool-title">Afstandsbediening codes</div><div class="tool-sub">KPN afstandsbediening koppelen aan een televisie.</div></a>
-<a class="tool" href="tools/value-fiber-route/index.html"><div class="tool-title">Value Fiber Route</div><div class="tool-sub">Koppelbon importeren, route, locaties en OTDR.</div></a>
-<a class="tool" href="tools/pop-checklist/index.html"><div class="tool-title">PoP Checklist</div><div class="tool-sub">PoP-inspectie met foto's, Excel, ZIP en e-mail.</div></a>
-</div><div class="status">Webbasis voor GitHub Pages. Android/APK wordt hier later omheen gebouwd.</div></main>
+<div class="header">
+<h1>TOOLS</h1>
+<div class="icon-bar">
+<button class="icon-button" id="settingsButton"><svg class="settings-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/><circle cx="12" cy="12" r="3.2" fill="var(--panel)"/></svg></button>
+<div class="settings" id="settingsPanel">
+<h3>Instellingen</h3>
+<div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div>
+<div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div>
 </div>
+</div>
+</div>
+
+<div class="tool-grid" id="toolGrid"></div>
+</div>
+
 <script>
-(function(){const body=document.body,settingsButton=document.getElementById('settingsButton'),settingsPanel=document.getElementById('settingsPanel'),darkCheck=document.getElementById('darkCheck'),lightCheck=document.getElementById('lightCheck');function setTheme(v){body.classList.toggle('dark',v==='dark');localStorage.setItem('toolsTheme',v);darkCheck.textContent=v==='dark'?'✓':'';lightCheck.textContent=v==='light'?'✓':''}setTheme(localStorage.getItem('toolsTheme')||'dark');settingsButton.onclick=function(e){e.stopPropagation();settingsPanel.classList.toggle('open')};settingsPanel.onclick=function(e){e.stopPropagation()};document.getElementById('darkModeButton').onclick=function(){setTheme('dark');settingsPanel.classList.remove('open')};document.getElementById('lightModeButton').onclick=function(){setTheme('light');settingsPanel.classList.remove('open')};document.addEventListener('click',function(){settingsPanel.classList.remove('open')});window.addEventListener('storage',function(e){if(e.key==='toolsTheme'&&(e.newValue==='dark'||e.newValue==='light'))setTheme(e.newValue)});})();
+const tools=[
+{title:"Kopermetingen TXT",path:"tools/kopermetingen/index.html"},
+{title:"TV codes",path:"tools/tv-codes/index.html"},
+{title:"Value Fiber Route",path:"tools/value-fiber-route/index.html"},
+{title:"Checklist PoP",path:"tools/pop-checklist/index.html"},
+{title:"Assistent",path:"tools/assistant/index.html"}
+];
+
+const state={theme:localStorage.getItem("toolsTheme")||"dark"};
+const settingsPanel=document.getElementById("settingsPanel");
+const toolGrid=document.getElementById("toolGrid");
+
+function saveTheme(){
+localStorage.setItem("toolsTheme",state.theme);
+}
+
+function playFallbackThemeBeep(theme){
+  try{
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass)return;
+    const count=theme==="light"?2:1;
+    const frequency=theme==="light"?720:320;
+    const duration=0.14;
+    const gap=190;
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        try{
+          const ctx=new AudioContextClass();
+          if(ctx.state==="suspended"&&ctx.resume)ctx.resume();
+          const osc=ctx.createOscillator();
+          const gain=ctx.createGain();
+          osc.type="sine";
+          osc.frequency.value=frequency;
+          gain.gain.setValueAtTime(0.0001,ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.14,ctx.currentTime+0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime+duration+0.02);
+          setTimeout(()=>{try{ctx.close();}catch(e){}},260);
+        }catch(e){}
+      },i*gap);
+    }
+  }catch(e){}
+}
+function playThemeSound(theme){
+  const src=theme==="dark"?"audio/dark-side.mp3":"audio/light-side.mp3";
+  try{
+    let fallbackDone=false;
+    const fallback=()=>{if(fallbackDone)return;fallbackDone=true;playFallbackThemeBeep(theme);};
+    const audio=new Audio(src);
+    audio.preload="auto";
+    audio.volume=0.75;
+    const timer=setTimeout(fallback,450);
+    const clear=()=>{clearTimeout(timer);fallbackDone=true;};
+    audio.addEventListener("playing",clear,{once:true});
+    audio.addEventListener("canplaythrough",clear,{once:true});
+    audio.addEventListener("error",()=>{clearTimeout(timer);fallback();},{once:true});
+    const played=audio.play();
+    if(played&&typeof played.catch==="function")played.catch(()=>{clearTimeout(timer);fallback();});
+  }catch(e){
+    playFallbackThemeBeep(theme);
+  }
+}
+
+function setupLandingBackExit(){
+  try{
+    const app=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
+    if(app&&app.addListener){
+      app.addListener("backButton",()=>{if(app.exitApp)app.exitApp();});
+    }
+  }catch(e){}
+}
+
+function setTheme(theme,playSound=false){
+state.theme=theme;
+document.body.classList.toggle("dark",theme==="dark");
+document.getElementById("darkCheck").textContent=theme==="dark"?"✓":"";
+document.getElementById("lightCheck").textContent=theme==="light"?"✓":"";
+saveTheme();
+if(playSound)playThemeSound(theme);
+}
+
+function openTool(path){
+window.location.href=path;
+}
+
+function renderTools(){
+toolGrid.innerHTML="";
+tools.forEach(tool=>{
+const card=document.createElement("div");
+card.className="tool-card";
+card.innerHTML="<h2>"+tool.title+"</h2>";
+card.onclick=()=>openTool(tool.path);
+toolGrid.appendChild(card);
+});
+}
+
+const settingsButton=document.getElementById("settingsButton");
+settingsButton.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();settingsPanel.classList.toggle("open")});
+settingsPanel.addEventListener("click",e=>e.stopPropagation());
+document.getElementById("darkModeButton").onclick=()=>setTheme("dark",true);
+document.getElementById("lightModeButton").onclick=()=>setTheme("light",true);
+document.addEventListener("click",e=>{if(!settingsPanel.contains(e.target)&&!settingsButton.contains(e.target))settingsPanel.classList.remove("open")});
+window.addEventListener("storage",e=>{if(e.key==="toolsTheme"&&(e.newValue==="dark"||e.newValue==="light"))setTheme(e.newValue)});
+
+renderTools();
+setTheme(state.theme,false);
+setupLandingBackExit();
 </script>
 </body>
 </html>
