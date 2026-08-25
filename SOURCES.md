@@ -1,12 +1,10 @@
-# Bronnen van deze basis
+# Bronbestanden
 
-Deze repository is opgezet vanuit de laatste versies die in de ChatGPT-projectgeschiedenis zijn bevestigd, niet vanuit de oudere losse GitHub-repositories.
+- Landing: `aangepaste_tools_codes_v5(1).zip` → uitsluitend `index.html` gebruikt.
+- Kopermetingen: `kopermetingen_hvd_naam_actuele_route_exacte_stijl_fix(1).html`.
+- HIO scanner: `HioScanActivity.java`.
+- TV codes: `Geplakte code(5).html`.
+- Value Fiber Route: `Geplakte code(6).html`.
+- Checklist PoP: `index(5).html` + `template.xlsx`.
 
-- `tools/kopermetingen/index.html` <- `Pasted text(46).txt`
-- `tools/tv-codes/index.html` <- `Geplakte code(5).html`
-- `tools/value-fiber-route/index.html` <- `Geplakte code(6).html`
-- `tools/pop-checklist/index.html` <- `index(5).html`
-- `tools/pop-checklist/template.xlsx` <- `template.xlsx`
-- `android/app/src/main/java/nl/tools/app/HioScanActivity.java` <- `HioScanActivity.java`
-
-De webtools zijn bewust als losse HTML-bestanden behouden. De Android/APK-laag wordt later op dezelfde webbasis aangesloten.
+De gedeelde kleine Assistent wordt alleen als extra script aan de actuele toolpagina's toegevoegd.

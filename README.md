@@ -1,17 +1,21 @@
 # ToolsAPK
 
-Gezamenlijke bron voor de Tools-webversie (GitHub Pages) en later de Android APK.
+Tools project voor GitHub Pages en de Android APK.
 
-## Web
+## Webtools
+- Kopermetingen
+- TV codes
+- Value Fiber Route
+- Checklist PoP
+- Assistent
 
-De webversie start via `index.html` en gebruikt dezelfde losse HTML-tools als de APK.
+De landing is gebaseerd op de aangeleverde ZIP; de toolbestanden komen uit de actuele, afzonderlijk aangeleverde/testversies.
 
-## Structuur
+## Assistent
+Dezelfde HTML/JS-chat gebruikt een runtime-adapter:
+- **Browser/GitHub Pages:** llama.cpp via **wllama 3.5.1** (WASM, WebGPU waar beschikbaar). Modelcache blijft lokaal in de browser.
+- **Android APK:** native **llama.cpp** via Java/JNI. Het GGUF-model wordt eenmalig naar app-private opslag gedownload.
 
-- `tools/kopermetingen/`
-- `tools/tv-codes/`
-- `tools/value-fiber-route/`
-- `tools/pop-checklist/`
-- `android/` voor de latere native Android-laag
+Standaardmodel: `ggml-org/Qwen3-1.7B-GGUF`, `Qwen3-1.7B-Q4_K_M.gguf` (ongeveer 1,28 GB).
 
-De Assistent/chatbot wordt als volgende gezamenlijke functie toegevoegd en krijgt één webinterface met verschillende AI-backends voor browser en Android.
+GitHub Pages kan door browser-CORS externe KPN-pagina's niet betrouwbaar zelf uitlezen. Daarom opent de webversie gerichte actuele zoekopdrachten; Android kan later een native web-fetch/searchprovider krijgen zonder de chatruntime te wijzigen.
