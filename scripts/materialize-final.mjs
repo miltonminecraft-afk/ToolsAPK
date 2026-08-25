@@ -11,21 +11,23 @@ async function ensureParent(p){await mkdir(path.dirname(abs(p)),{recursive:true}
 async function writeChecked(target,data,expected){
   const got=sha256(data);
   if(got!==expected) throw new Error(`${target}: ${got} != ${expected}`);
-  await ensureParent(target); await writeFile(abs(target),data); console.log('OK',target);
+  await ensureParent(target);
+  await writeFile(abs(target),data);
+  console.log('OK',target);
 }
 async function unpackSingle(source,target,expected){
   const b64=(await readFile(abs(source),'utf8')).trim();
   await writeChecked(target,gunzipSync(Buffer.from(b64,'base64')),expected);
 }
-async function unpackParts(dir,target,expected){
-  const names=(await readdir(abs(dir))).filter(n=>n.endsWith('.b64')).sort();
-  if(!names.length) throw new Error(`Geen bronstukken in ${dir}`);
-  const binaryParts=[];
+async function unpackSplitGzip(dir,prefix,target,expected){
+  const names=(await readdir(abs(dir))).filter(n=>n.startsWith(prefix)&&n.endsWith('.gz.b64')).sort();
+  if(!names.length) throw new Error(`Geen bronstukken in ${dir} met prefix ${prefix}`);
+  const parts=[];
   for(const name of names){
     const b64=(await readFile(abs(path.join(dir,name)),'utf8')).trim();
-    binaryParts.push(Buffer.from(b64,'base64'));
+    parts.push(Buffer.from(b64,'base64'));
   }
-  await writeChecked(target,gunzipSync(Buffer.concat(binaryParts)),expected);
+  await writeChecked(target,gunzipSync(Buffer.concat(parts)),expected);
 }
 async function fetchChecked(url,target,expected){
   const response=await fetch(url);
@@ -43,11 +45,23 @@ async function injectMini(file){
 
 await rm(abs('www'),{recursive:true,force:true});
 await mkdir(abs('www/tools'),{recursive:true});
+await cp(abs('index.html'),abs('www/index.html'));
 
-const landing=await readFile(abs('index.html'));
-await writeFile(abs('www/index.html'),landing);
+// De actuele Kopermetingen-bron stond al in new-part-*. De oude part-* horen niet bij deze gzip-stroom.
+await unpackSplitGzip(
+  'src-packed2/kopermetingen',
+  'new-part-',
+  'tools/kopermetingen/index.html',
+  '603c1631a0229ebeb9294b77d911f22bfc19e70f2dae2d14c1da792ba34fda0a'
+);
+execFileSync('git',['apply','--whitespace=nowarn','patches/kopermetingen-latest.patch'],{cwd:root,stdio:'inherit'});
+const koper=await readFile(abs('tools/kopermetingen/index.html'));
+if(sha256(koper)!=='c0b827a3cf39287a072165606e7e7ad58b9b42ff9f0c49bc83ecb4a20ec16b64'){
+  throw new Error('Kopermetingen eindhash klopt niet');
+}
+await ensureParent('www/tools/kopermetingen/index.html');
+await cp(abs('tools/kopermetingen/index.html'),abs('www/tools/kopermetingen/index.html'));
 
-await unpackParts('src-final/kopermetingen','www/tools/kopermetingen/index.html','c0b827a3cf39287a072165606e7e7ad58b9b42ff9f0c49bc83ecb4a20ec16b64');
 await unpackSingle('src-final/tv-codes.gz.b64','www/tools/tv-codes/index.html','181e9367aa4e71775bf601f5de6b40fb10d1ede2fcde8a0104eecbcaf2f34612');
 await unpackSingle('src-packed-current/value-fiber-route.gz.b64','www/tools/value-fiber-route/index.html','bd3fd764eb532e883c8d26e54549260526f5aafbebb36c042fd40cda1839dcf5');
 await unpackSingle('src-packed-current/HioScanActivity.java.gz.b64','android/app/src/main/java/nl/tools/app/HioScanActivity.java','dadfcee144e081ce712772151503e3bf1b60e2516a46d1fed1be0196cce5d005');
@@ -65,7 +79,9 @@ for(const file of [
   'www/tools/value-fiber-route/index.html',
   'www/tools/pop-checklist/index.html'
 ]) await injectMini(file);
+await writeFile(abs('www/.nojekyll'),'');
 
+// Pin llama.cpp voor reproduceerbare Android/JNI-builds.
 await rm(abs('android/llama.cpp'),{recursive:true,force:true});
 try{execFileSync('git',['submodule','deinit','-f','android/llama.cpp'],{cwd:root,stdio:'ignore'});}catch{}
 try{execFileSync('git',['rm','-f','android/llama.cpp'],{cwd:root,stdio:'ignore'});}catch{}
@@ -76,7 +92,7 @@ execFileSync('git',['-C','android/llama.cpp','checkout','1729ed5371cd1ac6f6d6f32
 const pages=`name: Deploy GitHub Pages\non:\n  push:\n    branches: [main]\n  workflow_dispatch:\npermissions:\n  contents: read\n  pages: write\n  id-token: write\nconcurrency:\n  group: pages\n  cancel-in-progress: true\njobs:\n  deploy:\n    environment:\n      name: github-pages\n      url: \${{ steps.deployment.outputs.page_url }}\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          submodules: false\n      - uses: actions/configure-pages@v5\n      - uses: actions/upload-pages-artifact@v3\n        with:\n          path: ./www\n      - name: Deploy\n        id: deployment\n        uses: actions/deploy-pages@v4\n`;
 await writeFile(abs('.github/workflows/pages.yml'),pages);
 await writeFile(abs('README.md'),`# ToolsAPK\n\nDe map \`www/\` is de gedeelde webinterface voor GitHub Pages en Android WebView/Capacitor.\n\nDe Assistent kiest automatisch tussen browserlokale llama.cpp/WASM (wllama) en de Android native llama.cpp/JNI-bridge. Het GGUF-model wordt eenmalig lokaal opgeslagen en staat niet in deze repository.\n`);
-await writeFile(abs('SOURCES.md'),`# Actuele bronnen\n\n- Kopermetingen: actuele GPT-upload met HVD-naam/actuele-route stijlfix.\n- Afstandsbediening codes: actuele complete GPT-versie.\n- Value Fiber Route: actuele GPT-versie.\n- Checklist PoP: actuele V7-versie + template.xlsx.\n- HioScanActivity.java: actuele door gebruiker aangeleverde versie.\n`);
+await writeFile(abs('SOURCES.md'),`# Actuele bronnen\n\n- Kopermetingen: actuele GPT-versie inclusief HVD-naam/actuele-route stijlfix.\n- Afstandsbediening codes: actuele complete GPT-versie.\n- Value Fiber Route: actuele GPT-versie.\n- Checklist PoP: actuele V7-versie + template.xlsx.\n- HioScanActivity.java: actuele door gebruiker aangeleverde versie.\n`);
 
 for(const p of [
   '.bootstrap','patches','src','src-final','src-packed','src-packed2','src-packed-current',
