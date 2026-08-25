@@ -24,16 +24,24 @@ jobs:
           gzip -dc /tmp/kopermetingen.gz > tools/kopermetingen/index.html
           echo 'c0b827a3cf39287a072165606e7e7ad58b9b42ff9f0c49bc83ecb4a20ec16b64  tools/kopermetingen/index.html' | sha256sum -c -
 
-          base64 -d .source/tv-codes.gz.b64 | gzip -dc > tools/tv-codes/index.html
-          echo '181e9367aa4e71775bf601f5de6b40fb10d1ede2fcde8a0104eecbcaf2f34612  tools/tv-codes/index.html' | sha256sum -c -
+          node <<'NODE'
+          const fs=require('fs');
+          const z=require('zlib');
+          function decode(src,out){
+            const text=fs.readFileSync(src,'utf8').replace(/\s+/g,'');
+            const packed=Buffer.from(text,'base64');
+            fs.writeFileSync(out,z.gunzipSync(packed));
+          }
+          decode('.source/tv-codes.gz.b64','tools/tv-codes/index.html');
+          decode('.source/value-fiber-route.gz.b64','tools/value-fiber-route/index.html');
+          decode('.source/HioScanActivity.java.gz.b64','android/app/src/main/java/nl/tools/app/HioScanActivity.java');
+          NODE
 
-          base64 -d .source/value-fiber-route.gz.b64 | gzip -dc > tools/value-fiber-route/index.html
+          echo '181e9367aa4e71775bf601f5de6b40fb10d1ede2fcde8a0104eecbcaf2f34612  tools/tv-codes/index.html' | sha256sum -c -
           echo 'bd3fd764eb532e883c8d26e54549260526f5aafbebb36c042fd40cda1839dcf5  tools/value-fiber-route/index.html' | sha256sum -c -
           grep -Fq 'firstTestableIndex' tools/value-fiber-route/index.html
           grep -Fq 'firstStartCheckIndex' tools/value-fiber-route/index.html
           grep -Fq 'Testen' tools/value-fiber-route/index.html
-
-          base64 -d .source/HioScanActivity.java.gz.b64 | gzip -dc > android/app/src/main/java/nl/tools/app/HioScanActivity.java
           echo 'dadfcee144e081ce712772151503e3bf1b60e2516a46d1fed1be0196cce5d005  android/app/src/main/java/nl/tools/app/HioScanActivity.java' | sha256sum -c -
           grep -Fq 'int threshold = hasVPair(item) ? 2 : 3;' android/app/src/main/java/nl/tools/app/HioScanActivity.java
           grep -Fq 'return hits >= threshold;' android/app/src/main/java/nl/tools/app/HioScanActivity.java
