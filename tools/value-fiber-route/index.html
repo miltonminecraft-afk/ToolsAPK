@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Value Fiber Route</title>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #f4f6fa;
+  --panel: #ffffff;
+  --panel2: #eef4f0;
+  --text: #10141d;
+  --muted: #667085;
+  --border: #d6dbe6;
+  --accent: #00C300;
+  --danger: #c91d1d;
+  --success: #148a42;
+  --input: #ffffff;
+  --shadow: 0 12px 30px rgba(16, 24, 40, 0.14);
+  --accentSoft: rgba(20, 138, 66, 0.14);
+}
+
+body.dark {
+  --bg: #07090d;
+  --panel: #11151d;
+  --panel2: #0c0f15;
+  --text: #f4f6fb;
+  --muted: #a8afbd;
+  --border: #2a303c;
+  --accent: #e02020;
+  --danger: #e02020;
+  --success: #159947;
+  --input: #090c12;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.42);
+  --accentSoft: rgba(224, 32, 32, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  max-width: 520px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: var(--bg);
+  padding-bottom: 82px;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 20px 18px 18px;
+  box-shadow: var(--shadow);
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+}
+
+.header-row {
+  display: grid;
+  grid-template-columns: 46px 1fr 46px;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-button {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-subtitle {
+  margin-top: 5px;
+  font-size: 14px;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.icon-bar {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.settings {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 54px;
+  width: 310px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  z-index: 50;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+}
+
+.settings.open {
+  display: block;
+}
+
+.settings h3 {
+  margin: 0 0 10px 0;
+}
+
+.settings-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.setting-row:hover {
+  background: var(--panel2);
+}
+
+.content {
+  padding: 16px;
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.card-soft {
+  background: var(--panel2);
+  box-shadow: none;
+}
+
+h2 {
+  margin: 0 0 14px 0;
+  color: var(--accent);
+  font-size: 20px;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.title-small {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.small,
+.note {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  color: var(--accent);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.between {
+  justify-content: space-between;
+}
+
+.stack {
+  display: grid;
+  gap: 12px;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 13px 14px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.button,
+.primary {
+  width: 100%;
+  min-height: 48px;
+  background: var(--accent);
+  color: #ffffff;
+  border-radius: 14px;
+}
+
+.secondary {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--accentSoft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.distance-box {
+  min-width: 88px;
+  border-radius: 14px;
+  background: var(--accentSoft);
+  color: var(--accent);
+  padding: 7px 9px;
+  text-align: right;
+  font-weight: 900;
+}
+
+.distance-label {
+  font-size: 10px;
+  line-height: 1.1;
+  opacity: 0.85;
+}
+
+.distance-main {
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.distance-sub {
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.15;
+  color: var(--muted);
+}
+
+.file-input {
+  display: none;
+}
+
+.nav {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 15;
+  width: min(520px, 100%);
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 8px;
+}
+
+.nav button {
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  padding: 10px 2px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.nav button.active {
+  background: var(--accentSoft);
+  color: var(--accent);
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 12px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--accentSoft);
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 10px;
+}
+
+.step-dot {
+  z-index: 1;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  border: 2px solid var(--accent);
+  background: var(--panel);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.step-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  box-shadow: var(--shadow);
+  padding: 13px;
+}
+
+.step-title {
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.position {
+  margin-top: 7px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.details {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.room {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-top: 12px;
+}
+
+.room-head {
+  background: var(--panel2);
+  padding: 12px;
+}
+
+.room-body {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.cabinet,
+.event,
+.raw-row,
+.info-box,
+.outside-row {
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--panel);
+  padding: 12px;
+}
+
+.info-box {
+  background: var(--panel2);
+}
+
+.clickable-map {
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.clickable-map:active {
+  transform: scale(0.985);
+}
+
+.clickable-map:hover {
+  border-color: var(--accent);
+}
+
+.map-hint {
+  margin-top: 6px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--input);
+  color: var(--text);
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.empty {
+  border: 1px dashed var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.error {
+  margin-top: 8px;
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+details {
+  margin-top: 12px;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.outside-details {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.outside-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+@media (max-width: 380px) {
+  .content {
+    padding: 12px;
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
+
+  .distance-box {
+    min-width: 76px;
+    padding: 6px 7px;
+  }
+
+  .distance-main {
+    font-size: 12px;
+  }
+
+  .distance-sub {
+    font-size: 10px;
+  }
+}
+
+.header-row{grid-template-columns:1fr 46px}
+.header-button{display:grid;place-items:center;text-align:center;line-height:1;padding:0}
+#settingsButton{font-size:0}
+#settingsButton::before{content:"⚙";font-size:28px;line-height:1;display:block;transform:translateY(-1px)}
+
+
+/* Tools APK shared header/button fix */
+#settingsButton{display:grid!important;place-items:center!important;padding:0!important;line-height:0!important;text-align:center!important;font-size:0!important;overflow:hidden!important}
+#settingsButton::before{content:none!important;display:none!important}
+#settingsButton .settings-gear{width:30px!important;height:30px!important;display:block!important;color:currentColor!important;flex:0 0 auto!important;margin:0!important;transform:none!important}
+.header-button,.icon-button,.settings-btn{display:grid;place-items:center;padding:0;line-height:0;text-align:center}
+.header-button .settings-gear,.icon-button .settings-gear,.settings-btn .settings-gear{width:30px;height:30px;display:block;color:currentColor}
+
+.header-row{display:grid!important;grid-template-columns:minmax(0,1fr) 46px!important;align-items:center!important;gap:12px!important}
+.header-button{width:46px!important;height:46px!important;padding:0!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:15px!important;background:rgba(255,255,255,.18)!important;color:#fff!important;display:grid!important;place-items:center!important;line-height:0!important;text-align:center!important}
+.header .settings{color:var(--text)!important;right:0!important;top:54px!important}
+
+</style>
+</head>
+<body class="dark">
+<div class="app">
+  <header class="header">
+    <div class="header-row">
+      <div>
+        <div class="header-title">Value Fiber Route</div>
+        <div class="header-subtitle" id="headerSubtitle">Excel-koppelbon importeren</div>
+      </div>
+      <div class="icon-bar">
+        <button class="header-button" id="settingsButton" type="button"><svg class="settings-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/><circle cx="12" cy="12" r="3.2" fill="var(--panel)"/></svg></button>
+        <div class="settings" id="settingsPanel">
+          <h3>Instellingen</h3>
+          <div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div>
+          <div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div>
+          <div class="settings-section">Import</div>
+          <div class="setting-row" id="clearDataButton"><span>Gegevens legen</span><span>×</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="view active" id="viewImport">
+      <div class="card">
+        <h2>Excel invoer</h2>
+        <input class="file-input" id="fileInput" type="file" accept=".xlsx,.xls,.xlsm">
+        <button class="primary" id="fileButton" type="button">Excel-koppelbon kiezen</button>
+      </div>
+
+      <div class="card card-soft">
+        <h2>Importstatus</h2>
+        <div class="note" id="importStatus">Nog geen bestand geladen.</div>
+        <div class="error" id="importError"></div>
+      </div>
+    </section>
+
+    <section class="view" id="viewRoute">
+      <div id="routeOutput"></div>
+    </section>
+
+    <section class="view" id="viewLocations">
+      <div id="locationsOutput"></div>
+    </section>
+
+    <section class="view" id="viewTest">
+      <div id="testOutput"></div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="active" type="button" data-view="Import">Import</button>
+    <button type="button" data-view="Route">Route</button>
+    <button type="button" data-view="Locations">Locaties</button>
+    <button type="button" data-view="Test">OTDR</button>
+  </nav>
+</div>
+
+<script>
+let appData = {
+  fileName: "",
+  meta: {},
+  items: [],
+  cabinets: [],
+  locations: [],
+  testPoints: []
+};
+
+const fileInput = document.getElementById("fileInput");
+const fileButton = document.getElementById("fileButton");
+const settingsButton = document.getElementById("settingsButton");
+const settingsPanel = document.getElementById("settingsPanel");
+const darkModeButton = document.getElementById("darkModeButton");
+const lightModeButton = document.getElementById("lightModeButton");
+const darkCheck = document.getElementById("darkCheck");
+const lightCheck = document.getElementById("lightCheck");
+const clearDataButton = document.getElementById("clearDataButton");
+const importStatus = document.getElementById("importStatus");
+const importError = document.getElementById("importError");
+const headerSubtitle = document.getElementById("headerSubtitle");
+const routeOutput = document.getElementById("routeOutput");
+const locationsOutput = document.getElementById("locationsOutput");
+const testOutput = document.getElementById("testOutput");
+
+fileButton.addEventListener("click", () => fileInput.click());
+
+settingsButton.addEventListener("click", event => {
+  event.stopPropagation();
+  settingsPanel.classList.toggle("open");
+});
+
+document.addEventListener("click", event => {
+  if (!settingsPanel.contains(event.target) && !settingsButton.contains(event.target)) settingsPanel.classList.remove("open");
+});
+
+darkModeButton.addEventListener("click", () => setTheme("dark", true));
+lightModeButton.addEventListener("click", () => setTheme("light", true));
+clearDataButton.addEventListener("click", clearData);
+window.addEventListener("storage", event => { if (event.key === "toolsTheme" && (event.newValue === "dark" || event.newValue === "light")) setTheme(event.newValue, false); });
+
+fileInput.addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  readExcel(file);
+});
+
+document.querySelectorAll(".nav button").forEach(button => {
+  button.addEventListener("click", () => openView(button.dataset.view));
+});
+
+function playFallbackThemeBeep(theme){
+  try{
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass)return;
+    const count=theme==="light"?2:1;
+    const frequency=theme==="light"?720:320;
+    const duration=0.14;
+    const gap=190;
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        try{
+          const ctx=new AudioContextClass();
+          if(ctx.state==="suspended"&&ctx.resume)ctx.resume();
+          const osc=ctx.createOscillator();
+          const gain=ctx.createGain();
+          osc.type="sine";
+          osc.frequency.value=frequency;
+          gain.gain.setValueAtTime(0.0001,ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.14,ctx.currentTime+0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime+duration+0.02);
+          setTimeout(()=>{try{ctx.close();}catch(e){}},260);
+        }catch(e){}
+      },i*gap);
+    }
+  }catch(e){}
+}
+function playThemeSound(theme){
+  const src=theme==="dark"?"../../audio/dark-side.mp3":"../../audio/light-side.mp3";
+  try{
+    let fallbackDone=false;
+    const fallback=()=>{if(fallbackDone)return;fallbackDone=true;playFallbackThemeBeep(theme);};
+    const audio=new Audio(src);
+    audio.preload="auto";
+    audio.volume=0.75;
+    const timer=setTimeout(fallback,450);
+    const clear=()=>{clearTimeout(timer);fallbackDone=true;};
+    audio.addEventListener("playing",clear,{once:true});
+    audio.addEventListener("canplaythrough",clear,{once:true});
+    audio.addEventListener("error",()=>{clearTimeout(timer);fallback();},{once:true});
+    const played=audio.play();
+    if(played&&typeof played.catch==="function")played.catch(()=>{clearTimeout(timer);fallback();});
+  }catch(e){
+    playFallbackThemeBeep(theme);
+  }
+}
+
+const toolsHomePath="../../index.html";
+let toolsBackNavigatingHome=false;
+function goToolsHome(){
+  if(toolsBackNavigatingHome)return;
+  toolsBackNavigatingHome=true;
+  window.location.replace(new URL(toolsHomePath,window.location.href).href);
+}
+function setupToolBackNavigation(){
+  try{
+    const app=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
+    if(app&&app.addListener){
+      app.addListener("backButton",()=>{goToolsHome();});
+    }
+  }catch(e){}
+  try{
+    document.addEventListener("backbutton",event=>{
+      if(event&&event.preventDefault)event.preventDefault();
+      if(event&&event.stopPropagation)event.stopPropagation();
+      goToolsHome();
+      return false;
+    },false);
+  }catch(e){}
+  try{
+    history.replaceState({toolsToolBase:true},"",location.href);
+    history.pushState({toolsBackGuard:true},"",location.href);
+    window.addEventListener("popstate",()=>goToolsHome());
+  }catch(e){}
+}
+
+function setTheme(theme, playSound = false) {
+  document.body.classList.toggle("dark", theme === "dark");
+  darkCheck.textContent = theme === "dark" ? "✓" : "";
+  lightCheck.textContent = theme === "light" ? "✓" : "";
+  localStorage.setItem("toolsTheme", theme);
+  if (playSound) playThemeSound(theme);
+}
+
+function loadTheme() {
+  setTheme(localStorage.getItem("toolsTheme") || "dark", false);
+}
+
+function openView(name) {
+  document.querySelectorAll(".nav button").forEach(button => {
+    button.classList.toggle("active", button.dataset.view === name);
+  });
+
+  document.querySelectorAll(".view").forEach(view => view.classList.remove("active"));
+  document.getElementById("view" + name).classList.add("active");
+
+  if (name === "Test") renderTest();
+}
+
+function clearData() {
+  if (!confirm("Weet je zeker dat je de ingelezen route wilt legen?")) return;
+
+  appData = {
+    fileName: "",
+    meta: {},
+    items: [],
+    cabinets: [],
+    locations: [],
+    testPoints: []
+  };
+
+  headerSubtitle.textContent = "Excel-koppelbon importeren";
+  importStatus.textContent = "Nog geen bestand geladen.";
+  importError.textContent = "";
+  settingsPanel.classList.remove("open");
+
+  renderRoute();
+  renderLocations();
+  renderTest();
+  openView("Import");
+}
+
+function readExcel(file) {
+  importError.textContent = "";
+  importStatus.textContent = "Bestand wordt gelezen...";
+
+  if (!window.XLSX) {
+    importError.textContent = "Excel-bibliotheek is niet geladen. Internet is nodig voor deze testversie.";
+    importStatus.textContent = "Niet gelukt.";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = event => {
+    try {
+      const workbook = XLSX.read(new Uint8Array(event.target.result), { type: "array" });
+      const parsed = parseWorkbook(workbook, file.name);
+      applyData(parsed);
+    } catch (error) {
+      importError.textContent = error.message;
+      importStatus.textContent = "Niet gelukt.";
+    }
+  };
+
+  reader.onerror = () => {
+    importError.textContent = "Het bestand kon niet worden gelezen.";
+    importStatus.textContent = "Niet gelukt.";
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook(workbook, fileName) {
+  const sheets = workbook.SheetNames.map(sheetName => {
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" });
+    return { sheetName, rows };
+  });
+
+  const meta = extractMeta(sheets, fileName);
+  const items = extractItems(sheets);
+
+  if (!items.length) {
+    throw new Error("Geen routetabel gevonden. Ik zoek naar een rij met FEATURE_TYPE en NAME.");
+  }
+
+  const totalLength = Math.max(...items.map(item => numberValue(item.distance)).filter(value => value > 0), 0);
+  meta.totalLength = meta.totalLength || totalLength;
+  meta.routeName = meta.routeName || deriveRouteName(items) || fileName.replace(/\.[^.]+$/, "");
+
+  return { fileName, meta, items };
+}
+
+function extractMeta(sheets, fileName) {
+  const rows = sheets.flatMap(sheet => sheet.rows);
+  const text = rows.flat().map(clean).filter(Boolean).join(" ");
+  const meta = {};
+  const wosNumbers = uniqueMatches(text, /WOS\d{5,}/gi);
+  const ipNumbers = uniqueMatches(text, /IP\d{5,}/gi);
+
+  meta.baannr = findLabelValue(rows, ["Baannr", "Baan nr", "IP nummer", "IP-nummer"]) || ipNumbers[0] || firstMatch(fileName, /IP\d{5,}/i);
+  meta.klantopdracht = findLabelValue(rows, ["Klantopdrachtnr", "Klantopdracht", "P-loc", "P loc"]) || wosNumbers[0] || firstMatch(fileName, /WOS\d{5,}/i);
+  meta.klantnodeLabel = findLabelValue(rows, ["Klantnode labelen met", "Klantnode label", "Labelen met"]) || wosNumbers[1] || "";
+  meta.dftsId = firstMatch(text, /DFTS\d+/i) || firstMatch(fileName, /DFTS\d+/i);
+  meta.ftid = firstMatch(text, /FT\d{4,}/i);
+  meta.routeName = findLabelValue(rows, ["DFS Naam", "DFS Name", "BCS/DFS Name", "BCS DFS Name"]);
+
+  return meta;
+}
+
+function extractItems(sheets) {
+  const items = [];
+
+  sheets.forEach(sheet => {
+    const tables = findTables(sheet.rows);
+
+    tables.forEach(table => {
+      let emptyRows = 0;
+      let runningDistance = 0;
+
+      for (let rowIndex = table.start + 1; rowIndex < sheet.rows.length; rowIndex++) {
+        const row = sheet.rows[rowIndex];
+        const headers = row.map(headerKey);
+
+        if (headers.includes("FEATURE_TYPE") && headers.includes("NAME")) break;
+
+        const type = clean(cell(row, table.typeIndex));
+        const names = table.nameIndexes.map(index => clean(cell(row, index))).filter(Boolean);
+        const gps = clean(cell(row, table.gpsIndex));
+        const length = numberValue(cell(row, table.lengthIndex));
+        const totalLength = numberValue(cell(row, table.totalIndex));
+        const status = clean(cell(row, table.statusIndex));
+        const outside = outsideValue(cell(row, table.outsideIndex));
+
+        if (!type && !names.length && !gps && !length && !totalLength) {
+          emptyRows += 1;
+          if (emptyRows >= 8) break;
+          continue;
+        }
+
+        emptyRows = 0;
+
+        if (!type && !names.length) continue;
+
+        if (totalLength > 0) runningDistance = totalLength;
+        else if (length > 0) runningDistance += length;
+
+        items.push(normalizeItem({
+          sheet: sheet.sheetName,
+          row: rowIndex + 1,
+          type,
+          name: names.join(" / "),
+          names,
+          gps,
+          length,
+          distance: totalLength || runningDistance,
+          status,
+          outside
+        }));
+      }
+    });
+  });
+
+  return compactItems(items);
+}
+
+function findTables(rows) {
+  const tables = [];
+
+  rows.forEach((row, index) => {
+    const headers = row.map(headerKey);
+    const typeIndex = headers.findIndex(header => header === "FEATURE_TYPE" || header.includes("FEATURE_TYPE"));
+    const nameIndexes = headers
+      .map((header, column) => header === "NAME" || header.endsWith("_NAME") ? column : -1)
+      .filter(column => column >= 0);
+
+    if (typeIndex >= 0 && nameIndexes.length) {
+      tables.push({
+        start: index,
+        typeIndex,
+        nameIndexes,
+        gpsIndex: findHeader(headers, header => header.includes("GPS")),
+        lengthIndex: findHeader(headers, header => header.includes("LENGTH") && !header.includes("TOT") && !header.includes("TOTAL")),
+        totalIndex: findHeader(headers, header => header.includes("TOT_LENGTH") || header.includes("TOTAL_LENGTH")),
+        statusIndex: findHeader(headers, header => header.includes("STATUS")),
+        outsideIndex: findHeader(headers, header => header.includes("OUTSIDE"))
+      });
+    }
+  });
+
+  return tables;
+}
+
+function normalizeItem(item) {
+  const type = clean(item.type).toUpperCase();
+  const map = {
+    BUILDING: "Building",
+    ADDRESS: "Address",
+    RACK: "Rack",
+    SHELF: "Shelf",
+    CARD: "Card",
+    PORT: "Port",
+    CABLE: "Cable",
+    CONNECTION: "Connection",
+    FSE: "FSE",
+    NU: "NU",
+    "NIP VAR-LOCATION": "NIP VAR-Location",
+    "NIP RELATED PORT": "NIP Related Port",
+    "NIP NODE NAME": "NIP Node Name"
+  };
+
+  item.type = map[type] || clean(item.type);
+  return item;
+}
+
+function compactItems(items) {
+  const result = [];
+
+  items.forEach(item => {
+    const last = result[result.length - 1];
+    const same = last && last.type === item.type && last.name === item.name && last.distance === item.distance;
+    if (!same) result.push(item);
+  });
+
+  return result;
+}
+
+function applyData(parsed) {
+  appData.fileName = parsed.fileName;
+  appData.meta = parsed.meta;
+  appData.items = parsed.items;
+  appData.cabinets = buildCabinets(parsed.items);
+  appData.locations = buildLocations(parsed.items, appData.cabinets);
+  appData.testPoints = buildTestPoints(parsed.items, appData.cabinets);
+
+  headerSubtitle.textContent = appData.meta.routeName;
+  importStatus.textContent = `${appData.items.length} route-regels gevonden. ${appData.cabinets.length} kastposities herkend.`;
+
+  renderRoute();
+  renderLocations();
+  renderTest();
+  openView("Route");
+}
+
+function buildCabinets(items) {
+  return items
+    .map((item, index) => {
+      if (item.type !== "Rack") return null;
+
+      const rack = parseRack(item.name);
+      const equipment = findEquipmentAround(items, index);
+
+      return {
+        rack: item.name,
+        location: rack.location,
+        room: rack.room,
+        shelf: equipment.shelf,
+        card: equipment.card,
+        port: equipment.port,
+        distance: numberValue(item.distance)
+      };
+    })
+    .filter(Boolean);
+}
+
+function findEquipmentAround(items, index) {
+  const forward = scanEquipment(items, index + 1, 1);
+  const backward = scanEquipment(items, index - 1, -1);
+
+  return {
+    shelf: forward.shelf || backward.shelf,
+    card: forward.card || backward.card,
+    port: forward.port || backward.port
+  };
+}
+
+function scanEquipment(items, start, direction) {
+  const found = { shelf: "", card: "", port: "" };
+  const stopTypes = ["Rack", "Building", "Cable", "Connection", "FSE", "NU"];
+
+  for (let index = start; index >= 0 && index < items.length; index += direction) {
+    const item = items[index];
+
+    if (stopTypes.includes(item.type)) break;
+    if (item.type === "Shelf" && !found.shelf) found.shelf = item.name;
+    if (item.type === "Card" && !found.card) found.card = item.name;
+    if (item.type === "Port" && !found.port) found.port = item.name;
+    if (found.shelf && found.card && found.port) break;
+  }
+
+  return found;
+}
+
+function buildLocations(items, cabinets) {
+  const map = new Map();
+
+  items.forEach((item, index) => {
+    if (item.type !== "Building") return;
+
+    const key = item.name || "Onbekende locatie";
+
+    if (!map.has(key)) {
+      map.set(key, {
+        name: key,
+        address: findAddress(items, index),
+        distance: item.distance || 0,
+        gps: item.gps || "",
+        rooms: new Map()
+      });
+    }
+  });
+
+  cabinets.forEach(cabinet => {
+    const locationName = cabinet.location || findBuildingAtDistance(items, cabinet.distance) || "Onbekende locatie";
+    const roomName = cabinet.room || "Ruimte onbekend";
+
+    if (!map.has(locationName)) {
+      map.set(locationName, {
+        name: locationName,
+        address: "",
+        distance: cabinet.distance || 0,
+        gps: "",
+        rooms: new Map()
+      });
+    }
+
+    const location = map.get(locationName);
+    if (!location.rooms.has(roomName)) location.rooms.set(roomName, []);
+    location.rooms.get(roomName).push(cabinet);
+  });
+
+  return Array.from(map.values()).map(location => ({
+    name: location.name,
+    address: location.address,
+    distance: location.distance,
+    gps: location.gps,
+    rooms: Array.from(location.rooms.entries()).map(([name, cabinets]) => ({ name, cabinets }))
+  }));
+}
+
+function buildTestPoints(items, cabinets) {
+  const points = [];
+
+  cabinets.forEach(cabinet => {
+    points.push({
+      label: `${cabinet.location || "Locatie"} / ${cabinet.room || "Ruimte"} / ${cabinet.rack} / ${cabinet.port || "poort onbekend"}`,
+      distance: cabinet.distance,
+      gps: ""
+    });
+  });
+
+  items.forEach(item => {
+    if (["Building", "FSE", "Connection", "Cable", "NU", "Port"].includes(item.type)) {
+      points.push({
+        label: `${item.type}: ${item.name}`,
+        distance: item.distance || 0,
+        gps: item.gps || ""
+      });
+    }
+  });
+
+  const unique = new Map();
+
+  points
+    .filter(point => point.label && Number.isFinite(point.distance))
+    .sort((a, b) => a.distance - b.distance)
+    .forEach(point => unique.set(`${point.label}-${point.distance}`, point));
+
+  return Array.from(unique.values());
+}
+
+function renderRoute() {
+  if (!appData.items.length) {
+    routeOutput.innerHTML = emptyHtml("Nog geen route geladen.");
+    return;
+  }
+
+  const meta = appData.meta;
+  const overview = buildOverview();
+
+  routeOutput.innerHTML = `
+    <div class="card">
+      <div class="row between">
+        <div>
+          <div class="label">Route</div>
+          <div class="title">${safe(meta.routeName || "-")}</div>
+        </div>
+        <div class="chip">${meters(meta.totalLength)}</div>
+      </div>
+
+      <div style="height:14px"></div>
+
+      <div class="stack">
+        <div class="info-box">
+          <div class="label">Baannr</div>
+          <div class="title">${safe(meta.baannr || "-")}</div>
+        </div>
+        <div class="info-box">
+          <div class="label">Klantopdrachtnr</div>
+          <div class="title">${safe(meta.klantopdracht || "-")}</div>
+        </div>
+        <div class="info-box">
+          <div class="label">Klantnode label</div>
+          <div class="title">${safe(meta.klantnodeLabel || "-")}</div>
+        </div>
+      </div>
+
+      <details>
+        <summary>Overige nummers</summary>
+        <div class="stack" style="margin-top:12px">
+          <div class="info-box">
+            <div class="label">DFTS</div>
+            <div class="title-small">${safe(meta.dftsId || "-")}</div>
+          </div>
+          <div class="info-box">
+            <div class="label">FTID</div>
+            <div class="title-small">${safe(meta.ftid || "-")}</div>
+          </div>
+          <div class="info-box">
+            <div class="label">Bestand</div>
+            <div class="title-small">${safe(appData.fileName || "-")}</div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="timeline">
+      ${overview.map(renderStep).join("")}
+    </div>
+  `;
+}
+
+function buildOverview() {
+  const overview = [];
+  const buildings = appData.items.filter(item => item.type === "Building");
+  const firstBuilding = buildings[0];
+  const lastBuilding = buildings.length > 1 ? buildings[buildings.length - 1] : null;
+  const outsideItems = appData.items.filter(item => item.outside || item.type === "FSE");
+  const fseCount = appData.items.filter(item => item.type === "FSE").length;
+
+  if (firstBuilding) {
+    overview.push({
+      mark: "ST",
+      title: `Startlocatie ${firstBuilding.name}`,
+      details: findAddress(appData.items, appData.items.indexOf(firstBuilding)),
+      distance: firstBuilding.distance,
+      gps: firstBuilding.gps || ""
+    });
+  }
+
+  appData.cabinets.forEach(cabinet => {
+    overview.push({
+      mark: "K",
+      title: `Kast ${cabinet.rack}`,
+      position: "Pak positie",
+      details: [cabinet.shelf, cabinet.card, cabinet.port].filter(Boolean).join(" • "),
+      distance: cabinet.distance,
+      gps: ""
+    });
+  });
+
+  if (outsideItems.length) {
+    const distances = outsideItems.map(item => item.distance).filter(value => value > 0);
+    const start = distances.length ? Math.min(...distances) : 0;
+    const end = distances.length ? Math.max(...distances) : 0;
+
+    overview.push({
+      mark: "BR",
+      type: "outside",
+      title: "Buitenroute",
+      details: `${fseCount} FSE-punten`,
+      distance: start,
+      distanceEnd: end,
+      distanceText: distances.length ? `${start}–${end} m` : "0 m",
+      segmentDistance: Math.max(end - start, 0),
+      outsideItems: buildOutsideItems(),
+      gps: ""
+    });
+  }
+
+  if (lastBuilding) {
+    overview.push({
+      mark: "E",
+      title: `Eindlocatie ${lastBuilding.name}`,
+      details: findAddress(appData.items, appData.items.indexOf(lastBuilding)),
+      distance: lastBuilding.distance || appData.meta.totalLength,
+      gps: lastBuilding.gps || ""
+    });
+  }
+
+  return addSegmentDistances(overview);
+}
+
+function addSegmentDistances(items) {
+  let previousDistance = 0;
+
+  return items.map(item => {
+    const endDistance = Number.isFinite(item.distanceEnd) ? item.distanceEnd : numberValue(item.distance);
+    const segmentDistance = Number.isFinite(item.segmentDistance) ? item.segmentDistance : Math.max(endDistance - previousDistance, 0);
+    const nextItem = Object.assign({}, item, { segmentDistance });
+
+    previousDistance = endDistance;
+    return nextItem;
+  });
+}
+
+function buildOutsideItems() {
+  return appData.items.filter(item => {
+    if (item.outside) return true;
+    if (item.type === "FSE") return true;
+    if (item.type === "Connection" && item.name.toLowerCase().includes("splice")) return true;
+    return false;
+  });
+}
+
+function distanceBox(item) {
+  return `
+    <div class="distance-box">
+      <div class="distance-label">Vanaf begin</div>
+      <div class="distance-main">${safe(item.distanceText || meters(item.distance))}</div>
+      <div class="distance-sub">Vorig object: ${meters(item.segmentDistance)}</div>
+    </div>
+  `;
+}
+
+function renderStep(item, index) {
+  const gps = parseGps(item.gps);
+  const mapClass = gps ? " clickable-map" : "";
+  const mapAction = gps ? ` onclick="openMap('${gps.lat}','${gps.lon}')"` : "";
+  const mapHint = gps ? `<div class="map-hint">Tik om Maps te openen</div>` : "";
+
+  const outsideBlock = item.type === "outside" ? `
+    <details class="outside-details">
+      <summary>Buitenroute uitklappen</summary>
+      <div class="outside-list">
+        ${item.outsideItems.length ? item.outsideItems.map(routeItem => renderOutsideItem(routeItem)).join("") : emptyHtml("Geen buitenroute-details gevonden.")}
+      </div>
+    </details>
+  ` : "";
+
+  return `
+    <div class="step">
+      <div class="step-dot">${safe(item.mark)}</div>
+      <div class="step-card${mapClass}"${mapAction}>
+        <div class="row between">
+          <div>
+            <div class="step-title">${index + 1}. ${safe(item.title)}</div>
+            ${item.position ? `<div class="position">${safe(item.position)}</div>` : ""}
+            ${item.details ? `<div class="details">${safe(item.details)}</div>` : ""}
+            ${mapHint}
+          </div>
+          ${distanceBox(item)}
+        </div>
+        ${outsideBlock}
+      </div>
+    </div>
+  `;
+}
+
+function renderOutsideItem(routeItem) {
+  const gps = parseGps(routeItem.gps);
+  const mapClass = gps ? " clickable-map" : "";
+  const mapAction = gps ? ` onclick="openMap('${gps.lat}','${gps.lon}')"` : "";
+  const mapHint = gps ? `<div class="map-hint">Tik om Maps te openen</div>` : "";
+
+  return `
+    <div class="outside-row${mapClass}"${mapAction}>
+      <div class="row between">
+        <div>
+          <div class="title-small">${safe(routeItem.type)}: ${safe(routeItem.name || "-")}</div>
+          <div class="small">
+            ${routeItem.length ? `Segment: ${meters(routeItem.length)}` : ""}
+            ${routeItem.gps ? `${routeItem.length ? " • " : ""}GPS: ${safe(routeItem.gps)}` : ""}
+          </div>
+          ${mapHint}
+        </div>
+        <div class="chip">${meters(routeItem.distance)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLocations() {
+  if (!appData.locations.length) {
+    locationsOutput.innerHTML = emptyHtml("Nog geen locaties geladen.");
+    return;
+  }
+
+  locationsOutput.innerHTML = appData.locations.map(location => {
+    const gps = parseGps(location.gps);
+    const mapClass = gps ? " clickable-map" : "";
+    const mapAction = gps ? ` onclick="openMap('${gps.lat}','${gps.lon}')"` : "";
+    const mapHint = gps ? `<div class="map-hint">Tik om Maps te openen</div>` : "";
+
+    return `
+      <div class="card${mapClass}"${mapAction}>
+        <div class="row between">
+          <div>
+            <div class="title">Locatie ${safe(location.name)}</div>
+            <div class="small">${safe(location.address || "Adres niet gevonden")}</div>
+            ${location.gps ? `<div class="small">GPS: ${safe(location.gps)}</div>` : ""}
+            ${mapHint}
+          </div>
+          <div class="chip">${meters(location.distance)}</div>
+        </div>
+
+        ${location.rooms.length ? location.rooms.map(room => `
+          <div class="room">
+            <div class="room-head">
+              <div class="row between">
+                <div class="title-small">Ruimte ${safe(room.name)}</div>
+                <div class="chip">${room.cabinets.length} kast${room.cabinets.length === 1 ? "" : "en"}</div>
+              </div>
+            </div>
+            <div class="room-body">
+              ${room.cabinets.map(cabinet => `
+                <div class="cabinet">
+                  <div class="row between">
+                    <div class="title-small">${safe(cabinet.rack)}</div>
+                    <div class="chip">${meters(cabinet.distance)}</div>
+                  </div>
+                  <div class="position">Pak positie</div>
+                  <div class="details">${safe([cabinet.shelf, cabinet.card, cabinet.port].filter(Boolean).join(" • ") || "Niet compleet herkend")}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `).join("") : `<div class="small">Geen kastposities onder deze locatie herkend.</div>`}
+      </div>
+    `;
+  }).join("");
+}
+
+function renderTest() {
+  if (!appData.testPoints.length) {
+    testOutput.innerHTML = emptyHtml("Nog geen testpunten beschikbaar.");
+    return;
+  }
+
+  const options = appData.testPoints.map((point, index) => `
+    <option value="${index}">${safe(point.label)} (${meters(point.distance)})</option>
+  `).join("");
+
+  testOutput.innerHTML = `
+    <div class="card">
+      <div class="title">OTDR</div>
+      <div style="height:14px"></div>
+      <div class="stack">
+        <div>
+          <div class="label">Laser hangt op</div>
+          <select id="fromPoint">${options}</select>
+        </div>
+        <div>
+          <div class="label">Doelobject</div>
+          <select id="toPoint">${options}</select>
+        </div>
+      </div>
+    </div>
+    <div id="testResult"></div>
+  `;
+
+  document.getElementById("toPoint").value = String(appData.testPoints.length - 1);
+  document.getElementById("fromPoint").addEventListener("change", calculateTest);
+  document.getElementById("toPoint").addEventListener("change", calculateTest);
+  calculateTest();
+}
+
+function calculateTest() {
+  const from = appData.testPoints[Number(document.getElementById("fromPoint").value)];
+  const to = appData.testPoints[Number(document.getElementById("toPoint").value)];
+  const start = Math.min(from.distance, to.distance);
+  const end = Math.max(from.distance, to.distance);
+  const length = Math.abs(to.distance - from.distance);
+
+  const events = appData.items
+    .filter(item => item.distance >= start && item.distance <= end)
+    .filter(item => ["Building", "Rack", "Cable", "Connection", "FSE", "NU", "Port"].includes(item.type))
+    .slice(0, 30);
+
+  document.getElementById("testResult").innerHTML = `
+    <div class="card">
+      <div class="label">Verwachte lengte</div>
+      <div class="value">${meters(length)}</div>
+      <div class="small">Van ${safe(from.label)} naar ${safe(to.label)}</div>
+    </div>
+
+    <div class="card">
+      <div class="title">Events op traject</div>
+      <div class="small">Referentie voor laser of OTDR-meting.</div>
+      <div style="height:12px"></div>
+      <div class="stack">
+        ${events.length ? events.map(item => renderTestEvent(item)).join("") : emptyHtml("Geen events tussen deze punten.")}
+      </div>
+    </div>
+  `;
+}
+
+function renderTestEvent(item) {
+  const gps = parseGps(item.gps);
+  const mapClass = gps ? " clickable-map" : "";
+  const mapAction = gps ? ` onclick="openMap('${gps.lat}','${gps.lon}')"` : "";
+  const mapHint = gps ? `<div class="map-hint">Tik om Maps te openen</div>` : "";
+
+  return `
+    <div class="event${mapClass}"${mapAction}>
+      <div class="row between">
+        <div>
+          <div class="title-small">${safe(item.type)}: ${safe(item.name)}</div>
+          <div class="small">${item.gps ? `GPS: ${safe(item.gps)}` : ""}</div>
+          ${mapHint}
+        </div>
+        <div class="chip">${meters(item.distance)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function openMap(lat, lon) {
+  const appUrl = `geo:${lat},${lon}?q=${lat},${lon}`;
+  window.location.href = appUrl;
+}
+
+function parseGps(value) {
+  const text = clean(value).replace(";", ",");
+  const match = text.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+
+  if (!match) return null;
+
+  const lat = Number(match[1]);
+  const lon = Number(match[2]);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+
+  return { lat: String(lat), lon: String(lon) };
+}
+
+function parseRack(value) {
+  const parts = clean(value).split("/");
+  return {
+    location: parts[0] || "",
+    room: parts[1] || ""
+  };
+}
+
+function findAddress(items, buildingIndex) {
+  for (let index = buildingIndex + 1; index < Math.min(items.length, buildingIndex + 10); index++) {
+    if (items[index].type === "Address") return items[index].name;
+    if (items[index].type === "Building") break;
+  }
+
+  for (let index = buildingIndex - 1; index >= Math.max(0, buildingIndex - 6); index--) {
+    if (items[index].type === "Address") return items[index].name;
+    if (items[index].type === "Building") break;
+  }
+
+  return "";
+}
+
+function findBuildingAtDistance(items, distance) {
+  let current = "";
+
+  items.forEach(item => {
+    if (item.type === "Building" && item.distance <= distance) current = item.name;
+  });
+
+  return current;
+}
+
+function nearestDistance(items, index) {
+  for (let i = index; i >= 0; i--) {
+    if (numberValue(items[i].distance) > 0) return numberValue(items[i].distance);
+  }
+
+  for (let i = index; i < items.length; i++) {
+    if (numberValue(items[i].distance) > 0) return numberValue(items[i].distance);
+  }
+
+  return 0;
+}
+
+function deriveRouteName(items) {
+  const buildings = items.filter(item => item.type === "Building").map(item => item.name).filter(Boolean);
+
+  if (buildings.length >= 2) return `${buildings[0]} → ${buildings[buildings.length - 1]}`;
+  if (buildings.length === 1) return buildings[0];
+
+  return "";
+}
+
+function findHeader(headers, test) {
+  const index = headers.findIndex(test);
+  return index >= 0 ? index : -1;
+}
+
+function findLabelValue(rows, labels) {
+  const needles = labels.map(label => label.toLowerCase());
+
+  for (const row of rows) {
+    for (let index = 0; index < row.length; index++) {
+      const value = clean(row[index]).toLowerCase();
+      if (!needles.some(label => value.includes(label))) continue;
+
+      for (let next = index + 1; next < Math.min(row.length, index + 6); next++) {
+        const candidate = clean(row[next]);
+        if (candidate && !needles.some(label => candidate.toLowerCase().includes(label))) return candidate;
+      }
+    }
+  }
+
+  return "";
+}
+
+function uniqueMatches(text, regex) {
+  const matches = clean(text).match(regex) || [];
+  return [...new Set(matches.map(value => value.toUpperCase()))];
+}
+
+function firstMatch(text, regex) {
+  const match = clean(text).match(regex);
+  return match ? match[0].toUpperCase() : "";
+}
+
+function outsideValue(value) {
+  const text = clean(value).toLowerCase();
+  return ["true", "yes", "ja", "1", "outside"].includes(text);
+}
+
+function headerKey(value) {
+  return clean(value).toUpperCase().replace(/[\s-]+/g, "_");
+}
+
+function cell(row, index) {
+  return index >= 0 ? row[index] : "";
+}
+
+function numberValue(value) {
+  const match = clean(value).replace(",", ".").match(/-?\d+(\.\d+)?/);
+  return match ? Number(match[0]) : 0;
+}
+
+function meters(value) {
+  return `${Math.round(numberValue(value))} m`;
+}
+
+function clean(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function safe(value) {
+  return clean(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function emptyHtml(text) {
+  return `<div class="empty">${safe(text)}</div>`;
+}
+
+loadTheme();
+renderRoute();
+renderLocations();
+renderTest();
+setupToolBackNavigation();
+</script>
+<script src="../../shared/assistant-mini.js"></script>\n</body>
+</html>

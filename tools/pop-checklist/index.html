@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#e02020">
+<title>PoP Inspectie</title>
+<style>
+:root{
+  --bg:#f4f6fa;
+  --panel:#ffffff;
+  --panel2:#eef1f7;
+  --text:#10141d;
+  --muted:#667085;
+  --border:#d6dbe6;
+  --accent:#00C300;
+  --danger:#c91d1d;
+  --success:#148a42;
+  --warning:#c47a00;
+  --input:#ffffff;
+  --shadow:0 12px 30px rgba(16,24,40,.14);
+}
+body.dark{
+  --bg:#07090d;
+  --panel:#11151d;
+  --panel2:#0c0f15;
+  --text:#f4f6fb;
+  --muted:#a8afbd;
+  --border:#2a303c;
+  --accent:#e02020;
+  --danger:#e02020;
+  --success:#159947;
+  --warning:#f59e0b;
+  --input:#090c12;
+  --shadow:0 16px 38px rgba(0,0,0,.42);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{padding-bottom:96px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh}
+
+/* Gedeelde Tools-header */
+.top{position:sticky!important;top:0!important;z-index:40!important;background:var(--accent)!important;color:#fff!important;border-bottom:0!important;border-bottom-left-radius:18px!important;border-bottom-right-radius:18px!important;box-shadow:var(--shadow)!important}
+.top-inner{max-width:760px!important;margin:0 auto!important;padding:20px 18px 18px!important;display:grid!important;grid-template-columns:minmax(0,1fr) 46px!important;align-items:center!important;gap:12px!important}
+.head{min-width:0}
+.head-title{color:#fff!important;font-size:22px!important;font-weight:900!important;line-height:1.1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.icon-bar{justify-self:end!important;display:grid!important;place-items:center!important;position:relative!important}
+.icon-button{width:46px!important;height:46px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:15px!important;background:rgba(255,255,255,.18)!important;color:#fff!important;display:grid!important;place-items:center!important;padding:0!important;line-height:0!important;text-align:center!important;font-size:0!important;overflow:hidden!important}
+#settingsButton .settings-gear{width:30px!important;height:30px!important;display:block!important;color:currentColor!important;flex:0 0 auto!important;margin:0!important;transform:none!important}
+.settings{display:none;position:absolute;right:0;top:54px;width:310px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:14px;z-index:80;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.settings.open{display:block}
+.settings h3{margin:0 0 10px 0}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 10px;border-radius:8px;cursor:pointer;user-select:none}
+.setting-row:hover{background:var(--panel2)}
+.settings-section{padding:12px 10px 5px;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;border-top:1px solid var(--border);margin-top:5px}
+.setting-row.danger{color:var(--danger)}
+
+.main{max-width:760px;margin:0 auto;padding:14px}
+.card,.question-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+.card-inner{padding:16px;display:grid;gap:14px}
+.card-title{margin:0;font-size:25px;line-height:1.1;font-weight:900}
+.section-subtitle{margin:-5px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full-field{grid-column:1/-1}
+label,.field-label{display:block;margin-bottom:7px;font-size:14px;font-weight:800}
+input[type="text"],input[type="date"],select,textarea{
+  width:100%;
+  border:1px solid var(--border);
+  background:var(--input);
+  color:var(--text);
+  border-radius:13px;
+  padding:13px 14px;
+  outline:none;
+  min-height:52px;
+}
+textarea{resize:vertical;min-height:86px;line-height:1.45}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,195,0,.18)}
+body.dark input:focus,body.dark select:focus,body.dark textarea:focus{box-shadow:0 0 0 3px rgba(224,32,32,.22)}
+
+.progress-wrap{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.progress-text{font-weight:900;font-size:15px}
+.progress-count{font-weight:900;color:var(--muted)}
+.progress-bar{grid-column:1/-1;height:8px;background:var(--panel2);border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;width:0;background:var(--accent);transition:width .18s ease}
+
+.question-card{padding:0;transition:border-color .15s ease,box-shadow .15s ease}
+.question-card.status-ja{border-color:var(--success)}
+.question-card.status-nee{border-color:var(--danger);box-shadow:0 0 0 2px color-mix(in srgb,var(--danger) 15%,transparent)}
+.question-card.status-nvt{border-color:#77808d}
+.question-head{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start;padding:16px 16px 13px}
+.question-number{width:38px;height:38px;border-radius:12px;background:var(--panel2);border:1px solid var(--border);display:grid;place-items:center;font-weight:900;font-size:16px;color:var(--accent)}
+.question-text{font-size:15px;line-height:1.45;font-weight:700;padding-top:2px}
+.photo-warning{margin-top:8px;color:var(--danger);font-weight:900;font-size:13px}
+.question-card>.field-label{padding:0 16px;margin:0 0 7px}
+.segment{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 14px}
+.segment input{position:absolute;opacity:0;pointer-events:none}
+.segment label{margin:0;min-height:48px;border:1px solid var(--border);background:var(--panel2);border-radius:13px;display:grid;place-items:center;font-size:15px;font-weight:900;cursor:pointer;user-select:none}
+.segment input:checked+label{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent);background:color-mix(in srgb,var(--accent) 12%,var(--panel2))}
+.segment input[value="Ja"]:checked+label{border-color:var(--success);color:var(--success);background:color-mix(in srgb,var(--success) 12%,var(--panel2))}
+.segment input[value="Nee"]:checked+label{border-color:var(--danger);color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,var(--panel2))}
+.segment input[value="NVT"]:checked+label{border-color:#77808d;color:var(--text)}
+.question-fields{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:14px 16px 16px;border-top:1px solid var(--border);background:color-mix(in srgb,var(--panel2) 48%,var(--panel))}
+
+.quality-block{display:grid;gap:11px}
+.quality-intro{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.quality-list{display:grid;gap:9px}
+.quality-option{position:relative}
+.quality-option input{position:absolute;opacity:0;pointer-events:none}
+.quality-option label{margin:0;display:grid;grid-template-columns:18px minmax(0,1fr);gap:11px;align-items:start;border:1px solid var(--border);background:var(--panel2);border-radius:13px;padding:12px 13px;cursor:pointer;line-height:1.45;font-size:13px}
+.quality-option input:checked+label{outline:2px solid var(--text);outline-offset:2px;background:color-mix(in srgb,var(--panel2) 80%,var(--panel))}
+.quality-dot{width:14px;height:14px;border-radius:50%;margin-top:3px;border:2px solid var(--border);background:transparent}
+.quality-copy strong{display:block;margin-bottom:2px;font-size:14px}
+.quality-option.groen label{border-color:#159947}.quality-option.groen .quality-dot{background:#159947;border-color:#159947}
+.quality-option.blauw label{border-color:#2f76d2}.quality-option.blauw .quality-dot{background:#2f76d2;border-color:#2f76d2}
+.quality-option.geel label{border-color:#d7a400}.quality-option.geel .quality-dot{background:#d7a400;border-color:#d7a400}
+.quality-option.oranje label{border-color:#e57916}.quality-option.oranje .quality-dot{background:#e57916;border-color:#e57916}
+.quality-option.rood label{border-color:#e02020}.quality-option.rood .quality-dot{background:#e02020;border-color:#e02020}
+.quality-option.grijs label{border-color:#7d8590}.quality-option.grijs .quality-dot{background:#7d8590;border-color:#7d8590}
+
+.save-status{text-align:center;color:var(--muted);font-size:12px;padding:2px 10px 12px}
+.footer{position:fixed;left:0;right:0;bottom:0;z-index:35;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:10px 14px max(10px,env(safe-area-inset-bottom))}
+.footer-inner{max-width:760px;margin:0 auto}
+.primary{width:100%;border:0;background:var(--accent);color:#fff;border-radius:14px;padding:15px 16px;font-weight:900;min-height:54px;font-size:17px}
+.primary:disabled{opacity:.55;cursor:default}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--text);color:var(--panel);border-radius:999px;padding:12px 18px;font-weight:900;z-index:95;display:none;text-align:center;max-width:calc(100% - 32px)}
+.toast.show{display:block}
+
+
+.photo-section{grid-column:1/-1}
+.photo-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.photo-title{font-size:14px;font-weight:900}
+.photo-subtitle{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}
+.photo-add{flex:0 0 auto;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:12px;min-height:44px;padding:10px 15px;font-weight:900}
+.photo-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}
+.photo-empty{grid-column:1/-1;border:1px dashed var(--border);border-radius:13px;padding:13px;color:var(--muted);font-size:13px;text-align:center}
+.photo-thumb{position:relative;aspect-ratio:1;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--panel2)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-remove{position:absolute;right:6px;top:6px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:18px;font-weight:900;display:grid;place-items:center}
+.photo-index{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.72);color:#fff;border-radius:999px;padding:4px 7px;font-size:11px;font-weight:900}
+.excel-note{border:1px solid var(--border);background:var(--panel2);border-radius:13px;padding:13px 14px;color:var(--muted);font-size:13px;line-height:1.45}
+.footer-inner{display:grid;grid-template-columns:.85fr 1.15fr;gap:10px}
+.secondary-action{width:100%;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:14px;padding:15px 12px;font-weight:900;min-height:54px;font-size:16px}
+.primary:disabled,.secondary-action:disabled{opacity:.55;cursor:default}
+.photo-picker{display:none;position:fixed;inset:0;z-index:120}
+.photo-picker.open{display:block}
+.photo-picker-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.58)}
+.photo-picker-panel{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-top-left-radius:22px;border-top-right-radius:22px;padding:10px 16px max(18px,env(safe-area-inset-bottom));box-shadow:0 -18px 45px rgba(0,0,0,.35)}
+.photo-picker-handle{width:44px;height:5px;background:var(--border);border-radius:999px;margin:0 auto 12px}
+.photo-picker-panel h3{margin:0 0 12px}
+.photo-picker-button,.photo-picker-cancel{width:100%;min-height:52px;border-radius:13px;margin-top:9px;font-weight:900}
+.photo-picker-button{border:1px solid var(--accent);background:var(--accent);color:#fff}
+.photo-picker-cancel{border:1px solid var(--border);background:var(--panel2);color:var(--text)}
+
+@media(max-width:560px){
+  .top-inner{padding:15px 18px!important}
+  .head-title{font-size:25px!important}
+  .settings{width:min(280px,calc(100vw - 36px))}
+  .main{padding:12px}
+  .card-title{font-size:24px}
+  .form-grid,.question-fields{grid-template-columns:1fr}
+  .full-field{grid-column:auto}
+  .footer-inner{grid-template-columns:1fr 1.35fr}
+}
+</style>
+</head>
+<body class="dark">
+<div class="app">
+  <header class="top">
+    <div class="top-inner">
+      <div class="head"><div class="head-title">PoP Inspectie</div></div>
+      <div class="icon-bar">
+        <button class="icon-button" id="settingsButton" type="button" aria-label="Instellingen">
+          <svg class="settings-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/><circle cx="12" cy="12" r="3.2" fill="var(--panel)"/></svg>
+        </button>
+        <div class="settings" id="settingsPanel">
+          <h3>Instellingen</h3>
+          <div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div>
+          <div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div>
+          <div class="settings-section">Formulier</div>
+          <div class="setting-row danger" id="clearFormButton"><span>Formulier legen</span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="card">
+      <div class="card-inner">
+        <div class="progress-wrap">
+          <div class="progress-text">PoP Inspectie</div>
+          <div class="progress-count" id="progressCount">0 / 15</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-inner">
+        <h1 class="card-title">Algemene gegevens</h1>
+        <div class="form-grid">
+          <div>
+            <label for="monteur">Naam monteur</label>
+            <input id="monteur" type="text" autocomplete="name" placeholder="Naam monteur">
+          </div>
+          <div>
+            <label for="datum">Datum controle</label>
+            <input id="datum" type="date">
+          </div>
+          <div>
+            <label for="popName">Naam PoP</label>
+            <input id="popName" type="text" autocapitalize="characters" placeholder="bijvoorbeeld AH-1A">
+          </div>
+          <div>
+            <label for="plaats">Straat / plaats</label>
+            <input id="plaats" type="text" placeholder="Straat en plaats">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="checklist">
+
+<section class="question-card" data-question="1">
+  <div class="question-head">
+    <div class="question-number">1</div>
+    <div class="question-text">Framelabels zitten nog correct op de frames?</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 1">
+    <input type="radio" id="q1Ja" name="q1Status" value="Ja"><label for="q1Ja">Ja</label>
+    <input type="radio" id="q1Nee" name="q1Status" value="Nee"><label for="q1Nee">Nee</label>
+    <input type="radio" id="q1NVT" name="q1Status" value="NVT"><label for="q1NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="1">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q1PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q1Reported">Gemeld</label>
+      <select id="q1Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q1Note">Opmerking</label>
+      <textarea id="q1Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="2">
+  <div class="question-head">
+    <div class="question-number">2</div>
+    <div class="question-text">Labels op de ODF-lades correct ? (let op telling!)</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 2">
+    <input type="radio" id="q2Ja" name="q2Status" value="Ja"><label for="q2Ja">Ja</label>
+    <input type="radio" id="q2Nee" name="q2Status" value="Nee"><label for="q2Nee">Nee</label>
+    <input type="radio" id="q2NVT" name="q2Status" value="NVT"><label for="q2NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="2">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q2PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q2Reported">Gemeld</label>
+      <select id="q2Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q2Note">Opmerking</label>
+      <textarea id="q2Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="3">
+  <div class="question-head">
+    <div class="question-number">3</div>
+    <div class="question-text">Alle ODF-afdekkleppen zijn in goede staat?<br>Bij NEE; hoeveel stuks zijn kapot of ontbreken er.</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 3">
+    <input type="radio" id="q3Ja" name="q3Status" value="Ja"><label for="q3Ja">Ja</label>
+    <input type="radio" id="q3Nee" name="q3Status" value="Nee"><label for="q3Nee">Nee</label>
+    <input type="radio" id="q3NVT" name="q3Status" value="NVT"><label for="q3NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="3">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q3PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q3Reported">Gemeld</label>
+      <select id="q3Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q3Note">Opmerking</label>
+      <textarea id="q3Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="4">
+  <div class="question-head">
+    <div class="question-number">4</div>
+    <div class="question-text">Alle ODF-lades correct opgehangen en bevestigd en in goede staat?<br>Bij NEE; om hoeveel stuks gaat het</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 4">
+    <input type="radio" id="q4Ja" name="q4Status" value="Ja"><label for="q4Ja">Ja</label>
+    <input type="radio" id="q4Nee" name="q4Status" value="Nee"><label for="q4Nee">Nee</label>
+    <input type="radio" id="q4NVT" name="q4Status" value="NVT"><label for="q4NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="4">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q4PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q4Reported">Gemeld</label>
+      <select id="q4Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q4Note">Opmerking</label>
+      <textarea id="q4Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="5">
+  <div class="question-head">
+    <div class="question-number">5</div>
+    <div class="question-text">Zijn de patchpanel klossen in orde (Niet los, verbogen, afgebroken)?<br>Bij NEE; om hoeveel stuks gaat het.</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 5">
+    <input type="radio" id="q5Ja" name="q5Status" value="Ja"><label for="q5Ja">Ja</label>
+    <input type="radio" id="q5Nee" name="q5Status" value="Nee"><label for="q5Nee">Nee</label>
+    <input type="radio" id="q5NVT" name="q5Status" value="NVT"><label for="q5NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="5">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q5PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q5Reported">Gemeld</label>
+      <select id="q5Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q5Note">Opmerking</label>
+      <textarea id="q5Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="6">
+  <div class="question-head">
+    <div class="question-number">6</div>
+    <div class="question-text">Is bij alle buigstraalbeschermers klittenband aangebracht en/of heb je zelf ontbrekende klittenband aangebracht (dat is wel de gewenste actie tijdens inspectie)?<br>Bij NEE; bij hoeveel buigstraalbeschermers ontbreekt dit.</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 6">
+    <input type="radio" id="q6Ja" name="q6Status" value="Ja"><label for="q6Ja">Ja</label>
+    <input type="radio" id="q6Nee" name="q6Status" value="Nee"><label for="q6Nee">Nee</label>
+    <input type="radio" id="q6NVT" name="q6Status" value="NVT"><label for="q6NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="6">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q6PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q6Reported">Gemeld</label>
+      <select id="q6Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q6Note">Opmerking</label>
+      <textarea id="q6Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="7">
+  <div class="question-head">
+    <div class="question-number">7</div>
+    <div class="question-text">Zijn er OBP&#x27;s geplaatst (Overlengte Bescherm Plaatjes) aan de onderzijde van elk Patch Panel Frame (PPF)?<br>Bij NEE; hoeveel ontbreken er?</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 7">
+    <input type="radio" id="q7Ja" name="q7Status" value="Ja"><label for="q7Ja">Ja</label>
+    <input type="radio" id="q7Nee" name="q7Status" value="Nee"><label for="q7Nee">Nee</label>
+    <input type="radio" id="q7NVT" name="q7Status" value="NVT"><label for="q7NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="7">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q7PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q7Reported">Gemeld</label>
+      <select id="q7Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q7Note">Opmerking</label>
+      <textarea id="q7Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="8">
+  <div class="question-head">
+    <div class="question-number">8</div>
+    <div class="question-text">Zijn de Fiber geleidebeugels (Multi Fiber Manager /geleidestang) boven de DSLAM (actieve zijde) aanwezig en in goede staat?</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 8">
+    <input type="radio" id="q8Ja" name="q8Status" value="Ja"><label for="q8Ja">Ja</label>
+    <input type="radio" id="q8Nee" name="q8Status" value="Nee"><label for="q8Nee">Nee</label>
+    <input type="radio" id="q8NVT" name="q8Status" value="NVT"><label for="q8NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="8">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q8PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q8Reported">Gemeld</label>
+      <select id="q8Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q8Note">Opmerking</label>
+      <textarea id="q8Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="9">
+  <div class="question-head">
+    <div class="question-number">9</div>
+    <div class="question-text">Zijn de patches aan de lage zijde (ODF / PPL) en de hoge zijde (DSLAM) goed gerangeerd (en zonder lussen of knopen)?</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 9">
+    <input type="radio" id="q9Ja" name="q9Status" value="Ja"><label for="q9Ja">Ja</label>
+    <input type="radio" id="q9Nee" name="q9Status" value="Nee"><label for="q9Nee">Nee</label>
+    <input type="radio" id="q9NVT" name="q9Status" value="NVT"><label for="q9NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="9">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q9PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q9Reported">Gemeld</label>
+      <select id="q9Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q9Note">Opmerking</label>
+      <textarea id="q9Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="10">
+  <div class="question-head">
+    <div class="question-number">10</div>
+    <div class="question-text">Zijn de juiste lengte en diameter patchcords gebruikt welke volgens de voorschriften in dit type POP toegepast dienen te worden?</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 10">
+    <input type="radio" id="q10Ja" name="q10Status" value="Ja"><label for="q10Ja">Ja</label>
+    <input type="radio" id="q10Nee" name="q10Status" value="Nee"><label for="q10Nee">Nee</label>
+    <input type="radio" id="q10NVT" name="q10Status" value="NVT"><label for="q10NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="10">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q10PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q10Reported">Gemeld</label>
+      <select id="q10Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q10Note">Opmerking</label>
+      <textarea id="q10Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="11">
+  <div class="question-head">
+    <div class="question-number">11</div>
+    <div class="question-text">Zijn de Juiste connectoren gebruikt welke volgens de voorschriften in dit type POP toegepast dienen te worden?<br>Bij NEE; hoeveel Patchcords hebben een verkeerde connector.</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 11">
+    <input type="radio" id="q11Ja" name="q11Status" value="Ja"><label for="q11Ja">Ja</label>
+    <input type="radio" id="q11Nee" name="q11Status" value="Nee"><label for="q11Nee">Nee</label>
+    <input type="radio" id="q11NVT" name="q11Status" value="NVT"><label for="q11NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="11">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q11PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q11Reported">Gemeld</label>
+      <select id="q11Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q11Note">Opmerking</label>
+      <textarea id="q11Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="12">
+  <div class="question-head">
+    <div class="question-number">12</div>
+    <div class="question-text">Is de POP vrij van noodpatches of waslijnen?<br>Bij NEE: geef dan het aantal aan en noteer waar mogelijk de frame, lade en poort gegevens.</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 12">
+    <input type="radio" id="q12Ja" name="q12Status" value="Ja"><label for="q12Ja">Ja</label>
+    <input type="radio" id="q12Nee" name="q12Status" value="Nee"><label for="q12Nee">Nee</label>
+    <input type="radio" id="q12NVT" name="q12Status" value="NVT"><label for="q12NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="12">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q12PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q12Reported">Gemeld</label>
+      <select id="q12Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q12Note">Opmerking</label>
+      <textarea id="q12Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="13">
+  <div class="question-head">
+    <div class="question-number">13</div>
+    <div class="question-text">Is de POP vrij van glasafvalling? Snoeren behoren in de (gele) goot te zitten.<br>Bij NEE: kun je aangeven om hoeveel het ongeveer gaat.</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 13">
+    <input type="radio" id="q13Ja" name="q13Status" value="Ja"><label for="q13Ja">Ja</label>
+    <input type="radio" id="q13Nee" name="q13Status" value="Nee"><label for="q13Nee">Nee</label>
+    <input type="radio" id="q13NVT" name="q13Status" value="NVT"><label for="q13NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="13">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q13PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q13Reported">Gemeld</label>
+      <select id="q13Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q13Note">Opmerking</label>
+      <textarea id="q13Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="14">
+  <div class="question-head">
+    <div class="question-number">14</div>
+    <div class="question-text">Heb je alle loshangende en/of afgeknipte patchcords verwijderd? (dat is wel de gewenste actie tijdens inspectie)<br>Bij JA: geef het aantal verwijderde patchcords op. Bij NEE: geef aan hoeveel er verwijderd zijn en hoeveel er nog verwijderd moeten worden.</div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 14">
+    <input type="radio" id="q14Ja" name="q14Status" value="Ja"><label for="q14Ja">Ja</label>
+    <input type="radio" id="q14Nee" name="q14Status" value="Nee"><label for="q14Nee">Nee</label>
+    <input type="radio" id="q14NVT" name="q14Status" value="NVT"><label for="q14NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="14">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q14PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q14Reported">Gemeld</label>
+      <select id="q14Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q14Note">Opmerking</label>
+      <textarea id="q14Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+<section class="question-card" data-question="15">
+  <div class="question-head">
+    <div class="question-number">15</div>
+    <div class="question-text">Graag van elk ODF- en DSLAM-rek een foto maken en toevoegen in de mail als je dit formulier verstuurt.<div class="photo-warning">Verplicht: maak van ieder ODF- en DSLAM-rek een foto.</div></div>
+  </div>
+
+  <div class="field-label">Controle</div>
+  <div class="segment" role="radiogroup" aria-label="Controlepunt 15">
+    <input type="radio" id="q15Ja" name="q15Status" value="Ja"><label for="q15Ja">Ja</label>
+    <input type="radio" id="q15Nee" name="q15Status" value="Nee"><label for="q15Nee">Nee</label>
+    <input type="radio" id="q15NVT" name="q15Status" value="NVT"><label for="q15NVT">NVT</label>
+  </div>
+
+  <div class="question-fields">
+    <div class="photo-section">
+      <div class="photo-head">
+        <div>
+          <div class="photo-title">Foto's</div>
+          <div class="photo-subtitle">Meerdere foto's mogelijk via camera of galerij.</div>
+        </div>
+        <button class="photo-add" type="button" data-photo-add="15">+ Foto</button>
+      </div>
+      <div class="photo-list" id="q15PhotoList">
+        <div class="photo-empty">Nog geen foto's toegevoegd.</div>
+      </div>
+    </div>
+    <div>
+      <label for="q15Reported">Gemeld</label>
+      <select id="q15Reported">
+        <option value="">Kies...</option>
+        <option value="Gemeld Tel">Gemeld Tel</option>
+        <option value="Gemeld App">Gemeld App</option>
+        <option value="Niet gemeld">Niet gemeld</option>
+      </select>
+    </div>
+    <div class="full-field">
+      <label for="q15Note">Opmerking</label>
+      <textarea id="q15Note" rows="3" placeholder="Vul hier aantallen, frame/lade/poort of een toelichting in"></textarea>
+    </div>
+  </div>
+</section>
+    </div>
+
+    <section class="card">
+      <div class="card-inner">
+        <h2 class="card-title">Afronding</h2>
+        <div>
+          <label for="generalNotes">Overige op- of aanmerkingen</label>
+          <textarea id="generalNotes" rows="4" placeholder="Overige opmerkingen"></textarea>
+        </div>
+
+        <div class="quality-block">
+          <div>
+            <div class="field-label">Verdeling in categorieën</div>
+            <p class="quality-intro">Op basis van het onderzoek wordt de PoP ingedeeld in een kleurcategorie. De verdeling is als volgt:</p>
+          </div>
+
+          <div class="quality-list" role="radiogroup" aria-label="Kwaliteit PoP">
+            <div class="quality-option groen">
+              <input type="radio" id="qualityGroen" name="qualityPop" value="Groen">
+              <label for="qualityGroen"><span class="quality-dot"></span><span class="quality-copy"><strong>Groen</strong>PoP is volledig op norm.</span></label>
+            </div>
+            <div class="quality-option blauw">
+              <input type="radio" id="qualityBlauw" name="qualityPop" value="Blauw">
+              <label for="qualityBlauw"><span class="quality-dot"></span><span class="quality-copy"><strong>Blauw</strong>Maximaal 3 uur werk, niet dienstonderbrekend of storingsgevoelig, een paar punten zijn buiten norm.</span></label>
+            </div>
+            <div class="quality-option geel">
+              <input type="radio" id="qualityGeel" name="qualityPop" value="Geel">
+              <label for="qualityGeel"><span class="quality-dot"></span><span class="quality-copy"><strong>Geel</strong>Maximaal 8 uur werk, niet dienstonderbrekend of storingsgevoelig, een paar punten zijn buiten norm.</span></label>
+            </div>
+            <div class="quality-option oranje">
+              <input type="radio" id="qualityOranje" name="qualityPop" value="Oranje">
+              <label for="qualityOranje"><span class="quality-dot"></span><span class="quality-copy"><strong>Oranje</strong>Maximaal 40 uur werk, beperkt dienstonderbrekend (een paar vezels) of storingsgevoelig.</span></label>
+            </div>
+            <div class="quality-option rood">
+              <input type="radio" id="qualityRood" name="qualityPop" value="Rood">
+              <label for="qualityRood"><span class="quality-dot"></span><span class="quality-copy"><strong>Rood</strong>Meer dan 40 uur werk, veel dienstonderbrekingen en/of aanpassing PoP noodzakelijk.</span></label>
+            </div>
+            <div class="quality-option grijs">
+              <input type="radio" id="qualityGrijs" name="qualityPop" value="Grijs">
+              <label for="qualityGrijs"><span class="quality-dot"></span><span class="quality-copy"><strong>Grijs</strong>PoP is niet in te delen in een categorie (bijvoorbeeld omdat de PoP nog in projectfase is).</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="excel-note">De gekozen kwaliteit wordt alleen in het Excel-bestand gezet.</div>
+      </div>
+    </section>
+
+    <div class="save-status" id="saveStatus">Wordt automatisch lokaal opgeslagen.</div>
+  </main>
+</div>
+
+<div class="footer">
+  <div class="footer-inner">
+    <button class="secondary-action" id="makeZip" type="button">ZIP maken</button>
+    <button class="primary" id="composeEmail" type="button">E-mail opstellen</button>
+  </div>
+</div>
+
+<input id="templateFileInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+<input id="galleryInput" type="file" accept="image/*" multiple hidden>
+<input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
+
+<div class="photo-picker" id="photoPicker" aria-hidden="true">
+  <div class="photo-picker-backdrop" data-photo-close></div>
+  <div class="photo-picker-panel" role="dialog" aria-modal="true">
+    <div class="photo-picker-handle"></div>
+    <h3 id="photoPickerTitle">Foto toevoegen</h3>
+    <button class="photo-picker-button" id="cameraButton" type="button">Camera</button>
+    <button class="photo-picker-button" id="galleryButton" type="button">Galerij</button>
+    <button class="photo-picker-cancel" type="button" data-photo-close>Annuleren</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+var TEMPLATE_FILE_NAME='template.xlsx';
+var TEMPLATE_CACHE_KEY='popExcelTemplateV1';
+var STORAGE_KEY='popInspectieChecklistV7';
+var LEGACY_STORAGE_KEYS=[
+  'popInspectieChecklistV3',
+  'popInspectieChecklistV5',
+  'popInspectieChecklistV6'
+];
+var TARGET_SHEET='xl/worksheets/sheet1.xml';
+var PHOTO_DB_NAME='popInspectiePhotosV1';
+var PHOTO_STORE_NAME='photos';
+
+function $(id){return document.getElementById(id)}
+var questionCards=Array.prototype.slice.call(document.querySelectorAll('.question-card[data-question]'));
+var photoStore={};
+var previewUrls={};
+var activePhotoQuestion=0;
+var dbPromise=null;
+var saveTimer=0;
+var templateBytesCache=null;
+var templateLoadPromise=null;
+var templateLoadError=null;
+
+function safeStorageGet(key){try{return localStorage.getItem(key)}catch(e){return null}}
+function safeStorageSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}
+function safeStorageRemove(key){try{localStorage.removeItem(key)}catch(e){}}
+function clearLegacyFormStorage(){
+  LEGACY_STORAGE_KEYS.forEach(function(key){safeStorageRemove(key)});
+}
+
+function localDateISO(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function displayDate(iso){
+  if(!iso)return '';
+  var p=iso.split('-');
+  return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:iso;
+}
+function safeFilePart(value,fallback){
+  var text=String(value||'').trim().replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,'_').replace(/^[-_.]+|[-_.]+$/g,'');
+  return text||fallback||'PoP';
+}
+
+function playThemeSound(theme){
+  try{
+    var Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx)return;
+    var ctx=new Ctx(),osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type='sine';osc.frequency.value=theme==='dark'?420:720;
+    gain.gain.setValueAtTime(.045,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.08);
+    osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.08);
+    setTimeout(function(){try{ctx.close()}catch(e){}},180);
+  }catch(e){}
+}
+function updateThemeChecks(){
+  var dark=document.body.classList.contains('dark');
+  $('lightCheck').textContent=dark?'':'✓';$('darkCheck').textContent=dark?'✓':'';
+  var meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',dark?'#e02020':'#00C300');
+}
+function setTheme(theme,playSound){
+  if(theme==='dark')document.body.classList.add('dark');else document.body.classList.remove('dark');
+  safeStorageSet('toolsTheme',theme);updateThemeChecks();if(playSound)playThemeSound(theme);
+}
+function closeSettingsPanel(){$('settingsPanel').classList.remove('open')}
+$('settingsButton').addEventListener('click',function(e){e.stopPropagation();updateThemeChecks();$('settingsPanel').classList.toggle('open')});
+$('settingsPanel').addEventListener('click',function(e){e.stopPropagation()});
+$('lightModeButton').addEventListener('click',function(){setTheme('light',true);closeSettingsPanel()});
+$('darkModeButton').addEventListener('click',function(){setTheme('dark',true);closeSettingsPanel()});
+document.addEventListener('click',closeSettingsPanel);
+window.addEventListener('storage',function(e){if(e.key==='toolsTheme'&&(e.newValue==='dark'||e.newValue==='light'))setTheme(e.newValue,false)});
+
+function getSelected(name){var el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:''}
+function getState(){
+  var items=[];
+  for(var i=1;i<=15;i++){
+    items.push({status:getSelected('q'+i+'Status'),reported:$('q'+i+'Reported').value,note:$('q'+i+'Note').value});
+  }
+  return {monteur:$('monteur').value.trim(),datum:$('datum').value,pop:$('popName').value.trim(),plaats:$('plaats').value.trim(),generalNotes:$('generalNotes').value,quality:getSelected('qualityPop'),items:items};
+}
+function applyState(state){
+  if(!state||typeof state!=='object')return;
+  $('monteur').value=typeof state.monteur==='string'?state.monteur:'';
+  $('datum').value=typeof state.datum==='string'&&state.datum?state.datum:localDateISO();
+  $('popName').value=typeof state.pop==='string'?state.pop:'';
+  $('plaats').value=typeof state.plaats==='string'?state.plaats:'';
+  $('generalNotes').value=typeof state.generalNotes==='string'?state.generalNotes:'';
+  if(typeof state.quality==='string'&&state.quality){var qualityRadio=document.querySelector('input[name="qualityPop"][value="'+state.quality+'"]');if(qualityRadio)qualityRadio.checked=true}
+  if(Array.isArray(state.items)){
+    state.items.slice(0,15).forEach(function(item,index){
+      var q=index+1;if(!item)return;
+      if(item.status){var radio=document.querySelector('input[name="q'+q+'Status"][value="'+item.status+'"]');if(radio)radio.checked=true}
+      if(typeof item.reported==='string')$('q'+q+'Reported').value=item.reported;
+      if(typeof item.note==='string')$('q'+q+'Note').value=item.note;
+    });
+  }
+}
+function saveState(){
+  safeStorageSet(STORAGE_KEY,JSON.stringify(getState()));$('saveStatus').textContent='Lokaal opgeslagen';clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){$('saveStatus').textContent='Wordt automatisch lokaal opgeslagen.'},1100);
+}
+function updateVisualState(){
+  var done=0;
+  questionCards.forEach(function(card,index){
+    var q=index+1,status=getSelected('q'+q+'Status');if(status)done++;
+    card.classList.remove('status-ja','status-nee','status-nvt');
+    if(status==='Ja')card.classList.add('status-ja');if(status==='Nee')card.classList.add('status-nee');if(status==='NVT')card.classList.add('status-nvt');
+  });
+  $('progressCount').textContent=done+' / 15';$('progressFill').style.width=((done/15)*100)+'%';
+}
+function handleFormChange(){updateVisualState();saveState()}
+document.addEventListener('input',function(e){if(e.target.closest&&e.target.closest('.settings'))return;if(e.target.matches&&e.target.matches('input,textarea'))handleFormChange()});
+document.addEventListener('change',function(e){if(e.target.closest&&e.target.closest('.settings'))return;if(e.target.matches&&e.target.matches('input,select,textarea'))handleFormChange()});
+
+function showToast(text){var t=$('toast');t.textContent=text;t.className='toast show';clearTimeout(showToast.timer);showToast.timer=setTimeout(function(){t.className='toast'},1800)}
+
+// FOTO-OPSLAG: foto's worden direct naar zelfstandige bytes gekopieerd.
+// Daardoor blijven camera-/galerijfoto's bruikbaar nadat Android de tijdelijke bron heeft vrijgegeven.
+function openPhotoDb(){
+  if(typeof indexedDB==='undefined')return Promise.resolve(null);
+  if(dbPromise)return dbPromise;
+  dbPromise=new Promise(function(resolve,reject){
+    var request=indexedDB.open(PHOTO_DB_NAME,1);
+    request.onupgradeneeded=function(){
+      var db=request.result;
+      if(!db.objectStoreNames.contains(PHOTO_STORE_NAME)){
+        db.createObjectStore(PHOTO_STORE_NAME,{keyPath:'id'});
+      }
+    };
+    request.onsuccess=function(){resolve(request.result)};
+    request.onerror=function(){reject(request.error)};
+  });
+  return dbPromise;
+}
+
+function loadAllPhotos(){
+  return openPhotoDb().then(function(db){
+    if(!db)return [];
+    return new Promise(function(resolve,reject){
+      var tx=db.transaction(PHOTO_STORE_NAME,'readonly');
+      var req=tx.objectStore(PHOTO_STORE_NAME).getAll();
+      req.onsuccess=function(){resolve(req.result||[])};
+      req.onerror=function(){reject(req.error)};
+    });
+  });
+}
+
+function savePhotoRecord(record){
+  return openPhotoDb().then(function(db){
+    if(!db)return;
+    return new Promise(function(resolve,reject){
+      var tx=db.transaction(PHOTO_STORE_NAME,'readwrite');
+      tx.objectStore(PHOTO_STORE_NAME).put(record);
+      tx.oncomplete=resolve;
+      tx.onerror=function(){reject(tx.error)};
+    });
+  });
+}
+
+function deletePhotoRecord(id){
+  return openPhotoDb().then(function(db){
+    if(!db)return;
+    return new Promise(function(resolve,reject){
+      var tx=db.transaction(PHOTO_STORE_NAME,'readwrite');
+      tx.objectStore(PHOTO_STORE_NAME).delete(id);
+      tx.oncomplete=resolve;
+      tx.onerror=function(){reject(tx.error)};
+    });
+  });
+}
+
+function clearPhotoRecords(){
+  return openPhotoDb().then(function(db){
+    if(!db)return;
+    return new Promise(function(resolve,reject){
+      var tx=db.transaction(PHOTO_STORE_NAME,'readwrite');
+      tx.objectStore(PHOTO_STORE_NAME).clear();
+      tx.oncomplete=resolve;
+      tx.onerror=function(){reject(tx.error)};
+    });
+  });
+}
+
+function makePhotoId(){
+  return (window.crypto&&crypto.randomUUID)
+    ? crypto.randomUUID()
+    : (Date.now()+'_'+Math.random().toString(36).slice(2));
+}
+
+function cloneArrayBuffer(value){
+  if(value instanceof ArrayBuffer){
+    return value.slice(0);
+  }
+  if(typeof ArrayBuffer!=='undefined'&&ArrayBuffer.isView&&ArrayBuffer.isView(value)){
+    return value.buffer.slice(value.byteOffset,value.byteOffset+value.byteLength);
+  }
+  return null;
+}
+
+function makePhotoBlob(photo){
+  var buffer=cloneArrayBuffer(photo&&photo.bytes);
+  if(!buffer)return null;
+  return new Blob([buffer],{type:(photo&&photo.type)||'image/jpeg'});
+}
+
+function normalizeStoredPhoto(record){
+  if(!record||!record.id)return Promise.resolve(null);
+
+  var existing=cloneArrayBuffer(record.bytes);
+  if(existing){
+    record.bytes=existing;
+    if('blob' in record){
+      try{delete record.blob}catch(e){}
+    }
+    return Promise.resolve(record);
+  }
+
+  // Migratie van foto's die door de vorige versie als File/Blob zijn opgeslagen.
+  if(record.blob&&typeof record.blob.arrayBuffer==='function'){
+    return record.blob.arrayBuffer()
+      .then(function(buffer){
+        var migrated={
+          id:record.id,
+          question:Number(record.question),
+          name:record.name||'foto.jpg',
+          type:record.type||record.blob.type||'image/jpeg',
+          createdAt:record.createdAt||Date.now(),
+          bytes:buffer.slice(0)
+        };
+        return savePhotoRecord(migrated)
+          .catch(function(){return null})
+          .then(function(){return migrated});
+      })
+      .catch(function(){
+        // Een oude Android File-verwijzing kan ongeldig zijn. Alleen die foto wordt verwijderd;
+        // de rest van de checklist/export blijft gewoon bruikbaar.
+        return deletePhotoRecord(record.id)
+          .catch(function(){return null})
+          .then(function(){return null});
+      });
+  }
+
+  return deletePhotoRecord(record.id)
+    .catch(function(){return null})
+    .then(function(){return null});
+}
+
+function getQuestionPhotos(q){
+  return photoStore[q]||[];
+}
+
+function renderPhotos(q){
+  q=Number(q);
+  var box=$('q'+q+'PhotoList');
+  if(!box)return;
+
+  (previewUrls[q]||[]).forEach(function(url){
+    try{URL.revokeObjectURL(url)}catch(e){}
+  });
+  previewUrls[q]=[];
+  box.innerHTML='';
+
+  var list=getQuestionPhotos(q);
+  if(!list.length){
+    box.innerHTML='<div class="photo-empty">'+
+      (q===15?"Nog geen ODF-/DSLAM-foto's toegevoegd.":"Nog geen foto's toegevoegd.")+
+      '</div>';
+    return;
+  }
+
+  list.forEach(function(photo,index){
+    var blob=makePhotoBlob(photo);
+    if(!blob)return;
+
+    var url=URL.createObjectURL(blob);
+    previewUrls[q].push(url);
+
+    var tile=document.createElement('div');
+    tile.className='photo-thumb';
+
+    var img=document.createElement('img');
+    img.src=url;
+    img.alt='Vraag '+q+' foto '+(index+1);
+    tile.appendChild(img);
+
+    var badge=document.createElement('span');
+    badge.className='photo-index';
+    badge.textContent=String(index+1);
+    tile.appendChild(badge);
+
+    var remove=document.createElement('button');
+    remove.type='button';
+    remove.className='photo-remove';
+    remove.textContent='×';
+    remove.setAttribute('aria-label','Foto verwijderen');
+    remove.addEventListener('click',function(){
+      removePhoto(q,photo.id);
+    });
+    tile.appendChild(remove);
+
+    box.appendChild(tile);
+  });
+}
+
+function readSelectedPhoto(q,file){
+  return file.arrayBuffer()
+    .then(function(buffer){
+      var record={
+        id:makePhotoId(),
+        question:Number(q),
+        name:file.name||'foto.jpg',
+        type:file.type||'image/jpeg',
+        createdAt:Date.now(),
+        bytes:buffer.slice(0)
+      };
+
+      return savePhotoRecord(record)
+        .catch(function(){
+          // Als IndexedDB niet beschikbaar is, blijft de foto in deze sessie in geheugen werken.
+          return null;
+        })
+        .then(function(){
+          return record;
+        });
+    })
+    .catch(function(error){
+      var message=(error&&error.message)?error.message:String(error||'Onbekende fout');
+      throw new Error('Foto kon niet worden ingelezen. Kies of maak de foto opnieuw. '+message);
+    });
+}
+
+function addPhotoFiles(q,fileList){
+  q=Number(q);
+
+  var files=Array.prototype.slice.call(fileList||[])
+    .filter(function(file){
+      return !file.type||file.type.indexOf('image/')===0;
+    });
+
+  if(!files.length)return Promise.resolve();
+
+  return Promise.all(
+    files.map(function(file){
+      return readSelectedPhoto(q,file);
+    })
+  )
+  .then(function(records){
+    if(!photoStore[q])photoStore[q]=[];
+
+    records.forEach(function(record){
+      photoStore[q].push(record);
+    });
+
+    photoStore[q].sort(function(a,b){
+      return (a.createdAt||0)-(b.createdAt||0);
+    });
+
+    renderPhotos(q);
+
+    showToast(
+      files.length===1
+        ? 'Foto toegevoegd'
+        : files.length+" foto's toegevoegd"
+    );
+  })
+  .catch(function(error){
+    alert(error&&error.message?error.message:String(error));
+  });
+}
+
+function removePhoto(q,id){
+  if(!confirm('Deze foto verwijderen?'))return;
+
+  deletePhotoRecord(id)
+    .catch(function(){return null})
+    .then(function(){
+      photoStore[q]=(photoStore[q]||[]).filter(function(photo){
+        return photo.id!==id;
+      });
+      renderPhotos(q);
+      showToast('Foto verwijderd');
+    });
+}
+
+function openPhotoPicker(q){
+  activePhotoQuestion=Number(q);
+  $('photoPickerTitle').textContent=
+    Number(q)===15
+      ? 'Foto ODF/DSLAM toevoegen'
+      : 'Foto bij vraag '+q+' toevoegen';
+
+  $('photoPicker').classList.add('open');
+  $('photoPicker').setAttribute('aria-hidden','false');
+}
+
+function closePhotoPicker(){
+  $('photoPicker').classList.remove('open');
+  $('photoPicker').setAttribute('aria-hidden','true');
+}
+
+Array.prototype.slice.call(
+  document.querySelectorAll('[data-photo-add]')
+).forEach(function(button){
+  button.addEventListener('click',function(event){
+    event.stopPropagation();
+    openPhotoPicker(button.getAttribute('data-photo-add'));
+  });
+});
+
+Array.prototype.slice.call(
+  document.querySelectorAll('[data-photo-close]')
+).forEach(function(button){
+  button.addEventListener('click',closePhotoPicker);
+});
+
+$('cameraButton').addEventListener('click',function(){
+  closePhotoPicker();
+  $('cameraInput').value='';
+  $('cameraInput').click();
+});
+
+$('galleryButton').addEventListener('click',function(){
+  closePhotoPicker();
+  $('galleryInput').value='';
+  $('galleryInput').click();
+});
+
+$('cameraInput').addEventListener('change',function(){
+  addPhotoFiles(activePhotoQuestion,$('cameraInput').files)
+    .finally(function(){
+      $('cameraInput').value='';
+    });
+});
+
+$('galleryInput').addEventListener('change',function(){
+  addPhotoFiles(activePhotoQuestion,$('galleryInput').files)
+    .finally(function(){
+      $('galleryInput').value='';
+    });
+});
+
+$('clearFormButton').addEventListener('click',function(){
+  closeSettingsPanel();
+
+  if(!confirm("Formulier legen? Alle ingevulde gegevens en foto's van deze controle worden verwijderd. Naam monteur blijft behouden.")){
+    return;
+  }
+
+  var keepName=$('monteur').value.trim();
+  var currentDate=localDateISO();
+
+  // Wis alle invoer inclusief Ja/Nee/NVT en de handmatige kwaliteitskeuze.
+  Array.prototype.slice.call(document.querySelectorAll('input[type="radio"]')).forEach(function(el){el.checked=false});
+  Array.prototype.slice.call(document.querySelectorAll('select')).forEach(function(el){el.value='' });
+  Array.prototype.slice.call(document.querySelectorAll('textarea')).forEach(function(el){el.value='' });
+
+  // Alleen monteur blijft staan. De datum wordt op dit moment opnieuw bepaald.
+  $('monteur').value=keepName;
+  $('datum').value=currentDate;
+  $('popName').value='';
+  $('plaats').value='';
+
+  // Verwijder alle oude formuliergeneraties. Schrijf daarna DIRECT een nieuwe lege V7.
+  // Zo kan ook bij direct verversen of afsluiten geen oude checklist terugkomen.
+  safeStorageRemove(STORAGE_KEY);
+  clearLegacyFormStorage();
+  saveState();
+  updateVisualState();
+
+  clearPhotoRecords()
+    .catch(function(error){
+      console.error('Foto-opslag legen mislukt',error);
+      return null;
+    })
+    .then(function(){
+      photoStore={};
+      for(var q=1;q<=15;q++){
+        photoStore[q]=[];
+        renderPhotos(q);
+      }
+
+      // Nogmaals opslaan nadat ook de foto-opslag is afgehandeld.
+      saveState();
+      updateVisualState();
+      window.scrollTo({top:0,behavior:'smooth'});
+      showToast('Nieuw formulier gestart');
+    });
+});
+
+function validateForOutput(state){
+  var missing=[];if(!state.monteur)missing.push('naam monteur');if(!state.datum)missing.push('datum');if(!state.pop)missing.push('naam PoP');if(!state.plaats)missing.push('straat / plaats');if(!state.quality)missing.push('kwaliteit PoP');
+  state.items.forEach(function(item,index){if(!item.status)missing.push('punt '+(index+1));if(item.status==='Nee'&&!item.note.trim())missing.push('opmerking bij punt '+(index+1))});
+  if(state.items[14]&&state.items[14].status==='Ja'&&!getQuestionPhotos(15).length)missing.push("foto's bij punt 15");
+  return missing;
+}
+function confirmOutput(state){
+  var missing=validateForOutput(state);if(!missing.length)return true;
+  var shown=missing.slice(0,8).join(', ')+(missing.length>8?' en '+(missing.length-8)+' meer':'');return confirm('Niet alles is ingevuld: '+shown+'. Toch doorgaan?');
+}
+
+function excelName(state){return 'Checklijst_PoP_'+safeFilePart(state.pop,'PoP')+'_'+safeFilePart(state.plaats,'Plaats')+'_'+displayDate(state.datum||localDateISO())+'.xlsx'}
+function zipName(state){return 'PoP_Inspectie_'+safeFilePart(state.pop,'PoP')+'_'+safeFilePart(state.plaats,'Plaats')+'_'+displayDate(state.datum||localDateISO())+'.zip'}
+function photoExtension(photo){
+  var type=String(photo.type||'').toLowerCase();if(type.indexOf('jpeg')>=0)return 'jpg';if(type.indexOf('png')>=0)return 'png';if(type.indexOf('webp')>=0)return 'webp';if(type.indexOf('heic')>=0)return 'heic';if(type.indexOf('heif')>=0)return 'heif';
+  var m=String(photo.name||'').match(/\.([a-z0-9]{2,5})$/i);return m?m[1].toLowerCase():'jpg';
+}
+function photoFileName(q,index,photo){return 'Vraag_'+String(q).padStart(2,'0')+'_foto_'+String(index+1).padStart(2,'0')+'.'+photoExtension(photo)}
+function collectPhotoAttachments(){
+  var output=[];
+
+  for(var q=1;q<=15;q++){
+    var photos=getQuestionPhotos(q)||[];
+
+    for(var index=0;index<photos.length;index++){
+      var photo=photos[index];
+      var buffer=cloneArrayBuffer(photo.bytes);
+
+      if(!buffer){
+        throw new Error('Een foto bij vraag '+q+' kon niet worden gelezen. Verwijder die foto en voeg hem opnieuw toe.');
+      }
+
+      output.push({
+        question:q,
+        index:index,
+        name:photoFileName(q,index,photo),
+        type:photo.type||'image/jpeg',
+        bytes:new Uint8Array(buffer)
+      });
+    }
+  }
+
+  return output;
+}
+
+// XLSX: behoudt het originele template en vervangt alleen de invoercellen.
+function excelSerial(iso){var p=iso.split('-').map(Number);if(p.length!==3||p.some(Number.isNaN))throw new Error('Ongeldige datum');return Math.floor(Date.UTC(p[0],p[1]-1,p[2])/86400000)+25569}
+function xmlEscape(value){return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function cellRegex(ref){return new RegExp('<c\\b([^>]*\\br="'+ref+'"[^>]*)\\/>|<c\\b([^>]*\\br="'+ref+'"[^>]*)>[\\s\\S]*?<\\/c>')}
+function setCellText(xml,ref,value){var re=cellRegex(ref),match=xml.match(re);if(!match)throw new Error('Templatecel '+ref+' niet gevonden');var attrs=(match[1]||match[2]||'').replace(/\s+t="[^"]*"/g,'');var text=String(value==null?'':value);var replacement=text===''?'<c'+attrs+'/>':'<c'+attrs+' t="inlineStr"><is><t xml:space="preserve">'+xmlEscape(text)+'</t></is></c>';return xml.replace(re,replacement)}
+function setCellNumber(xml,ref,value){var re=cellRegex(ref),match=xml.match(re);if(!match)throw new Error('Templatecel '+ref+' niet gevonden');var attrs=(match[1]||match[2]||'').replace(/\s+t="[^"]*"/g,'');return xml.replace(re,'<c'+attrs+'><v>'+Number(value)+'</v></c>')}
+
+function validateTemplateBytes(bytes){
+  if(!bytes||bytes.length<4||bytes[0]!==0x50||bytes[1]!==0x4b){
+    throw new Error('template.xlsx is geen geldig Excel-bestand.');
+  }
+
+  var entries=parseZip(bytes);
+  var sheet=entries.find(function(entry){
+    return entry.name===TARGET_SHEET;
+  });
+
+  if(!sheet){
+    throw new Error('Werkblad niet gevonden in template.xlsx.');
+  }
+
+  // De meegeleverde template gebruikt STORE voor sheet1.xml.
+  // Daardoor hoeft Android/Chrome geen DecompressionStream te gebruiken.
+  if(sheet.method!==0){
+    throw new Error('template.xlsx is nog de oude versie. Upload de nieuwe template.xlsx naast index.html.');
+  }
+
+  return true;
+}
+
+function loadTemplateBytes(){
+  if(templateBytesCache){
+    return Promise.resolve(templateBytesCache.slice());
+  }
+
+  if(templateLoadPromise){
+    return templateLoadPromise.then(function(bytes){
+      return bytes.slice();
+    });
+  }
+
+  var templateUrl=new URL(TEMPLATE_FILE_NAME,document.baseURI).href;
+
+  templateLoadPromise=fetch(templateUrl,{cache:'no-store'})
+    .then(function(response){
+      if(!response.ok){
+        throw new Error('template.xlsx kon niet worden geladen (HTTP '+response.status+').');
+      }
+      return response.arrayBuffer();
+    })
+    .then(function(buffer){
+      var bytes=new Uint8Array(buffer);
+      validateTemplateBytes(bytes);
+      templateBytesCache=bytes;
+      templateLoadError=null;
+      return bytes;
+    })
+    .catch(function(error){
+      templateLoadError=error;
+      templateLoadPromise=null;
+      throw error;
+    });
+
+  return templateLoadPromise.then(function(bytes){
+    return bytes.slice();
+  });
+}
+
+function preloadTemplate(){
+  return loadTemplateBytes()
+    .then(function(){
+      return true;
+    })
+    .catch(function(error){
+      console.error('Template laden mislukt',error);
+      return false;
+    });
+}
+
+function requireLoadedTemplate(){
+  if(!templateBytesCache){
+    var reason=templateLoadError&&templateLoadError.message
+      ? ' '+templateLoadError.message
+      : '';
+    throw new Error(
+      'Het Excel-template is nog niet beschikbaar.'+
+      reason+
+      ' Vernieuw de pagina nadat de nieuwe template.xlsx op GitHub Pages staat.'
+    );
+  }
+
+  return templateBytesCache.slice();
+}
+
+function bytesToBase64(bytes){var binary='',chunk=0x8000;for(var i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode.apply(null,bytes.subarray(i,Math.min(i+chunk,bytes.length)));return btoa(binary)}
+function base64ToBytes(base64){var binary=atob(base64),bytes=new Uint8Array(binary.length);for(var i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return bytes}
+function findEOCD(bytes){var start=Math.max(0,bytes.length-65557);for(var i=bytes.length-22;i>=start;i--){if(bytes[i]===0x50&&bytes[i+1]===0x4b&&bytes[i+2]===0x05&&bytes[i+3]===0x06)return i}throw new Error('Ongeldige XLSX: ZIP-eindrecord niet gevonden')}
+function parseZip(bytes){
+  var dv=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength),eocd=findEOCD(bytes),count=dv.getUint16(eocd+10,true),pointer=dv.getUint32(eocd+16,true),decoder=new TextDecoder('utf-8'),entries=[];
+  for(var i=0;i<count;i++){
+    if(dv.getUint32(pointer,true)!==0x02014b50)throw new Error('Ongeldige ZIP central directory');
+    var versionMade=dv.getUint16(pointer+4,true),versionNeeded=dv.getUint16(pointer+6,true),flags=dv.getUint16(pointer+8,true),method=dv.getUint16(pointer+10,true),modTime=dv.getUint16(pointer+12,true),modDate=dv.getUint16(pointer+14,true),crc=dv.getUint32(pointer+16,true),compSize=dv.getUint32(pointer+20,true),uncompSize=dv.getUint32(pointer+24,true),nameLen=dv.getUint16(pointer+28,true),extraLen=dv.getUint16(pointer+30,true),commentLen=dv.getUint16(pointer+32,true),diskStart=dv.getUint16(pointer+34,true),intAttr=dv.getUint16(pointer+36,true),extAttr=dv.getUint32(pointer+38,true),localOffset=dv.getUint32(pointer+42,true),nameBytes=bytes.slice(pointer+46,pointer+46+nameLen),centralExtra=bytes.slice(pointer+46+nameLen,pointer+46+nameLen+extraLen),comment=bytes.slice(pointer+46+nameLen+extraLen,pointer+46+nameLen+extraLen+commentLen),name=decoder.decode(nameBytes);
+    if(dv.getUint32(localOffset,true)!==0x04034b50)throw new Error('Ongeldige ZIP local header');
+    var localNameLen=dv.getUint16(localOffset+26,true),localExtraLen=dv.getUint16(localOffset+28,true),localExtra=bytes.slice(localOffset+30+localNameLen,localOffset+30+localNameLen+localExtraLen),dataStart=localOffset+30+localNameLen+localExtraLen,compressed=bytes.slice(dataStart,dataStart+compSize);
+    entries.push({versionMade:versionMade,versionNeeded:versionNeeded,flags:flags,method:method,modTime:modTime,modDate:modDate,crc:crc,compSize:compSize,uncompSize:uncompSize,nameBytes:nameBytes,name:name,centralExtra:centralExtra,comment:comment,diskStart:diskStart,intAttr:intAttr,extAttr:extAttr,localExtra:localExtra,compressed:compressed});pointer+=46+nameLen+extraLen+commentLen;
+  }
+  return entries;
+}
+function unzipEntry(entry){
+  if(entry.method===0)return Promise.resolve(entry.compressed);if(entry.method!==8)throw new Error('Niet ondersteunde ZIP-compressie: '+entry.method);if(typeof DecompressionStream==='undefined')throw new Error('Deze browser/WebView ondersteunt de benodigde Excel-decompressie niet.');
+  var stream=new Blob([entry.compressed]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return new Response(stream).arrayBuffer().then(function(buffer){return new Uint8Array(buffer)});
+}
+function u16(value){var a=new Uint8Array(2);new DataView(a.buffer).setUint16(0,value,true);return a}
+function u32(value){var a=new Uint8Array(4);new DataView(a.buffer).setUint32(0,value>>>0,true);return a}
+function concat(parts){var length=parts.reduce(function(sum,part){return sum+part.length},0),out=new Uint8Array(length),offset=0;parts.forEach(function(part){out.set(part,offset);offset+=part.length});return out}
+var CRC_TABLE=null;
+function crc32(bytes){
+  if(!CRC_TABLE){CRC_TABLE=new Uint32Array(256);for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);CRC_TABLE[n]=c>>>0}}
+  var value=0xffffffff;for(var i=0;i<bytes.length;i++)value=CRC_TABLE[(value^bytes[i])&0xff]^(value>>>8);return (value^0xffffffff)>>>0;
+}
+function rebuildZipWithReplacement(original,targetName,replacementData){
+  var entries=parseZip(original);if(!entries.some(function(entry){return entry.name===targetName}))throw new Error('Werkblad niet gevonden in template');var localParts=[],centralParts=[],metas=[],offset=0;
+  entries.forEach(function(entry){var isTarget=entry.name===targetName,data=isTarget?replacementData:entry.compressed,method=isTarget?0:entry.method,crc=isTarget?crc32(replacementData):entry.crc,compSize=data.length,uncompSize=isTarget?replacementData.length:entry.uncompSize,flags=entry.flags&~0x0008;
+    var localHeader=concat([u32(0x04034b50),u16(entry.versionNeeded),u16(flags),u16(method),u16(entry.modTime),u16(entry.modDate),u32(crc),u32(compSize),u32(uncompSize),u16(entry.nameBytes.length),u16(entry.localExtra.length),entry.nameBytes,entry.localExtra]);localParts.push(localHeader,data);metas.push(Object.assign({},entry,{flags:flags,method:method,crc:crc,compSize:compSize,uncompSize:uncompSize,offset:offset}));offset+=localHeader.length+data.length;
+  });
+  var cdOffset=offset;metas.forEach(function(entry){var central=concat([u32(0x02014b50),u16(entry.versionMade),u16(entry.versionNeeded),u16(entry.flags),u16(entry.method),u16(entry.modTime),u16(entry.modDate),u32(entry.crc),u32(entry.compSize),u32(entry.uncompSize),u16(entry.nameBytes.length),u16(entry.centralExtra.length),u16(entry.comment.length),u16(entry.diskStart),u16(entry.intAttr),u32(entry.extAttr),u32(entry.offset),entry.nameBytes,entry.centralExtra,entry.comment]);centralParts.push(central);offset+=central.length});
+  var cdSize=offset-cdOffset,eocd=concat([u32(0x06054b50),u16(0),u16(0),u16(metas.length),u16(metas.length),u32(cdSize),u32(cdOffset),u16(0)]);return concat(localParts.concat(centralParts,[eocd]));
+}
+function buildExcelBytes(state){
+  var original=requireLoadedTemplate();
+  var entries=parseZip(original);
+
+  var sheetEntry=entries.find(function(entry){
+    return entry.name===TARGET_SHEET;
+  });
+
+  if(!sheetEntry){
+    throw new Error('Werkblad niet gevonden in template.');
+  }
+
+  if(sheetEntry.method!==0){
+    throw new Error('De nieuwe template.xlsx is niet geladen. Upload de meegeleverde template.xlsx opnieuw.');
+  }
+
+  var sheetBytes=sheetEntry.compressed;
+  var xml=new TextDecoder('utf-8').decode(sheetBytes);
+
+  xml=setCellText(xml,'D1',state.monteur);
+  xml=setCellText(xml,'D2',state.pop);
+  xml=setCellNumber(xml,'H1',excelSerial(state.datum));
+  xml=setCellText(xml,'H2',state.plaats);
+
+  state.items.forEach(function(item,index){
+    var row=5+index;
+
+    xml=setCellText(
+      xml,
+      'E'+row,
+      item.status
+    );
+
+    xml=setCellText(
+      xml,
+      'F'+row,
+      getQuestionPhotos(index+1).length
+        ? 'Ja'
+        : ''
+    );
+
+    xml=setCellText(
+      xml,
+      'G'+row,
+      item.reported
+    );
+
+    xml=setCellText(
+      xml,
+      'H'+row,
+      item.note.trim()
+    );
+  });
+
+  xml=setCellText(
+    xml,
+    'C26',
+    state.generalNotes.trim()
+  );
+
+  // De gekozen kwaliteit wordt alleen in de bestaande Excel-kwaliteitscel gezet.
+  xml=setCellText(
+    xml,
+    'H26',
+    state.quality
+  );
+
+  return rebuildZipWithReplacement(
+    original,
+    TARGET_SHEET,
+    new TextEncoder().encode(xml)
+  );
+}
+
+
+// Simpele ZIP-writer (store/no compression) voor Excel + losse foto's.
+function makeStoredZip(files){
+  var encoder=new TextEncoder(),locals=[],centrals=[],meta=[],offset=0,now=new Date(),dosTime=(now.getHours()<<11)|(now.getMinutes()<<5)|Math.floor(now.getSeconds()/2),dosDate=((Math.max(1980,now.getFullYear())-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+  files.forEach(function(file){var nameBytes=encoder.encode(file.name),data=file.bytes instanceof Uint8Array?file.bytes:new Uint8Array(file.bytes),crc=crc32(data),local=concat([u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(dosTime),u16(dosDate),u32(crc),u32(data.length),u32(data.length),u16(nameBytes.length),u16(0),nameBytes]);locals.push(local,data);meta.push({nameBytes:nameBytes,data:data,crc:crc,offset:offset});offset+=local.length+data.length});
+  var centralOffset=offset;meta.forEach(function(entry){var central=concat([u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(dosTime),u16(dosDate),u32(entry.crc),u32(entry.data.length),u32(entry.data.length),u16(entry.nameBytes.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(entry.offset),entry.nameBytes]);centrals.push(central);offset+=central.length});
+  return concat(locals.concat(centrals,[u32(0x06054b50),u16(0),u16(0),u16(meta.length),u16(meta.length),u32(offset-centralOffset),u32(centralOffset),u16(0)]));
+}
+function downloadBytes(bytes,fileName,mime){var blob=new Blob([bytes],{type:mime||'application/octet-stream'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=fileName;document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},2500)}
+function buildOutputPackage(state){
+  return {
+    excelName:excelName(state),
+    excelBytes:buildExcelBytes(state),
+    photos:collectPhotoAttachments()
+  };
+}
+
+$('makeZip').addEventListener('click',function(){
+  var button=$('makeZip');
+  var state=getState();
+
+  if(!confirmOutput(state))return;
+
+  button.disabled=true;
+  button.textContent='ZIP maken...';
+
+  try{
+    var output=buildOutputPackage(state);
+    var files=[
+      {
+        name:output.excelName,
+        bytes:output.excelBytes
+      }
+    ];
+
+    output.photos.forEach(function(photo){
+      files.push({
+        name:photo.name,
+        bytes:photo.bytes
+      });
+    });
+
+    var zip=makeStoredZip(files);
+
+    downloadBytes(
+      zip,
+      zipName(state),
+      'application/zip'
+    );
+
+    showToast(
+      'ZIP gemaakt: Excel + '+
+      output.photos.length+
+      (
+        output.photos.length===1
+          ? ' foto'
+          : " foto's"
+      )
+    );
+  }catch(error){
+    console.error(error);
+    alert(
+      'ZIP maken is mislukt: '+
+      (
+        error&&error.message
+          ? error.message
+          : String(error)
+      )
+    );
+  }finally{
+    button.disabled=false;
+    button.textContent='ZIP maken';
+  }
+});
+
+
+function buildMailText(state){
+  var lines=['PoP inspectie','','PoP naam: '+(state.pop||'-'),'Stad / plaats: '+(state.plaats||'-'),'Datum: '+(displayDate(state.datum)||'-'),'','Checklist:'];
+  state.items.forEach(function(item,index){var line=(index+1)+'. '+(item.status||'Niet ingevuld');if(item.reported)line+=' | '+item.reported;if(item.note.trim())line+=' | '+item.note.trim();lines.push(line)});
+  if(state.generalNotes.trim()){lines.push('','Overige opmerkingen:',state.generalNotes.trim())}return lines.join('\n');
+}
+function shareViaCapacitor(title,text,output){
+  try{
+    var plugins=window.Capacitor&&window.Capacitor.Plugins?window.Capacitor.Plugins:null,Filesystem=plugins&&plugins.Filesystem?plugins.Filesystem:null,Share=plugins&&plugins.Share?plugins.Share:null;
+    if(!Filesystem||!Share||typeof Filesystem.writeFile!=='function'||typeof Filesystem.getUri!=='function'||typeof Share.share!=='function')return Promise.resolve(false);
+    var files=[],stamp=Date.now(),jobs=[];
+    function writeOne(name,bytes){var path=stamp+'_'+name;return Filesystem.writeFile({path:path,data:bytesToBase64(bytes),directory:'CACHE'}).then(function(){return Filesystem.getUri({directory:'CACHE',path:path})}).then(function(result){files.push(result.uri)})}
+    jobs.push(writeOne(output.excelName,output.excelBytes));output.photos.forEach(function(photo){jobs.push(writeOne(photo.name,photo.bytes))});
+    return Promise.all(jobs).then(function(){return Share.share({title:title,text:text,files:files,dialogTitle:'E-mail opstellen'}).then(function(){return true})});
+  }catch(e){return Promise.resolve(false)}
+}
+function shareViaWeb(title,text,output){
+  if(!navigator.share||typeof File==='undefined'){
+    return null;
+  }
+
+  var files=[
+    new File(
+      [output.excelBytes],
+      output.excelName,
+      {
+        type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }
+    )
+  ];
+
+  output.photos.forEach(function(photo){
+    files.push(
+      new File(
+        [photo.bytes],
+        photo.name,
+        {
+          type:photo.type||'image/jpeg'
+        }
+      )
+    );
+  });
+
+  if(
+    navigator.canShare&&
+    !navigator.canShare({
+      files:files
+    })
+  ){
+    return null;
+  }
+
+  // Deze functie wordt rechtstreeks vanuit de klik-handler aangeroepen,
+  // zodat Android de vereiste user activation voor Web Share behoudt.
+  return navigator.share({
+    title:title,
+    text:text,
+    files:files
+  });
+}
+
+function fallbackMail(title,text,state,output){
+  var zipFiles=[{name:output.excelName,bytes:output.excelBytes}];output.photos.forEach(function(photo){zipFiles.push({name:photo.name,bytes:photo.bytes})});downloadBytes(makeStoredZip(zipFiles),zipName(state),'application/zip');
+  alert("Deze viewer kan bijlagen niet automatisch aan een e-mail koppelen. De ZIP met Excel en losse foto's wordt daarom gedownload. In de Tools-APK/Android-deelfunctie worden Excel en foto's wel als losse bijlagen meegestuurd.");
+  window.location.href='mailto:?subject='+encodeURIComponent(title)+'&body='+encodeURIComponent(text);
+}
+$('composeEmail').addEventListener('click',function(){
+  var button=$('composeEmail');
+  var state=getState();
+
+  if(!confirmOutput(state))return;
+
+  button.disabled=true;
+  button.textContent='E-mail voorbereiden...';
+
+  var output;
+  var title;
+  var text;
+
+  try{
+    // Alles wordt vóór de share-aanroep synchroon uit geheugen opgebouwd.
+    // Hierdoor blijft de Android/Chrome user activation geldig.
+    output=buildOutputPackage(state);
+
+    title=
+      'PoP Inspectie - '+
+      (state.pop||'PoP')+
+      ' - '+
+      (state.plaats||'Plaats');
+
+    text=buildMailText(state);
+  }catch(error){
+    console.error(error);
+    alert(
+      'E-mail voorbereiden is mislukt: '+
+      (
+        error&&error.message
+          ? error.message
+          : String(error)
+      )
+    );
+    button.disabled=false;
+    button.textContent='E-mail opstellen';
+    return;
+  }
+
+  var webShare;
+
+  try{
+    webShare=shareViaWeb(title,text,output);
+  }catch(error){
+    webShare=null;
+  }
+
+  if(webShare){
+    webShare
+      .catch(function(error){
+        if(error&&error.name==='AbortError'){
+          return;
+        }
+
+        console.error('Web Share mislukt',error);
+
+        fallbackMail(
+          title,
+          text,
+          state,
+          output
+        );
+      })
+      .finally(function(){
+        button.disabled=false;
+        button.textContent='E-mail opstellen';
+      });
+
+    return;
+  }
+
+  // Capacitor blijft als native APK-fallback beschikbaar.
+  shareViaCapacitor(title,text,output)
+    .then(function(shared){
+      if(!shared){
+        fallbackMail(
+          title,
+          text,
+          state,
+          output
+        );
+      }
+    })
+    .catch(function(error){
+      console.error(error);
+      fallbackMail(
+        title,
+        text,
+        state,
+        output
+      );
+    })
+    .finally(function(){
+      button.disabled=false;
+      button.textContent='E-mail opstellen';
+    });
+});
+
+
+function initPhotos(){
+  for(var q=1;q<=15;q++){
+    photoStore[q]=[];
+  }
+
+  return loadAllPhotos()
+    .then(function(records){
+      return Promise.all(
+        records.map(function(record){
+          return normalizeStoredPhoto(record);
+        })
+      );
+    })
+    .then(function(records){
+      var removed=0;
+
+      records.forEach(function(record){
+        if(!record){
+          removed++;
+          return;
+        }
+
+        var q=Number(record.question);
+
+        if(q>=1&&q<=15){
+          photoStore[q].push(record);
+        }
+      });
+
+      for(var q=1;q<=15;q++){
+        photoStore[q].sort(function(a,b){
+          return (a.createdAt||0)-(b.createdAt||0);
+        });
+        renderPhotos(q);
+      }
+
+      if(removed>0){
+        showToast(
+          removed===1
+            ? '1 oude foto kon niet worden hersteld'
+            : removed+' oude foto\'s konden niet worden hersteld'
+        );
+      }
+    })
+    .catch(function(error){
+      console.error('Foto-opslag laden mislukt',error);
+
+      for(var q=1;q<=15;q++){
+        renderPhotos(q);
+      }
+    });
+}
+
+(function init(){
+  setTheme(
+    safeStorageGet('toolsTheme')||'dark',
+    false
+  );
+
+  var saved=safeStorageGet(STORAGE_KEY);
+  var migratedFromLegacy=false;
+
+  // Een bestaande gebruiker mag één keer van V6/V5/V3 naar V7 migreren.
+  // Na een succesvolle migratie worden de oude keys verwijderd, zodat ze later
+  // nooit meer als onverwachte fallback terug kunnen komen.
+  if(!saved){
+    for(var legacyIndex=LEGACY_STORAGE_KEYS.length-1;legacyIndex>=0;legacyIndex--){
+      var legacyValue=safeStorageGet(LEGACY_STORAGE_KEYS[legacyIndex]);
+      if(legacyValue){
+        saved=legacyValue;
+        migratedFromLegacy=true;
+        break;
+      }
+    }
+  }
+
+  if(saved){
+    try{
+      applyState(JSON.parse(saved));
+
+      if(migratedFromLegacy){
+        saveState();
+      }
+
+      // Zodra V7 geldig is geladen, zijn oudere generaties niet meer nodig.
+      clearLegacyFormStorage();
+    }catch(error){
+      console.error('Opgeslagen formulier kon niet worden geladen',error);
+      $('datum').value=localDateISO();
+    }
+  }else{
+    $('datum').value=localDateISO();
+  }
+
+  updateVisualState();
+  initPhotos();
+
+  // Laad de Excel-template meteen tijdens het invullen.
+  // Daardoor zijn ZIP en E-mail later volledig lokaal en synchroon op te bouwen.
+  preloadTemplate();
+})();
+
+</script>
+<script src="../../shared/assistant-mini.js"></script>\n</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Afstandsbediening codes</title>
+<style>
+:root{--bg:#f4f6fa;--panel:#ffffff;--panel2:#eef1f7;--text:#10141d;--muted:#667085;--border:#d6dbe6;--accent:#00C300;--danger:#c91d1d;--success:#148a42;--warning:#c47a00;--input:#ffffff;--shadow:0 12px 30px rgba(16,24,40,.14)}
+body.dark{--bg:#07090d;--panel:#11151d;--panel2:#0c0f15;--text:#f4f6fb;--muted:#a8afbd;--border:#2a303c;--accent:#e02020;--danger:#e02020;--success:#159947;--warning:#f59e0b;--input:#090c12;--shadow:0 16px 38px rgba(0,0,0,.42)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh}
+.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--border)}
+.top-inner{max-width:760px;margin:0 auto;padding:16px 18px;display:flex;align-items:center;gap:12px}
+.head{flex:1;min-width:0}
+.head-title{font-size:28px;line-height:1.1;font-weight:900}
+.icon-bar{display:flex;gap:10px;position:relative}
+.icon-button{width:46px;height:46px;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:10px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.settings{display:none;position:absolute;right:0;top:54px;width:310px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;z-index:80;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.settings.open{display:block}
+.settings h3{margin:0 0 10px 0}
+.setting-row{display:flex;justify-content:space-between;padding:10px;border-radius:8px;cursor:pointer}
+.setting-row:hover{background:var(--panel2)}
+.main{max-width:760px;margin:0 auto;padding:14px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+.card-inner{padding:16px;display:grid;gap:14px}
+.card-title{margin:0;font-size:25px;line-height:1.1;font-weight:900}
+label{display:block;margin-bottom:7px;font-size:14px;font-weight:800}
+input,select{width:100%;border:1px solid var(--border);background:var(--input);color:var(--text);border-radius:13px;padding:13px 14px;outline:none;min-height:52px}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,195,0,.18)}
+body.dark input:focus,body.dark select:focus{box-shadow:0 0 0 3px rgba(224,32,32,.22)}
+.btn{border:0;background:var(--accent);color:#fff;border-radius:14px;padding:14px 16px;font-weight:900;min-height:48px}
+.btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.result-content{display:grid;gap:10px}
+.brand-name{font-size:26px;font-weight:900;line-height:1.1}
+.remote-name{font-size:14px;color:var(--muted);line-height:1.35}
+.codes{display:flex;flex-wrap:wrap;gap:10px;margin-top:2px}
+.code{border:1px solid var(--border);background:var(--panel2);border-radius:14px;padding:12px 14px;font-size:20px;font-weight:900;letter-spacing:1px;cursor:pointer;user-select:none}
+.code.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,195,0,.12)}
+body.dark .code.active{box-shadow:0 0 0 3px rgba(224,32,32,.12)}
+.program-steps{display:grid;gap:10px}
+.program-step{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:12px}
+.program-number{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:14px}
+.program-text{font-size:14px;line-height:1.45;color:var(--text);font-weight:700}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--text);color:var(--panel);border-radius:999px;padding:12px 18px;font-weight:900;z-index:90;display:none;text-align:center;max-width:calc(100% - 32px)}
+.toast.show{display:block}
+.hidden{display:none!important}
+@media(max-width:560px){
+.top-inner{padding:15px 18px}
+.head-title{font-size:25px}
+.main{padding:12px}
+.card-title{font-size:24px}
+.settings{width:280px}
+}
+
+.top{position:sticky;top:0;z-index:20;background:var(--accent);color:#fff;border-bottom:0;border-bottom-left-radius:18px;border-bottom-right-radius:18px;box-shadow:var(--shadow)}
+.top-inner{max-width:760px;margin:0 auto;padding:20px 18px 18px;display:grid;grid-template-columns:46px 1fr 46px;align-items:center;gap:12px}
+.head-title{color:#fff;font-size:22px;font-weight:900;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .icon-bar{display:grid;place-items:center;position:relative}
+.top .icon-button{width:46px;height:46px;padding:0;border:1px solid rgba(255,255,255,.22);border-radius:15px;background:rgba(255,255,255,.18);color:#fff;font-size:24px;font-weight:900;line-height:1;display:grid;place-items:center;text-align:center}
+.top #settingsButton{font-size:0}
+.top #settingsButton::before{content:"⚙";font-size:28px;line-height:1;display:block;transform:translateY(-1px)}
+.top .settings{color:var(--text);right:0;top:54px}
+
+
+/* Tools APK shared header/button fix */
+#settingsButton{display:grid!important;place-items:center!important;padding:0!important;line-height:0!important;text-align:center!important;font-size:0!important;overflow:hidden!important}
+#settingsButton::before{content:none!important;display:none!important}
+#settingsButton .settings-gear{width:30px!important;height:30px!important;display:block!important;color:currentColor!important;flex:0 0 auto!important;margin:0!important;transform:none!important}
+.header-button,.icon-button,.settings-btn{display:grid;place-items:center;padding:0;line-height:0;text-align:center}
+.header-button .settings-gear,.icon-button .settings-gear,.settings-btn .settings-gear{width:30px;height:30px;display:block;color:currentColor}
+
+.top{position:sticky!important;top:0!important;z-index:20!important;background:var(--accent)!important;color:#fff!important;border-bottom:0!important;border-bottom-left-radius:18px!important;border-bottom-right-radius:18px!important;box-shadow:var(--shadow)!important}
+.top-inner{max-width:760px!important;margin:0 auto!important;padding:20px 18px 18px!important;display:grid!important;grid-template-columns:minmax(0,1fr) 46px!important;align-items:center!important;gap:12px!important}
+.head-title{color:#fff!important;font-size:22px!important;font-weight:900!important;line-height:1.1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.top .icon-bar{justify-self:end!important;display:grid!important;place-items:center!important;position:relative!important}
+.top .icon-button{width:46px!important;height:46px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:15px!important;background:rgba(255,255,255,.18)!important;color:#fff!important}
+.top .settings{color:var(--text)!important;right:0!important;top:54px!important}
+#homeButton{display:none!important}
+
+</style>
+</head>
+<body class="dark">
+<div class="app">
+<header class="top">
+<div class="top-inner">
+<div class="head">
+<div class="head-title">Afstandsbediening codes</div>
+</div>
+<div class="icon-bar">
+<button class="icon-button" id="settingsButton" type="button"><svg class="settings-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/><circle cx="12" cy="12" r="3.2" fill="var(--panel)"/></svg></button>
+<div class="settings" id="settingsPanel">
+<h3>Instellingen</h3>
+<div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div>
+<div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div>
+</div>
+</div>
+</div>
+</header>
+
+<main class="main">
+<section class="card">
+<div class="card-inner">
+<h1 class="card-title">Code zoeken</h1>
+
+<div>
+<label for="remoteSelect">Type afstandsbediening</label>
+<select id="remoteSelect">
+<option value="KPN IR / Bluetooth 5202-7022-3918">KPN IR / Bluetooth 5202-7022-3918</option>
+<option value="Afstandsbediening C2">Afstandsbediening C2</option>
+<option value="Afstandsbediening D3">Afstandsbediening D3</option>
+</select>
+</div>
+
+<div>
+<label for="brandSelect">Merk televisie</label>
+<select id="brandSelect">
+<option value="Grundig">Grundig</option>
+<option value="Hisense">Hisense</option>
+<option value="LG">LG</option>
+<option value="Loewe">Loewe</option>
+<option value="Nokia">Nokia</option>
+<option value="Panasonic">Panasonic</option>
+<option value="Philips">Philips</option>
+<option value="Samsung">Samsung</option>
+<option value="Sharp">Sharp</option>
+<option value="Sony">Sony</option>
+<option value="Thomson">Thomson</option>
+</select>
+</div>
+
+<button class="btn" id="showButton" type="button">Toon codes</button>
+</div>
+</section>
+
+<section class="card">
+<div class="card-inner">
+<h2 class="card-title">Programmeren</h2>
+<div class="program-steps" id="programSteps">
+<div class="program-step"><div class="program-number">1</div><div class="program-text">Druk source en OK tegelijk in tot het rode lampje brandt.</div></div>
+<div class="program-step"><div class="program-number">2</div><div class="program-text">Toets de tv-code in.</div></div>
+<div class="program-step"><div class="program-number">3</div><div class="program-text">Rood lampje knippert twee keer.</div></div>
+<div class="program-step"><div class="program-number">4</div><div class="program-text">Test volume en druk daarna op de aan/uit-knop.</div></div>
+</div>
+</div>
+</section>
+
+<section class="card" id="resultCard">
+<div class="card-inner">
+<div id="resultBox" class="result-content">
+<div class="brand-name">Grundig</div>
+<div class="remote-name">KPN IR / Bluetooth 5202-7022-3918</div>
+<div class="codes">
+<div class="code active" data-index="0">005</div>
+<div class="code" data-index="1">328</div>
+<div class="code" data-index="2">337</div>
+<div class="code" data-index="3">625</div>
+<div class="code" data-index="4">657</div>
+</div>
+</div>
+<button class="btn secondary" id="nextButton" type="button">Volgende</button>
+</div>
+</section>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+var remoteData={"KPN IR / Bluetooth 5202-7022-3918":{"MEI":["005"],"DEC":["603"],"ACCENT":["005","022"],"ACCUPHASE":["005"],"ACER":["205","589","728"],"ACTION":["005","022","171","200","317"],"ACURA":["005","022"],"ADCOM":["161"],"ADMIRAL":["005","022","045","052","088","186","318","381","477"],"ADVENTURA":["030"],"ADYSON":["005","180","200","324","325","384"],"AEA":["005","030"],"AEG":["030","295","299","309"],"AGASHI":["318","324","325"],"AGB":["180"],"AGEF":["186"],"AIKO":["005","022","228","318","322","325"],"AIM":["005","239","309","312"],"AIWA":["340","551","729","730"],"AKAI":["001","005","009","022","079","100","102","117","180","193","197","198","200","228","244","309","312","318","325","328"],"AKASHI":["022"],"AKIBA":["005","197"],"AKIRA":["470"],"AKITO":["005"],"AKURA":["005","009","022","197","318","541"],"ALARON":["324"],"ALBA":["005","009","022","052","092","134","180","194","197","198","324","328","366","704"],"ALBIRAL":["135"],"ALFA":["005"],"ALIEN":["005"],"ALLORGAN":["155","180","206","325"],"ALLSTAR":["005"],"ALTUS":["625"],"AMBASSADOR":["030","390"],"AMERICAN HIGH":["317"],"AMOI":["544"],"AMPLIVISION":["092","180","325"],"AMSTRAD":["005","022","058","102","144","199","318"],"ANAM NATIONAL":["005","022","188"],"ANDERSSON":["295"],"ANGA":["030","390"],"ANGLO":["022","318"],"ANITECH":["005","022","083","197","200","213","318","384"],"ANSONIC":["005","022","052","092","205","213","216"],"AOC":["005","200","352"],"AR SYSTEM":["005","140","387"],"ARC EN CIEL":["164","165","171","196","217","221"],"ARCAM":["180","217","324","325"],"ARCELIK":["625"],"ARCON":["295"],"ARCTIC":["625"],"ARDEM":["005","009"],"ARENA":["005","328"],"ARISTONA":["005","205"],"ARSTIL":["625"],"ART TECH":["005"],"ARTEL":["001"],"ARTHUR-MARTIN":["015","021","052"],"ASA":["052","085","108","109","186","246","381"],"ASBERG":["005","083","123","213"],"ASORA":["022"],"ASTON":["353"],"ASTRA":["005","022"],"ASTRELL":["414"],"ASUKA":["180","197","318","324","325"],"ATD":["239"],"ATLANTIC":["005","155","261","324"],"ATORI":["022"],"ATORO":["022"],"AUCHAN":["015","021","052"],"AUDIOSONIC":["005","009","022","092","128","171","180","197","216","318","325"],"AUDIOTON":["022","092","180","318","325"],"AUDIOVOX":["005"],"AUDIOWORLD":["239"],"AUMARK":["317"],"AUTOVOX":["005","155","180","184","186","206","230","325","381"],"AWA":["005","022","202","210","299","309","318","325","342"],"AXITRONIC":["412"],"AXXENT":["022"],"AXXON":["009"],"BAIRD":["168","171","309","312","325"],"BANG & OLUFSEN":["155","186","381","717"],"BARCO":["052"],"BASIC LINE":["005","022","052","197","216","325"],"BASTIDE":["180","325"],"BAUER":["022","102","239","318"],"BAUR":["005","022","032","101","102","108","222","225","228","230","322"],"BAZIN":["325"],"BBK":["264","265","266","267","355","734"],"BEAUMARK":["244"],"BEC":["005","180"],"BECRESE":["005","030","108","171","193","200"],"BEKO":["005","009","092","107","128","168","309","625"],"BELL & HOWELL":["005"],"BELSON":["319"],"BELSTAR":["005"],"BENCHMARK-BEAUMARK":["005","022","200","317"],"BENQ":["515"],"BEON":["005","123"],"BERLIN":["625"],"BEST":["092"],"BESTAR":["005","021","092","216"],"BESTAR-DAEWOO":["216"],"BEXA":["362"],"BIGSTON":["022"],"BINATONE":["325"],"BLACK DIAMOND":["005","295"],"BLACK PANTHER":["213"],"BLACKSTRIPE":["108","193","317"],"BLAUPUNKT":["067","079","100","101","102","106","197","198","228","311","366"],"BLOMBERG":["625"],"BLOOM":["005"],"BLUE SKY":["005","009","128","197","319","541"],"BONDSTEC":["022","184","206","325"],"BOSE":["496"],"BPL":["005"],"BRANDT":["109","145","147","158","161","164","165","171","196","217","219","221"],"BRAUN":["268"],"BRENDSTAR":["022"],"BRINKMANN":["005","123"],"BRIONVEGA":["005","058","186","295"],"BRIORRYEGA":["005","381"],"BRITANNIA":["324","325"],"BROCKWOOD":["030","193","200","390"],"BROKSONIC":["030","193","200"],"BROTHER":["318"],"BRUNS":["186","381"],"BSR":["015","021","052","206","322"],"BTC":["197"],"BUSH":["005","009","022","134","180","194","197","198","207","216","239","312","318","322","325","328","352","385","500","603"],"CAMERON":["005","253","254"],"CAMPLE":["030","193","200","390"],"CANDLE":["200"],"CAPEHART":["005","193","200"],"CAPSONIC":["318"],"CARAD":["005"],"CARENA":["005"],"CARREFOUR":["005","194"],"CARVER":["005","311"],"CASCADE":["005","022"],"CASIO":["005","052","230"],"CATHAY":["005"],"CCE":["005","325"],"CELCUS":["328"],"CELLO":["463","467","632"],"CENTURION":["005","474"],"CENTURY":["184","185","186","229","381"],"CETOMER":["424"],"CGE":["015","022","052","083","092","123","184","185","217"],"CGM":["022","197"],"CGV":["410"],"CHANGHONG":["001","005","599","681"],"CHIQ":["001","005","599","681"],"CIE":["022","102","216"],"CIHAN":["005"],"CIMLINE":["022","198"],"CIRCUIT CITY":["030","193","200","390"],"CITIZEN":["005","200","317"],"CITY":["022"],"CLAIRTONE":["328"],"CLARIVOX":["005","126","182","184","213"],"CLASS HD":["736"],"CLATRONIC":["005","009","021","022","083","092","180","184","185","197","213","309","318","325"],"CLAYTON":["005","328"],"CME":["047"],"CMS":["324"],"CMS HIGHTEC":["325"],"COBY":["431"],"COLORTYME":["005","317"],"COMGENIUS":["527"],"COMPUTRON":["022"],"CONCORDE":["022"],"CONDOR":["005","022","052","092","184","213","318","324"],"CONIC":["005","193","200"],"CONRAC":["133"],"CONRAD":["005"],"CONTEC":["005","022","194","197","210","318","324"],"CONTINENTAL EDISON":["025","109","145","164","165","171","196","217","221"],"CORFUG":["005"],"CORONADO":["200"],"COSMEL":["005","022"],"CRAIG":["005","457"],"CROSLEY":["015","083","184","185","186","193","381"],"CROSSWOOD":["005"],"CROWN":["005","009","021","022","083","092","128","200","309","310","312"],"CRYSTAL":["001","005"],"CS ELECTRONICS":["324"],"CTC":["184"],"CTC CLATRONIC":["123"],"CURTIS MATHES":["005","045","193","200","317"],"CYBERTRON":["180"],"DAEWOO":["005","009","015","022","141","180","200","216","239","325"],"DAICHI":["022"],"DAINICHI":["197","324"],"DANSAI":["005","022","194","200","312","318","324","325"],"DANTAX":["009","092","128","309"],"DARLING":["452"],"DATSURA":["312"],"DAWA":["005","022"],"DAYTEK":["239","318"],"DAYTRON":["005","022","108","200","216"],"DCE":["005"],"DE GRAAF":["052","079","312"],"DECCA":["005","124","133","180","189","210","325"],"DEITRON":["005","216"],"DELTON":["005"],"DENKO":["318"],"DENVER":["005","008","022","309","523","541"],"DESMET":["005","022","186"],"DEXP":["001","765"],"DIAMANT":["005"],"DIAMOND":["022","239","318","324"],"DIBOSS":["005"],"DICK SMITH":["299","366"],"DIGIHOME":["005","328"],"DIGILINE":["005"],"DIGILOGIC":["005","328"],"DIGIMATE":["498"],"DIGISTAR":["513"],"DIGITAL":["001","711"],"DIGITALBOX":["474"],"DIGITOR":["005","236","322"],"DIK":["005"],"DISTAR":["256"],"DIXI":["005","022","186","325"],"DL":["008","603"],"DMTECH":["005","328","623","809"],"DORIC":["061","230"],"DSC":["299"],"DSE":["001","005","237","241","242","299","428"],"DUAL":["005","022","090","168","180","197","217","230","261","325","328","525"],"DUINAMAI":["355"],"DUMONT":["030","135","180","186","193","200","213","246","325","381"],"DUNAI":["052"],"DURABRAND":["005"],"DUX":["005","205"],"DVICO":["361"],"D-VISION":["005"],"DYNAMIC":["022"],"DYNATECH":["030","180","193","200","390"],"DYNATRON":["005","205"],"DYNEX":["005","250","355","477","600","601","603","604","608","609","610"],"E:MAX":["309"],"EATON":["317"],"ECCO":["239"],"ECR":["193"],"EDISON":["171","328"],"EKSPERTEN VEST":["047"],"ELBE":["005","092","100","182","226","228","229","322","325","328"],"ELBIT":["005"],"ELCIT":["052","184","186","213","381"],"ELECS":["005"],"ELECTRATUNE":["200"],"ELECTRO":["030"],"ELECTRO TECH":["022"],"ELECTROHOME":["030","193","200","390"],"ELECTRON":["001"],"ELECTRONICS":["184","197"],"ELECTRONIKA":["005"],"ELEKTA":["001","005","022","318"],"ELEKTRABREGEN Z":["625"],"ELEMENT":["568","726"],"ELENBERG":["250","251","256"],"ELFUNK":["328"],"ELG":["005"],"ELIN":["005","022","079","108","246","324"],"ELITE":["005","193","197","200","317"],"ELMAK":["005"],"ELMAN":["021","135","168","213"],"ELTA":["021","022","318","324"],"EMERSON":["005","009","030","092","186","193","200","322"],"E-MOTION":["366","541"],"ENERGY SISTEM":["233","234"],"ENGEL":["626"],"EON":["193","317"],"EPC":["133","386"],"ERISSON":["547"],"ERRES":["005","205"],"ESC":["005","325"],"ESTELE":["052"],"ETRON":["005","015","022","052","300"],"EUROFEEL":["318","325"],"EUROMAN":["005","092","180","318","324","325"],"EUROPA":["005"],"EUROPHON":["005","052","135","180","184","213","325"],"EUROSKY":["005"],"EXCEL":["005"],"EXPERT":["015","021","052","121","155","261"],"EXQUISIT":["005"],"EYE TV":["343"],"F&U":["327","329"],"FAIRTEC":["319"],"FAMILY LIFE":["005"],"FENNER":["022","216"],"FERGUSON":["005","079","125","147","160","161","182","219","328","344"],"FIDELIS":["022"],"FIDELITY":["005","015","021","052","069","318","322","324"],"FILSAI":["022","325"],"FINLANDIA":["015","052","079","145","147","168","312","322"],"FINLUX":["005","009","109","120","128","180","213","246","325","328","673"],"FIRSTLINE":["005","009","022","180","184","206","213","216","229","312","319","322","325"],"FISHER":["018","092","180","186","195","246","312","322","325","381"],"FLAVEL":["625"],"FLINT":["005","318"],"FNR":["213"],"FORMENTI":["005","052","067","180","186","324","381"],"FORTRESS":["045","186","193","200","381"],"FOX":["329","363","637","659","661"],"FRABA":["005","092"],"FRIAC":["005","022","092","213"],"FRONTECH":["021","022","052","180","184","200","230","318","325"],"FUBA":["130"],"FUJI":["005","282"],"FUJICOM":["551"],"FUJITSU":["005","022","030","155","180","193","200","213","261","322","325"],"FUJITSU SIEMENS":["295"],"FUNAI":["005","022","030","193","200","206","318","328"],"FURRION":["551","655"],"FUTRONIC":["239","318"],"FUTURE":["005"],"GALAXIS":["005","052","092","123","196","213","322"],"GALERIA":["022"],"GBC":["015","021","022","052","180","216"],"GE (GENERAL ELECTRIC)":["147","158"],"GÉANT CASINO":["015","021","052"],"GEC":["005","133","180","212","322","325"],"GELOSO":["021","022","052","184","185","197","216"],"GEMSOUND":["022"],"GENERAL":["022","145","171","219"],"GENERAL DELUXE":["449"],"GENERAL TECHNIC":["022"],"GENESIS":["022"],"GENEXXA":["005","022","052","197"],"GIANT":["022","325"],"GITEM":["005","101","147","171"],"GM":["022"],"GMG":["022","123"],"GOGEN":["328"],"GOLDHAND":["022","324"],"GOLDSTAR":["005","009","022","088","092","100","101","129","171","180","184","200","206","300","309","317","322","325","800"],"GOODMANS":["005","009","022","134","147","158","161","180","194","216","237","318","325","328","445","555"],"GORENJE":["005","092","328"],"GPM":["022","197"],"GRADIENTE":["005","310","311"],"GRAETZ":["005","009","015","052","295","322","328"],"GRANADA":["005","027","030","079","111","158","161","180","194","205","312","325"],"GRANDIN":["005","009","021","022","052","121","128","134","140","197","216","222","275","282","283","285","287","288","297"],"GRENADIER":["022"],"GRONIC":["052","213","325"],"GRUNKEL":["295"],"GTT":["022","123"],"GZE UNIMOR":["015"],"HAIER":["001","008","239","244","289","299","318","328","340","348","352","366","456","536","642","721","745","746","747","750"],"HALIFAX":["318","324","325"],"HALLMARK":["030","108","193","200","390"],"HAMBURG":["625"],"HAMMERSTEIN":["317","318"],"HAMPTON":["180"],"HANNSPREE":["352","599","738"],"HANSEATIC":["005","009","022","090","092","101","186","206","322","325"],"HANTAREX":["005","022","180","213"],"HANTOR":["005"],"HARLEY DAVIDSON":["030","193","200","212","317","390"],"HARRAD":["030","193","200","390"],"HARVARD":["030","193","200","390"],"HARWOOD":["005","022"],"HAUPPAUGE":["005"],"HCM":["005","022","180","197","318","325"],"HEATHKIT":["005","030"],"HEDZON":["005"],"HEMA":["022","180","325"],"HEMMERMANN":["028","230"],"HIFIVOX":["164","165","171","196","217","221"],"HIGASHI":["324"],"HIGH":["317"],"HIGHLINE":["005","318"],"HILINE":["022"],"HINARI":["005","022","052","194","197","312","318"],"HISAWA":["009","197"],"HIT":["186"],"HITACHI":["005","030","079","108","165","171","182","194","202","209","244","325","328","483","796","797","817"],"HITACHI FUJIAN":["202"],"HITECH":["237"],"HITSU":["022"],"HKC":["551"],"HMV":["186"],"HÖHER":["005","009","295","328"],"HOME ELECTRONICS":["309"],"HORIZONT":["005","263","695"],"HORNYPHONE":["005","205"],"HOSHAI":["197"],"HOT":["712"],"HUANYU":["216","324"],"HUMAX":["330","331"],"HUSPI ELEKTRONIK":["123"],"HYGASHI":["180","324","325"],"HYPER":["022","180","184","206","324","325"],"HYPERSONIC":["322"],"HYPERVISION":["395"],"HYPSON":["005","009","022","128","180","229","318","325"],"HYUNDAI":["239","328","479","551","561","603"],"IBERIA":["005"],"IBERVISAO":["021"],"ICE":["005","022","180","197","318","324","325"],"ICOS":["205"],"ICT":["005"],"IIYAMA":["676"],"IMA":["030","193","200","390"],"IMPERIAL":["005","083","092","184","185","322"],"INDIANA":["005"],"INFINITY":["005"],"INFOCUS":["569"],"INGELEN":["009","052","128","322"],"INGERSOLL":["022"],"INNO HIT":["005","022","088","180","197","213","325"],"INNOVA":["005"],"INNOVATION":["005"],"INSIGNIA":["005","250","355","505","601","603","604","609","610"],"INTER":["575"],"INTERACTIVE":["005","052","092","171","186","205","221","322"],"INTERBUY":["005","022","184","318","384"],"INTERDISCOUNT":["005","145","147","171"],"INTERFUNK":["005","092","171","184","186","188","189","205","221","322","381"],"INTERNAL":["005","216"],"INTERNATIONAL":["324"],"INTERVISION":["005","022","052","092","180","184","197","213","228","318","325","384"],"IRRADIO":["005","022","083","088","184","197","206"],"ISIS":["328"],"IST":["005","180","197"],"ISUKAI":["005","197"],"ITC":["021","180","325"],"ITL":["022"],"ITS":["005","022","180","197","318","324"],"ITT NOKIA":["015","021","047","052","079","108","230","309","312","322","328"],"ITV":["005","216","318"],"IZUMI":["722"],"JACSON":["133","383"],"JAY-TECH":["329"],"JBL":["005"],"JCB":["030"],"JEAN":["194"],"JEC":["001"],"JETPOINT":["005","317"],"JINLIPU":["022"],"JMB":["005","216","328"],"JOCEL":["005","008","009","026","239"],"JOHN LEWIS":["328"],"JULIBEE":["005"],"JUMBOTRONIC":["005"],"JVC":["005","045","188","194","309","310","328","402","547"],"JWF":["309"],"KAIDO":["021"],"KAISER":["005"],"KAISUI":["005","022","180","197","324","325"],"KAMBROOK":["145"],"KAMP":["180","324"],"KAPSCH":["047","052","061","155","261","322"],"KARCHER":["005","009","022","052","092","213","309","318"],"KATHREIN":["005"],"KAWASHO":["324"],"KB ARISTOCRAT":["052"],"KENDO":["005","022","058","092","155","198","213","222","328"],"KENMARK":["356"],"KENNEDY":["052","058","155","261"],"KENNEX":["005"],"KENWOOD":["200"],"KIC":["325"],"KING":["473","513"],"KINGSLEY":["324"],"KIOTA":["022","300"],"KITON":["005"],"KLH":["030","193","200","390"],"KLOSS":["317"],"KNEISSEL":["005","015","090","092","100","216","229"],"KOBIC":["022"],"KOGAN":["250","342","534","536","537","538","541","542"],"KOLSTER":["005","213","230"],"KONICHI":["022"],"KÖNIG":["163","164","474"],"KONKA":["005","008","009","197","250","665"],"KORPEL":["005"],"KÖRTING":["092","186","189","381"],"KOSMOS":["005"],"KOTRON":["318"],"KOYODA":["022"],"KRAKING":["229"],"KREISEN":["456"],"KRIESLER":["205"],"KTV":["030","180","193","200","325"],"KUASHO":["005","200"],"KUBA":["028","052","230"],"KYOSHU":["318"],"KYOTO":["052","324","325"],"L&S ELECTRONIC":["009"],"LAMONT":["180"],"LASAT":["092"],"LAVIS":["005","052","328"],"LEADER":["022"],"LECSON":["005"],"LEGEND":["022"],"LEISURE":["625"],"LENCO":["005","008","022","024","052","216","366"],"LENOIR":["022"],"LENSON":["408","430"],"LESA":["184"],"LETV":["552"],"LEVIS AUSTRIA":["005"],"LEYCO":["005","206","318"],"LIESENKÖTTER":["005","205"],"LIFE":["022"],"LIFETEC":["005","009","022","216","318"],"LINITRON":["193","200"],"LINSAR":["005","328"],"LISTO":["328"],"LLOYD":["022","030","061","193","200","390","624"],"LLOYD'S":["022","300"],"LOGIK":["005","022","210","239","253","299","300","317","318","402","516","551","577","634","727"],"LOGIX":["005"],"LOWRY":["405"],"LUMA":["005","022","058","155","216","261"],"LUMATRON":["005","052","318","322","325"],"LUX MAY":["005","022"],"LUXOR":["079","088","118","120","312","325","328"],"LUXOR SALORA":["166"],"LUXOR/SKANTIC":["015"],"LXI":["005","244"],"MACYS":["193","200"],"MADISON":["005"],"MAGNADYNE":["005","015","022","180","184","185","186","213","381"],"MAGNAFON":["135","180","213","324"],"MAGNASONIC":["005","022","200"],"MAGNAVOX":["005","194"],"MAGNUM":["005","009","016","128"],"MANDOR":["318"],"MANESTH":["005","052","180","198","318","325"],"MANHATTAN":["005","052","494"],"MANTA":["679"],"MARANTZ":["005"],"MARCY´S":["193"],"MARELLI":["186","381"],"MARK":["005","009","022","128","216","324","325"],"MARKS & SPENCER":["467","632"],"MASCOT":["184"],"MASIMO":["329","768","769"],"MASUDA":["005","022","318","325"],"MATSUI":["005","009","022","025","100","102","139","158","180","194","198","207","210","221","228","230","312","325","328"],"MATSUSHITA":["188"],"MATSUVIAMA":["008"],"MAVA":["200"],"MAXAM":["022","318"],"MAXDORF":["239","318"],"MAXELL":["022"],"MAXESS":["377"],"MCE":["022"],"MCMICHAEL":["212"],"MEDIASONIC":["005"],"MEDIATOR":["005","205"],"MEDION":["005","009","239","297","328"],"MEGATRON":["244"],"MELECTRONIC":["005","009","022","108","111","118","168","171","180","216","228","246","322","325"],"MEMOREX":["022","030","188","317"],"MEMPHIS":["022"],"MERCURY":["005","022","239","300","317","318"],"MERRITT":["052","079","322"],"METRONIC":["418","804"],"METZ":["005","079","093","100","101","102","186","188","191","228","297","381","391","392","401"],"MGA":["005","030"],"MICROMAX":["250","547","775"],"MICROMAXX":["005"],"MICROTEK":["239","318"],"MIDLAND":["200"],"MIKOMI":["005","295"],"MINATO":["005"],"MINERVA":["079","100","101","102","202","228"],"MINOKA":["005","357"],"MITSUBISHI":["005","022","030","045","186","195","244","312","381"],"MITSURI GENERAL":["052"],"MIVAR":["015","088","090","092","127","325"],"MONACO":["022"],"MONITOR":["317"],"MORAVA":["005"],"MORGAN'S":["005"],"MOTOROLA":["005","045"],"MTC":["005","092","200","299","317","322","324","366"],"MTLOGIC":["005","009"],"MÜLLER":["637"],"MULTIMEDIA":["389"],"MULTISTANDARD":["213"],"MULTITECH":["005","022","030","083","092","180","193","200","213","230","318","325"],"MURPHY":["052","061","246","324","328","485","491","546"],"MUSIKLAND":["005"],"MYCOM":["244"],"MYRYAD":["005"],"MYSTERY":["299"],"NAD":["005","052","193","244","322"],"NAIKO":["005","309"],"NAKIMURA":["005","216"],"NAMSUNC":["022"],"NAONIS":["015","021","052"],"NAP":["005"],"NATIONAL":["005","027"],"NEC":["008","022","194","210","216","310","317","325","340","506","733"],"NECKERMANN":["005","032","038","067","092","101","186","222","225","230","325","381"],"NEI":["005","052","138","197"],"NEON":["723","724","725"],"NESCO":["184"],"NETSAT":["005"],"NEUFUNK":["005","009","022"],"NEVIR":["328"],"NEW TECH":["005","022","168","325"],"NEW WORLD":["197"],"NEWSAT":["406"],"NEXT":["328"],"NICAMAGIC":["324"],"NIKAI":["256"],"NIKKAI":["005","022","194","197","200","318","324","325"],"NIKKEI":["009"],"NIKKO":["244"],"NISSAN":["317"],"NOBLEX":["018","022"],"NOBLIKO":["083","135","180","213","324"],"NOGAMATIC":["164","165","171","196","217","221"],"NOKIA AKAI":["015"],"NONAME":["005","021","245","382","385"],"NORDIC":["325"],"NORDMENDE":["005","009","052","147","158","162","164","165","196","217","219","221","381","805"],"NORFOLK":["052"],"NORMANDE":["329"],"NORMEREL":["005"],"NOVA":["246"],"NOVABEAM":["005"],"NOVAK":["205"],"NOVATRONIC":["005","022","216"],"NUCLEONIC":["021"],"NURNBERG":["052","322"],"NU-TEC":["239"],"OCEANIC":["079","118","120","121","206","312"],"ODEON":["318"],"OK":["001","328","366","402","508"],"OKANO":["005","022","092","318","363","364"],"OKI":["005","328","363","587"],"OLYMPIC":["022"],"OMEGA":["239","318"],"ONCEAS":["022"],"ONIDA":["564","776"],"ONN":["328","541"],"ONWA":["180","197","213"],"ONYX":["541"],"OPERA":["005"],"OPTIMUS":["188"],"OPTONICA":["045"],"ORANGE":["737"],"ORAVA":["005","328","366","806"],"ORBIT":["005"],"ORIENT":["022"],"ORION":["005","009","021","030","210","213","328","568","773"],"ORLINE":["005"],"ORMOND":["005"],"OSAKI":["005","197","216","318","325"],"OSIO":["005"],"OSO":["197"],"OSUME":["005","193","194"],"OTAKE":["198"],"OTF":["022"],"OTTO VERSAND":["005","067","171","180","194","206","322","325"],"PACIFIC":["005","009"],"PACKARD BELL":["453"],"PAEL":["083","324"],"PALLADIUM":["005","009","092","100","101","102","180","186","225","228","230","325","381"],"PALSONIC":["005","239","300","318","325","329","365","366","506","511"],"PANAMA":["005","022","180","184","318","324","325"],"PANASHIBA":["022","300"],"PANAVISION":["005"],"PANAVOX":["022"],"PANORAMA":["022"],"PANORAMIC":["171"],"PATHE CINEMA":["015","021","052","090","092","229","230","324"],"PATHE MARCONI":["164","165","171","196","217","221"],"PAUSA":["022"],"PCE/PEC":["030","108","193","200","317","390"],"PDP":["368"],"PEERLESS":["766","767"],"PENNEY":["200","317"],"PERDIO":["005","052","324"],"PERFEKT":["005"],"PERFORMANCE":["030","193"],"PHILCO":["005","022","052","083","092","123","184","186","193","381"],"PHILEX":["052"],"PHILHARMONIC":["180","325"],"PHOCUS":["005","009"],"PHOENIX":["005","052","092","186","324","381"],"PHONOLA":["005","186","205","324","381"],"PILOT":["005","317"],"PIONEER":["005","092","171","218","322","562"],"PIXEL":["439"],"PLANTRON":["005","022","318"],"PLAYSONIC":["009","128","325"],"POLAR":["005","721"],"POLAROID":["253","328"],"POLICOM":["052","171","186","213","221","229","322"],"POPPY":["022"],"PORTLAND":["030","200","216"],"POWERPOINT":["239"],"PRANDONI-PRINCE":["015","021","083","180","184","322"],"PRECISION":["180","325"],"PREMIER":["022","318"],"PRIMA":["022","193","200","202","317","318","355"],"PRINCESS":["022","239"],"PRINZ":["230","322"],"PROELCO":["005"],"PROFEX":["021","022","052","083","322"],"PROFI":["022"],"PROFITRONIC":["005","213"],"PROLINE":["005","161","205","295","328"],"PROSCAN":["317"],"PROSONIC":["005","009","092","216","324","325","541"],"PROTEC":["005","022","180","184"],"PROTECH":["005","022","052","213","230","318","325"],"PROTON":["022","200","244"],"PROVISION":["005","009"],"PULSER":["005","022","171","200","317"],"PVISION":["319"],"PYE":["005","186","205","216","230"],"PYMI":["022"],"QTY1":["015"],"QUADRO":["005","603"],"QUASAR":["022","184","188"],"QUELLE":["005","038","085","088","210","246","261","318","322","325"],"QUESTA":["193","194"],"QUIERO":["225"],"R LINE":["005"],"RADIALVA":["005","052","145","171"],"RADIO SHACK":["005"],"RADIOLA":["005","205","325"],"RADIOMARELLI":["005","180","184","186","381"],"RADIONETTE":["021","061"],"RADIOTONE":["005","022","092","318"],"RADIX":["528"],"RANK":["061"],"RANK ARENA":["194"],"RCA":["045","158","161","317","592"],"REALISTIC":["244"],"RECOR":["005"],"RECTILIGNE":["005"],"RED STAR":["005"],"REDIFFUSION":["061","079","194","322"],"REFLEX":["005"],"REFLEXION":["329","366"],"REGENTE":["022"],"RELISYS":["253","368","731"],"REOC":["009"],"REVOX":["005","092"],"REX":["015","090","155","184","185","261","318"],"RFT":["005","015","090","091","092","186","318","381"],"RHAPSODY":["180","324"],"RICE CLUB":["317"],"RICOH":["005"],"RINEX":["239","318"],"R-LINE":["052"],"RMB":["200"],"RM-U":["301","222"],"ROADSTAR":["005","009","022","197","318","345","603"],"ROBOTRON":["186"],"RODEX":["005"],"ROKU TV":["045","572","663"],"ROLSEN":["720"],"ROSITA":["022"],"ROSNER":["180"],"ROWA":["008","022","239","318","324","325"],"ROYAL":["022","309"],"ROYAL LUX":["092","158"],"RUBIN":["005"],"RUKOPIR":["005"],"RUNCO":["317"],"SABA":["005","079","109","164","165","180","186","217","219","221","328","366","381"],"SACCS":["229"],"SAGEM":["222","270","409"],"SAISHO":["005","022","052","102","180","198","210","318","325"],"SAIVOD":["005","295"],"SAKAI":["052"],"SAKIO":["022"],"SAKURA":["022","603"],"SALORA":["005","079","088","117","118","120","148","312","328","637"],"SALSA":["158"],"SAMBERS":["083","088","135","180","213"],"SAMPO":["200"],"SAMSUX":["200"],"SANDRA":["324","325"],"SANELA":["229"],"SANKY":["200"],"SANSUI":["001","005","022","200","317"],"SANTON":["022"],"SANY":["145"],"SANYO":["005","015","022","090","092","106","133","195","210","246","311","325","328","506","616"],"SASO":["171"],"SAVE":["005"],"SBR":["005","205","212"],"SCHAUB LORENZ":["009","079","216","309","319","328","417"],"SCHNEIDER":["005","009","016","022","090","168","182","184","197","205","206","261","322","325","328","695"],"SCOTLAND":["052"],"SCOTT":["030","193","200","244","346","390"],"SEDEA":["542"],"SEG":["005","009","022","083","180","184","194","200","213","318","325","408"],"SEI":["005","052","186","213","222","225","230"],"SEIKI":["568"],"SEI-SINUDYNE":["005","030","058","102","186","198","206","213","222","225","381"],"SELECO":["005","015","147","154","155","166","261","318"],"SEMUA":["200"],"SENCOR":["005","732"],"SENCORA":["022"],"SENTRA":["001","015","022","197","230"],"SERINO":["045","324"],"SHINTOM":["030"],"SHINTOSHI":["005"],"SHIVAKI":["005","216","244","388","719"],"SHORAI":["206"],"SHOW":["022","239","318"],"SIAREM":["015","021","052","135","180","186","213","381"],"SICATEL":["092","121"],"SICE":["015"],"SIEMENS":["005","047","067","100","101","102","193","200","228","322"],"SIERA":["005","008","092","205"],"SIGMATEK":["405"],"SIGMAX":["317"],"SIGNATURE":["030"],"SILVA":["005","022","322","324"],"SILVER":["005","052","128","193","194","197","322"],"SILVERCREST":["005","328"],"SINGER":["005","022","056","121","135","158","184","185","186","213","381"],"SINODYNE":["005"],"SINOTEC":["239","309"],"SINUDYNE":["005","186","213","222","225","309","322"],"SKY":["005","244"],"SKYWORTH":["005","622"],"SMARAGD":["025"],"SNYDER":["005"],"SOAIY":["576"],"SOKOL":["261"],"SOLAVOX":["005","015","021","052","079","322"],"SONIC":["375"],"SONIKO":["005"],"SONIQ":["250","364","369","371","372","374","375","378"],"SONITRON":["092","108","312","325"],"SONNECLAIR":["005"],"SONOKO":["005","022","180","318","325"],"SONOLOR":["079","121","222","225","312"],"SONTEC":["005","022","092"],"SOUND & VISION":["005","197","213","216"],"SOUNDESIGN":["030","193","200","244","317","390"],"SOUNDMASTER":["022"],"SOUNDWAVE":["005","128"],"SOYO":["541"],"SPECTRA":["022","216"],"SPECTRICIAN":["005","200"],"SSANGYONG":["022"],"STAKSONIC":["022"],"STANDARD":["005","022","180","197","216","325","541"],"STAR":["184"],"STAR SAT":["735"],"STARLITE":["005","022","052","318"],"STARLUX":["022"],"STERN":["015","052","058","090","155","261","318"],"STRATO":["005","022","318"],"STRONG":["295","547"],"STRRVIEW":["422"],"STYLANDIA":["325"],"SUNIC LINE":["005"],"SUNKAI":["005","197","198","206"],"SUNNY":["695"],"SUNRISE":["275"],"SUNSTAR":["005","022","318"],"SUNSTECH":["299","328"],"SUNWOOD":["005","022"],"SUPER GENERAL":["256"],"SUPERLA":["324","325"],"SUPERSONIC":["022","239","312","318"],"SUPERTECH":["005","022","034","324"],"SUPERVISION":["239","318"],"SUPRA":["001","005","022","216","244","450"],"SUPREMACY":["193","200"],"SUPREME":["030"],"SUSUMU":["145","158"],"SUTRON":["022"],"SVA":["239","318"],"SVASA":["239","312","318"],"SYC LINE":["022"],"SYDNEY":["180","324","325"],"SYLVANIA":["193"],"SYMPHONIC":["030","193","200"],"SYSLINE":["005"],"SYTONG":["324"],"TANDBERG":["015","052","058","093","171","322"],"TANDY":["045","052","180","184","197","325"],"TASHIKO":["052","180","193","194","212","311","324","325"],"TATUNG":["005","180","210","319","325","558","560"],"TCL":["005","327","547","548","549","625","663"],"TCM":["005","009"],"TD":["328"],"TD SYSTEM":["328"],"TEAC":["005","009","022","230","239","244","311","318","325"],"TEAK":["022"],"TEC":["005","022","138","158","180","184","216","219","261","322","325"],"TECHLINE":["005","295","328"],"TECHNICAL":["005"],"TECHNICS":["005","027","188"],"TECHNIKA":["328","348","366","590","704"],"TECHNILAND":["005"],"TECHNISAT":["005","052","133","143","673","814"],"TECHNISSON":["009"],"TECHNOL":["022"],"TECHNOL ACE":["239","318","324"],"TECHNOSONIC":["603"],"TECHWOOD":["005","030","295","317","328"],"TECNIMAGEN":["009"],"TECNISON":["005","022"],"TECO":["739"],"TEDELEX":["005","008","022","239","309","312","325","541"],"TEIRON":["022"],"TEK":["022","239"],"TEKNANT":["005","022"],"TEKNIKA":["030","200","317"],"TEKON":["022","317"],"TELEAVIA":["164","165","171","178","196","217","221"],"TELECOR":["005","052","325"],"TELEFAC":["022"],"TELEFUNKEN":["008","030","136","158","170","219","239","328","419","603","816"],"TELEFUSION":["005"],"TELEGAZI":["005","052","318"],"TELEKA":["328"],"TELEMEISTER":["005"],"TELEOPTA":["022"],"TELERENT":["005"],"TELESONIC":["005"],"TELESTAR":["005","022"],"TELETECH":["005","022","184","328","408"],"TELETON":["015","052","155","180","194","230","261","325"],"TELEVIDEON":["052","324"],"TELEVIEW":["005"],"TELEVISO":["121"],"TELEXA":["213"],"TELIVA":["171"],"TEMPEST":["005","022","318"],"TENNESSEE":["005"],"TENSAI":["005","022","052","108","128","129","180","197","206","216","246","325"],"TENSON":["022"],"TESLA":["005","009","128","222","237","385","671"],"TEVION":["005","009"],"TEXET":["022","180","216","324","325"],"THOMAS":["005","022","030","171","200","317"],"THORN":["001","004","005","030","083","101","106","108","109","125","133","158","182","195","202","205","216","222","225","229"],"THORN-FERGUSON":["005","125","158","182","202","229","322","716"],"TMK":["244","317"],"TOBO":["022"],"TOKAI":["005","022","052","216","325"],"TOKYO":["275","317","324"],"TONGTEL":["008"],"TOP SHOW":["022","239","318"],"TOPLINE":["005"],"TOSHIBA":["001","005","009","239","270","328","599","612"],"TOSONIC":["200","317"],"TOTEVISION":["200"],"TOWADA":["021","213","230","325"],"TOYODA":["022","318"],"TRAKTON":["022","318","325"],"TRANS CONTINENTS":["005","325"],"TRANSONIC":["005","008","022","239","318"],"TRANSTEC":["324"],"TRC":["022","197"],"TREVI":["022"],"TRIAD":["005","022"],"TRIAX":["430","651"],"TRIDENT":["180","325"],"TRILUX":["005"],"TRISTAR":["197","318"],"TRIUMPH":["005","102"],"TRIVISION":["022"],"TVTEXT 95":["005"],"UHER":["005","034","035","092","155","216","261"],"ULTRAVOX":["005","015","180","184","185","186","213","216","324","381"],"UMA":["005","021","061","145","171"],"UNIC LINE":["005","230"],"UNIDEN":["005","328","547","592"],"UNIMADE":["413"],"UNIMOR":["005"],"UNITED":["005","008","009","128","207","328"],"UNIVERSAL":["009"],"UNIVERSUM":["005","022","092","101","108","111","120","134","155","171","184","194","210","221","222","225","246","270","311","318"],"UNIVOX":["005","021","052","186","229"],"UPC":["740"],"UPSTAR":["596","613"],"URANYA":["022"],"UTAX":["052"],"V7 VIDEOSEVEN":["244"],"VANGUARD":["022","328"],"VDIGI":["592"],"VECO":["022"],"VEGA":["718"],"VEON":["636","637","639"],"VESTEL":["005","328","396","704"],"VEXA":["005","022"],"VICTOR":["310"],"VIDEO SYSTEM":["005"],"VIDEOCON":["001"],"VIDEOLOGIC":["324"],"VIDEOLOGIQUE":["180","197","324","325"],"VIDEOSAT":["184"],"VIDEOTECHNIC":["216","324","325"],"VIDEOTON":["005","034","174","178"],"VIDIKRON":["213"],"VIDION":["022"],"VIDTECH":["194","244"],"VIEWSONIC":["553","807"],"VISIOLA":["324"],"VISION":["005","022","318","325","625","812"],"VISTAR":["322"],"VISTRON":["563"],"VITYAZ":["005"],"VIVAX":["005","327","541","551","603","675","695"],"VIVID":["005"],"VORTEC":["005"],"VOX":["328"],"VOXSON":["005","015","021","052","186","244","381"],"VU":["329","624"],"WALKER":["005","328"],"WALKIE":["261"],"WALTHAM":["005","015","034","145","171","178","180","325","328"],"WALTON":["005"],"WATSON":["005","022","052","197","328"],"WATT RADIO":["015","021","028","052","123","135","180","213","230","324"],"WEGA":["005","186","193","194","381"],"WEGAVOX":["005","022","123","184"],"WELLTECH":["009"],"WELTBLICK":["005","325"],"WESTINGHOUSE":["270","340"],"WESTON":["005"],"WHARFEDALE":["005","186","239","348"],"WHITE-WESTINGHOUSE":["005","180","324"],"WILSON":["005"],"WINDSOR":["005","328"],"WINSTON":["005","022"],"WINTEL":["009"],"WINTERNITZ":["022"],"WORLD-TECH":["216"],"WORLDVIEW":["005","022"],"XLOGIC":["239"],"XMS":["239"],"XOCECO":["355"],"XORO":["355","363","473","676","697","698","700","705","770"],"XRYPTON":["005"],"X-VIEW":["319"],"YAMAHA":["188"],"YAMISHI":["005","325"],"YOKAN":["005"],"YOKO":["005","021","022","092","171","180","184","185","197","216","318","324"],"YORK":["005","108"],"YORX":["197"],"ZANUSSI":["015","021","155","325"],"ZEHNDER":["408"],"ZENITH":["005","030"],"ZETA":["421"],"Samsung":["270","005","200","244"],"LG":["005","208","244","328","741","744","800"],"Sony":["340"],"Philips":["005","208","270","326","440","566","691","772"],"Panasonic":["005","027","306","328","629","759","774"],"Loewe":["818","005","092","180","186","190","381","448","771"],"Grundig":["005","328","337","625","657"],"Sharp":["045","194","272","328","347","352","366","663","708","720"],"Hisense":["001","005","244","312","572","624","712","742","743","745","748","749","751","754","755","758","763","764"],"Nokia":["328","022","079","113","120","171","197","216","309","312","317","398","662"],"Thomson":["637","725","005","171","219","324","491","547","548","549","707"]},"Afstandsbediening C2":{"Samsung":["307","314","302","308","424","485","148","306","311","313","280","505","811","303","428","502","199","348","446","315","310","523","301","249","398","309","316","522","442","271","149","827","810","276","154","153"],"LG":["633","630","638","502","486","602","641","629","463","481","642","637","483","833","678","424"],"Sony":["534","540","539","529","295","541","536","167","535","294","530","441","169","533","424","419","259","185","168","542","144","852","537","531","297","237","231"],"Philips":["441","424","525","394","446","419","416","442","455","406","444","443","526","417","462","528","400","418","415","231","396","401","841","459","420","852","297","662","539","399","232","529","502","402","524","248","185","850","527","259","846","827","727","703","457","431","429","425","412","409"],"Panasonic":["215","212","144","211","217","213","218","424","237","419","216","850","539","441","143","814","540","446","231","810","235","232","220","214"],"Loewe":["442","405","414","446","570","492","457","571","423","197","480","215","816","462","424","419","408","392","297"],"Grundig":["343","232","231","235","225","498","226","486","152","424","782","241","441","346","507","245","627","455","227","503","850","814","747","633","463","419","395","393","353","318","238","234","224","149","803","642","544","519","469","465","429","417","352","349","253","247","239"],"Sharp":["185","181","182","180","727","728","463","424","441","184","846","419","854","707","662","347"],"Hisense":["731","734"],"Nokia":["380","371","646","366","570","373","374","264","351","817","369","148","382","376","649","424","375","265","812","260","138","134","370","747","419","381","379","377","276","271","266"],"Thomson":["356","845","852","297","841","854","846","260","825","858","850","202","390","357","185","437","359","163","358","355","343","159","844","729","436","856","716","678","628","621","506","502","486","252","231","161"]},"Afstandsbediening D3":{"Samsung":["307","314","523","316","302","308","424","485","9112","148","306","311","313","280","505","9088","811","303","428","502","9087","199","348","446","315","310","301","249","398","309","9089","9104","455","522","442","271","149","276","154","153"],"LG":["633","630","638","502","486","9164","602","9163","641","629","463","481","642","637","9160","9166","483","833","9209","678","424"],"Sony":["534","540","539","529","295","536","541","167","535","294","537","9122","530","441","168","9071","169","9120","533","424","9121","419","259","185","9119","542","144","852","531","297","237","231"],"Philips":["441","401","424","525","394","446","419","416","442","406","9113","455","415","526","444","443","417","462","463","400","418","456","231","396","841","420","852","727","297","662","539","399","232","9118","529","502","402","524","248","185","9108","850","528","425","259","9114","846","703","457","431"],"Panasonic":["212","215","144","211","9077","217","213","218","424","237","216","419","850","539","441","143","540","446","231","235","232","220","214"],"Loewe":["442","405","414","446","570","9101","492","457","571","423","197","480","215","816","462","424","419","408","392","297"],"Grundig":["343","232","231","235","498","225","9110","226","486","152","9067","503","424","9079","782","241","441","346","507","245","804","627","455","227","9080","850","747","633","463","419","395","393","353","318","238","234","224","149","9111","9081","803","642","544","519","469","465","429","417","352","349"],"Sharp":["185","181","716","9073","463","9074","9075","182","9072","180","727","728","9090","424","441","184","846","419","854","707","662","347"],"Hisense":["731","9190","734","9192","9188","9189","9181","9097"],"Nokia":["380","371","646","366","570","373","374","264","351","817","369","148","382","376","649","424","375","265","812","260","138","370","747","419","381","379","377","276","271","266"],"Thomson":["356","845","852","297","9128","841","854","846","260","825","9129","858","850","202","390","357","185","9095","437","163","9096","358","355","343","159","844","729","436","856","716","678","628","621","506","502","486","252","231","161"]}};
+
+var currentCodes=[];
+var activeCodeIndex=0;
+var remoteSelect=document.getElementById("remoteSelect");
+var brandSelect=document.getElementById("brandSelect");
+var resultBox=document.getElementById("resultBox");
+var resultCard=document.getElementById("resultCard");
+var showButton=document.getElementById("showButton");
+var nextButton=document.getElementById("nextButton");
+var settingsButton=document.getElementById("settingsButton");
+var settingsPanel=document.getElementById("settingsPanel");
+var lightModeButton=document.getElementById("lightModeButton");
+var darkModeButton=document.getElementById("darkModeButton");
+var lightCheck=document.getElementById("lightCheck");
+var darkCheck=document.getElementById("darkCheck");
+var programSteps=document.getElementById("programSteps");
+var toast=document.getElementById("toast");
+
+function showToast(text){
+toast.textContent=text;
+toast.className="toast show";
+setTimeout(function(){toast.className="toast";},1800);
+}
+
+function updateThemeChecks(){
+var dark=document.body.classList.contains("dark");
+lightCheck.textContent=dark?"":"✓";
+darkCheck.textContent=dark?"✓":"";
+}
+
+function playFallbackThemeBeep(theme){
+  try{
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass)return;
+    const count=theme==="light"?2:1;
+    const frequency=theme==="light"?720:320;
+    const duration=0.14;
+    const gap=190;
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        try{
+          const ctx=new AudioContextClass();
+          if(ctx.state==="suspended"&&ctx.resume)ctx.resume();
+          const osc=ctx.createOscillator();
+          const gain=ctx.createGain();
+          osc.type="sine";
+          osc.frequency.value=frequency;
+          gain.gain.setValueAtTime(0.0001,ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.14,ctx.currentTime+0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime+duration+0.02);
+          setTimeout(()=>{try{ctx.close();}catch(e){}},260);
+        }catch(e){}
+      },i*gap);
+    }
+  }catch(e){}
+}
+function playThemeSound(theme){
+  const src=theme==="dark"?"../../audio/dark-side.mp3":"../../audio/light-side.mp3";
+  try{
+    let fallbackDone=false;
+    const fallback=()=>{if(fallbackDone)return;fallbackDone=true;playFallbackThemeBeep(theme);};
+    const audio=new Audio(src);
+    audio.preload="auto";
+    audio.volume=0.75;
+    const timer=setTimeout(fallback,450);
+    const clear=()=>{clearTimeout(timer);fallbackDone=true;};
+    audio.addEventListener("playing",clear,{once:true});
+    audio.addEventListener("canplaythrough",clear,{once:true});
+    audio.addEventListener("error",()=>{clearTimeout(timer);fallback();},{once:true});
+    const played=audio.play();
+    if(played&&typeof played.catch==="function")played.catch(()=>{clearTimeout(timer);fallback();});
+  }catch(e){
+    playFallbackThemeBeep(theme);
+  }
+}
+
+const toolsHomePath="../../index.html";
+let toolsBackNavigatingHome=false;
+function goToolsHome(){
+  if(toolsBackNavigatingHome)return;
+  toolsBackNavigatingHome=true;
+  window.location.replace(new URL(toolsHomePath,window.location.href).href);
+}
+function setupToolBackNavigation(){
+  try{
+    const app=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
+    if(app&&app.addListener){
+      app.addListener("backButton",()=>{goToolsHome();});
+    }
+  }catch(e){}
+  try{
+    document.addEventListener("backbutton",event=>{
+      if(event&&event.preventDefault)event.preventDefault();
+      if(event&&event.stopPropagation)event.stopPropagation();
+      goToolsHome();
+      return false;
+    },false);
+  }catch(e){}
+  try{
+    history.replaceState({toolsToolBase:true},"",location.href);
+    history.pushState({toolsBackGuard:true},"",location.href);
+    window.addEventListener("popstate",()=>goToolsHome());
+  }catch(e){}
+}
+
+function setTheme(theme,playSound=false){
+if(theme==="dark")document.body.classList.add("dark");
+else document.body.classList.remove("dark");
+localStorage.setItem("toolsTheme",theme);
+updateThemeChecks();
+if(playSound)playThemeSound(theme);
+}
+
+function openSettings(){
+updateThemeChecks();
+settingsPanel.classList.toggle("open");
+}
+
+function closeSettingsPanel(){
+settingsPanel.classList.remove("open");
+}
+
+function fillRemoteSelect(){
+var selected=remoteSelect.value||"KPN IR / Bluetooth 5202-7022-3918";
+remoteSelect.innerHTML="";
+Object.keys(remoteData).forEach(function(name){
+var option=document.createElement("option");
+option.value=name;
+option.textContent=name;
+remoteSelect.appendChild(option);
+});
+if(remoteData[selected])remoteSelect.value=selected;
+}
+
+function fillBrandSelect(){
+var selectedRemote=remoteSelect.value;
+var selected=brandSelect.value;
+var brands=Object.keys(remoteData[selectedRemote]).sort(function(a,b){return a.localeCompare(b);});
+brandSelect.innerHTML="";
+brands.forEach(function(brand){
+var option=document.createElement("option");
+option.value=brand;
+option.textContent=brand;
+brandSelect.appendChild(option);
+});
+if(selected&&remoteData[selectedRemote][selected])brandSelect.value=selected;
+}
+
+function updateProgramSteps(){
+var steps=[
+"Druk source en OK tegelijk in tot het rode lampje brandt.",
+"Toets de tv-code in.",
+"Rood lampje knippert twee keer.",
+"Test volume en druk daarna op de aan/uit-knop."
+];
+programSteps.innerHTML=steps.map(function(text,index){
+return '<div class="program-step"><div class="program-number">'+(index+1)+'</div><div class="program-text">'+text+'</div></div>';
+}).join("");
+}
+
+function syncCurrentCodes(){
+var selectedRemote=remoteSelect.value;
+var selectedBrand=brandSelect.value;
+currentCodes=remoteData[selectedRemote]&&remoteData[selectedRemote][selectedBrand]?remoteData[selectedRemote][selectedBrand]:[];
+if(!currentCodes.length)activeCodeIndex=0;
+if(activeCodeIndex<0||activeCodeIndex>=currentCodes.length)activeCodeIndex=0;
+}
+
+function renderCodes(){
+var selectedRemote=remoteSelect.value;
+var selectedBrand=brandSelect.value;
+syncCurrentCodes();
+if(!currentCodes.length){
+resultBox.innerHTML="";
+nextButton.classList.add("hidden");
+return;
+}
+resultBox.innerHTML='<div class="brand-name">'+selectedBrand+'</div><div class="remote-name">'+selectedRemote+'</div><div class="codes">'+currentCodes.map(function(code,index){return '<div class="code'+(index===activeCodeIndex?' active':'')+'" data-index="'+index+'">'+code+'</div>';}).join("")+'</div>';
+nextButton.classList.remove("hidden");
+}
+
+function showCodes(){
+renderCodes();
+setTimeout(function(){
+resultCard.scrollIntoView({behavior:"smooth",block:"start"});
+},50);
+}
+
+function resetCodes(){
+activeCodeIndex=0;
+renderCodes();
+}
+
+function nextCode(){
+syncCurrentCodes();
+if(!currentCodes.length)return;
+activeCodeIndex=(activeCodeIndex+1)%currentCodes.length;
+renderCodes();
+}
+
+settingsButton.onclick=function(e){
+e.stopPropagation();
+openSettings();
+};
+
+settingsPanel.onclick=function(e){
+e.stopPropagation();
+};
+
+lightModeButton.onclick=function(){
+setTheme("light",true);
+closeSettingsPanel();
+};
+
+darkModeButton.onclick=function(){
+setTheme("dark",true);
+closeSettingsPanel();
+};
+
+document.addEventListener("click",function(e){
+if(!settingsPanel.contains(e.target)&&!settingsButton.contains(e.target))closeSettingsPanel();
+});
+
+window.addEventListener("storage",function(e){
+if(e.key==="toolsTheme"&&(e.newValue==="dark"||e.newValue==="light"))setTheme(e.newValue,false);
+});
+
+resultBox.addEventListener("click",function(e){
+var codeButton=e.target.closest(".code");
+if(!codeButton)return;
+var index=Number(codeButton.getAttribute("data-index"));
+if(Number.isNaN(index))return;
+activeCodeIndex=index;
+renderCodes();
+});
+
+remoteSelect.onchange=function(){
+fillBrandSelect();
+updateProgramSteps();
+resetCodes();
+};
+
+brandSelect.onchange=function(){
+resetCodes();
+};
+
+showButton.onclick=showCodes;
+nextButton.onclick=nextCode;
+
+fillRemoteSelect();
+fillBrandSelect();
+setTheme(localStorage.getItem("toolsTheme")||"dark",false);
+updateProgramSteps();
+resetCodes();
+setupToolBackNavigation();
+})();
+</script>
+<script src="../../shared/assistant-mini.js"></script>\n</body>
+</html>

@@ -1,14 +1,14 @@
-name: Bootstrap ToolsAPK
+name: Build complete ToolsAPK
 on:
   push:
     branches: [main]
 permissions:
   contents: write
 jobs:
-  bootstrap:
+  build:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -16,5 +16,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Restore complete repository
-        run: bash .github/scripts/bootstrap.sh
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Generate and verify Android project
+        run: bash .github/scripts/build-android.sh
