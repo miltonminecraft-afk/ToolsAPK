@@ -1,0 +1,550 @@
+name: Bootstrap complete ToolsAPK
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build complete source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p tools/kopermetingen tools/tv-codes tools/value-fiber-route tools/pop-checklist
+
+          cat .source/koper/part-*.bin > /tmp/kopermetingen.gz
+          gzip -t /tmp/kopermetingen.gz
+          gzip -dc /tmp/kopermetingen.gz > tools/kopermetingen/index.html
+          echo 'c0b827a3cf39287a072165606e7e7ad58b9b42ff9f0c49bc83ecb4a20ec16b64  tools/kopermetingen/index.html' | sha256sum -c -
+
+          cat .source/tv/part-*.bin > /tmp/tv-codes.gz
+          gzip -t /tmp/tv-codes.gz
+          gzip -dc /tmp/tv-codes.gz > tools/tv-codes/index.html
+          echo '181e9367aa4e71775bf601f5de6b40fb10d1ede2fcde8a0104eecbcaf2f34612  tools/tv-codes/index.html' | sha256sum -c -
+
+          cat .source/fiber/part-*.bin > /tmp/value-fiber-route.gz
+          gzip -t /tmp/value-fiber-route.gz
+          gzip -dc /tmp/value-fiber-route.gz > tools/value-fiber-route/index.html
+          echo 'bd3fd764eb532e883c8d26e54549260526f5aafbebb36c042fd40cda1839dcf5  tools/value-fiber-route/index.html' | sha256sum -c -
+
+          node <<'NODE'
+          const fs=require('fs'), z=require('zlib');
+          const text=fs.readFileSync('.source/HioScanActivity.java.gz.b64','utf8').replace(/\s+/g,'');
+          fs.writeFileSync('/tmp/HioScanActivity.java',z.gunzipSync(Buffer.from(text,'base64')));
+          NODE
+          echo 'dadfcee144e081ce712772151503e3bf1b60e2516a46d1fed1be0196cce5d005  /tmp/HioScanActivity.java' | sha256sum -c -
+
+          POP_REF='d06eeeb2668c057fc7a9c4a3b132147178e20d28'
+          curl -fsSL --retry 3 "https://raw.githubusercontent.com/miltonminecraft-afk/pop-checklist/${POP_REF}/index.html" -o tools/pop-checklist/index.html
+          curl -fsSL --retry 3 "https://raw.githubusercontent.com/miltonminecraft-afk/pop-checklist/${POP_REF}/template.xlsx" -o tools/pop-checklist/template.xlsx
+          echo '27fdee56db4fe739087adf1a13d6537437661e62dbba200e686492afb8210641  tools/pop-checklist/index.html' | sha256sum -c -
+          echo '1b456732ea5a95e1dd17bb0695cf8a720022582d34cb70aaa7575629092635eb  tools/pop-checklist/template.xlsx' | sha256sum -c -
+
+          # Bundle wllama locally: no CDN is needed to start the assistant.
+          TMP_WLLAMA="$(mktemp -d)"
+          PKG="$(cd "$TMP_WLLAMA" && npm pack @wllama/wllama@3.5.1 --silent)"
+          tar -xzf "$TMP_WLLAMA/$PKG" -C "$TMP_WLLAMA"
+          rm -rf tools/assistant/vendor
+          mkdir -p tools/assistant/vendor/wllama
+          cp -R "$TMP_WLLAMA/package/esm/." tools/assistant/vendor/wllama/
+          test -f tools/assistant/vendor/wllama/index.js
+          test -f tools/assistant/vendor/wllama/wasm/wllama.wasm
+
+          cat > tools/assistant/runtimes/web-wllama.js <<'JS'
+          import { Wllama, ModelManager, LoggerWithoutDebug } from '../vendor/wllama/index.js';
+
+          const MODEL={
+            repo:'ggml-org/Qwen3-1.7B-GGUF',
+            file:'Qwen3-1.7B-Q4_K_M.gguf',
+            name:'Qwen3-1.7B Q4_K_M'
+          };
+          const FLAG='toolsAssistantModelInstalledV2';
+          const WASM={default:new URL('../vendor/wllama/wasm/wllama.wasm',import.meta.url).href};
+
+          export class WebWllamaRuntime {
+            constructor(){this.wllama=null;this.manager=null;this.loading=null}
+            async _create(){
+              if(this.wllama)return;
+              this.manager=new ModelManager({allowOffline:true,parallelDownloads:3});
+              this.wllama=new Wllama(WASM,{allowOffline:true,parallelDownloads:3,logger:LoggerWithoutDebug});
+            }
+            async info(){
+              await this._create();
+              return {type:'web',label:'Browser lokaal · llama.cpp/WASM',model:MODEL.name};
+            }
+            async isModelInstalled(){return localStorage.getItem(FLAG)==='1'}
+            async _load(onProgress){
+              await this._create();
+              if(this.wllama.isModelLoaded())return;
+              if(this.loading)return this.loading;
+              this.loading=this.wllama.loadModelFromHF(
+                {repo:MODEL.repo,file:MODEL.file},
+                {useCache:true,n_ctx:4096,n_batch:256,progressCallback:onProgress?({loaded,total})=>onProgress(total?Math.round(loaded/total*100):0):undefined}
+              ).finally(()=>{this.loading=null});
+              return this.loading;
+            }
+            async installModel(onProgress){await this._load(onProgress);localStorage.setItem(FLAG,'1');return{ok:true}}
+            async removeModel(){
+              await this._create();
+              try{if(this.wllama.isModelLoaded())await this.wllama.exit()}catch(e){}
+              await this.manager.clear();
+              localStorage.removeItem(FLAG);
+              this.wllama=null;this.manager=null;
+              return{ok:true};
+            }
+            async clearCache(){return{ok:true}}
+            async generate(messages,options={}){
+              try{await this._load()}
+              catch(e){throw new Error('Lokaal AI-model kon niet worden geladen. Installeer het model opnieuw wanneer internet beschikbaar is.')}
+              const response=await this.wllama.createChatCompletion({
+                messages,max_tokens:options.maxTokens||500,temperature:options.temperature??0.35,top_k:40,top_p:0.92,reasoning:false
+              });
+              return response?.choices?.[0]?.message?.content||'';
+            }
+          }
+          JS
+
+          cat > tools/assistant/web-search.js <<'JS'
+          const CALLBACK='__toolsWebSearchCallback';
+          const pending=new Map();
+          if(!window[CALLBACK]){
+            window[CALLBACK]=(id,payload)=>{
+              const p=pending.get(id);if(!p)return;pending.delete(id);
+              try{const data=JSON.parse(payload);data.ok?p.resolve(data):p.reject(new Error(data.error||'Webzoekfout'))}
+              catch(e){p.reject(e)}
+            };
+          }
+          const id=()=> 'w'+Date.now().toString(36)+Math.random().toString(36).slice(2);
+          const kpnQuestion=q=>/\b(kpn|experia|box 12|superwifi|tv\+|kpn tv|glasvezel|koper|isra|hvd|kvd)\b/i.test(q);
+
+          function nativeSearch(query){
+            return new Promise((resolve,reject)=>{
+              const requestId=id();pending.set(requestId,{resolve,reject});
+              const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('Webzoekopdracht timeout'))},12000);
+              const oldResolve=resolve,oldReject=reject;
+              pending.set(requestId,{resolve:v=>{clearTimeout(timer);oldResolve(v)},reject:e=>{clearTimeout(timer);oldReject(e)}});
+              try{window.ToolsWebSearch.search(query,requestId)}catch(e){clearTimeout(timer);pending.delete(requestId);reject(e)}
+            });
+          }
+
+          async function jinaSearch(query){
+            const controller=new AbortController();
+            const timer=setTimeout(()=>controller.abort(),10000);
+            try{
+              const r=await fetch('https://s.jina.ai/'+encodeURIComponent(query),{
+                headers:{Accept:'text/plain'},signal:controller.signal
+              });
+              if(!r.ok)throw new Error('HTTP '+r.status);
+              const text=(await r.text()).slice(0,14000);
+              const sources=[...text.matchAll(/https?:\/\/[^\s)\]]+/g)].map(m=>m[0]).slice(0,8);
+              return {ok:true,context:text,sources};
+            }finally{clearTimeout(timer)}
+          }
+
+          export async function searchWeb(question){
+            const q=String(question||'').trim();
+            if(!q)return {ok:false,context:'',sources:[]};
+            const queries=kpnQuestion(q)?['site:kpn.com '+q,'site:community.kpn.com '+q,q]:[q];
+            const chunks=[];const sources=[];
+            for(const query of queries){
+              try{
+                const r=window.ToolsWebSearch&&typeof window.ToolsWebSearch.search==='function'
+                  ? await nativeSearch(query)
+                  : await jinaSearch(query);
+                if(r.context)chunks.push('ZOEKOPDRACHT: '+query+'\n'+r.context);
+                if(Array.isArray(r.sources))sources.push(...r.sources);
+              }catch(e){}
+            }
+            return {ok:chunks.length>0,context:chunks.join('\n\n').slice(0,24000),sources:[...new Set(sources)].slice(0,12)};
+          }
+          JS
+
+          cat > tools/assistant/app.js <<'JS'
+          import { createRuntime } from './runtime.js';
+          import { TOOL_REGISTRY, toolContext } from './tool-registry.js';
+          import { searchWeb } from './web-search.js';
+
+          const qs=new URLSearchParams(location.search),embedded=qs.get('embedded')==='1',currentTool=qs.get('tool')||'';
+          if(embedded)document.body.classList.add('embedded');
+          const $=id=>document.getElementById(id),chat=$('chat'),input=$('input');
+          const HISTORY_KEY='toolsAssistantHistoryV2',CONTEXT_KEY='toolsAssistantContextV2';
+          const runtime=createRuntime();let history=[],busy=false,lastWeb=null;
+
+          function save(){localStorage.setItem(HISTORY_KEY,JSON.stringify(history.slice(-24)))}
+          function load(){try{history=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');if(!Array.isArray(history))history=[]}catch(e){history=[]}}
+          function addBubble(role,text,store=true){
+            const d=document.createElement('div');d.className='msg '+role;
+            const markers=[];const clean=String(text||'').replace(/\[OPEN_TOOL:([a-z0-9-]+)\]/g,(_,k)=>{markers.push(k);return''}).replace(/\[OPEN_FULL_ASSISTANT\]/g,()=>{markers.push('__full__');return''}).trim();
+            d.textContent=clean;chat.appendChild(d);
+            markers.forEach(k=>{const b=document.createElement('button');b.className='btn secondary tool-link';if(k==='__full__'){b.textContent='Open volledige Assistent';b.onclick=openFull}else if(TOOL_REGISTRY[k]){b.textContent='Open '+TOOL_REGISTRY[k].name;b.onclick=()=>location.href=TOOL_REGISTRY[k].path}chat.appendChild(b)});
+            if(store){history.push({role,content:text});save()}chat.scrollTop=chat.scrollHeight;
+          }
+          function render(){chat.innerHTML='';history.forEach(m=>addBubble(m.role,m.content,false));chat.scrollTop=chat.scrollHeight}
+          function systemPrompt(web){
+            const scope=currentTool?toolContext(currentTool):'Volledige Tools Assistent.';
+            const toolList=Object.entries(TOOL_REGISTRY).map(([k,t])=>`${k}: ${t.name} - ${t.description}`).join('\n');
+            let p=`Je bent Assistent, een korte praktische Nederlandstalige technische assistent voor de Tools-app. De AI draait lokaal. Geef concrete antwoorden. ${scope}\nBeschikbare tools:\n${toolList}\nWanneer een bestaande tool nodig is, voeg exact [OPEN_TOOL:sleutel] toe. Gebruik geen interne redeneerstappen.`;
+            if(web?.context)p+='\n\nACTUELE WEBBRONNEN:\n'+web.context+'\n\nGebruik deze bronnen voor actuele feiten. Noem relevante bronlinks uit de broncontext en verzin geen bron.';
+            return p;
+          }
+          async function refreshStatus(){
+            try{const info=await runtime.info();$('runtimeLabel').textContent=info.label;$('modelLabel').textContent=info.model;const installed=await runtime.isModelInstalled();$('installButton').textContent=installed?'Model lokaal geïnstalleerd':'Model installeren'}
+            catch(e){$('runtimeLabel').textContent='AI-runtime niet beschikbaar';$('modelLabel').textContent=e.message||String(e)}
+          }
+          async function install(){
+            $('progress').style.display='block';$('progressBar').style.width='0%';$('installButton').disabled=true;
+            try{await runtime.installModel(p=>{$('progressBar').style.width=Math.max(0,Math.min(100,p))+'%'});$('progressBar').style.width='100%';await refreshStatus()}
+            catch(e){alert(e.message||e)}finally{$('installButton').disabled=false;setTimeout(()=>{$('progress').style.display='none'},900)}
+          }
+          async function getWeb(q,show=false){
+            try{
+              const r=await searchWeb(q);lastWeb=r;
+              if(show)addBubble('assistant',r.ok?'Webbronnen gevonden: '+r.sources.slice(0,5).join('\n'):'Geen webbronnen beschikbaar; lokale Assistent blijft werken.');
+              return r;
+            }catch(e){if(show)addBubble('assistant','Webzoeken niet beschikbaar; lokale Assistent blijft werken.');return null}
+          }
+          async function send(){
+            if(busy)return;const text=input.value.trim();if(!text)return;
+            if(!(await runtime.isModelInstalled())){alert('Installeer eerst het lokale AI-model.');return}
+            input.value='';addBubble('user',text);busy=true;$('sendButton').disabled=true;
+            const wait=document.createElement('div');wait.className='msg assistant';wait.textContent=navigator.onLine?'Web controleren…':'Lokaal nadenken…';chat.appendChild(wait);
+            try{
+              const web=navigator.onLine||window.ToolsWebSearch?await getWeb(text,false):null;
+              wait.textContent='…';
+              const msgs=[{role:'system',content:systemPrompt(web)},...history.slice(-16).map(m=>({role:m.role,content:m.content}))];
+              const answer=await runtime.generate(msgs,{maxTokens:500,temperature:.35});wait.remove();addBubble('assistant',answer||'Geen antwoord ontvangen.');
+            }catch(e){wait.remove();addBubble('assistant','AI-fout: '+(e.message||e))}finally{busy=false;$('sendButton').disabled=false}
+          }
+          function info(){
+            const t=TOOL_REGISTRY[currentTool];
+            addBubble('assistant',t?`${t.name}\n${t.description}\n\nSnelle functies: ${t.actions.join(' · ')}`:'Ik kan uitleg geven over Kopermetingen, Afstandsbediening codes, Value Fiber Route en Checklist PoP.');
+          }
+          function openFull(){localStorage.setItem(CONTEXT_KEY,JSON.stringify({tool:currentTool,history:history.slice(-8)}));window.top.location.href='../assistant/index.html'}
+          function currentQuery(){return input.value.trim()||history.filter(x=>x.role==='user').slice(-1)[0]?.content||''}
+          function quick(){const box=$('quickActions');box.innerHTML='';const list=currentTool&&TOOL_REGISTRY[currentTool]?[currentTool]:Object.keys(TOOL_REGISTRY);for(const key of list){const t=TOOL_REGISTRY[key],b=document.createElement('button');b.className='btn secondary';b.textContent=t.name;b.onclick=()=>{if(currentTool===key)info();else location.href=t.path};box.appendChild(b)}}
+          function theme(){document.body.classList.toggle('dark',(localStorage.getItem('toolsTheme')||'dark')==='dark')}
+
+          $('sendButton').onclick=send;input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+          $('installButton').onclick=install;$('infoButton').onclick=info;
+          $('webButton').onclick=async()=>{const q=currentQuery();if(!q){alert('Typ eerst wat je wilt zoeken.');return}await getWeb(q,true)};
+          $('cacheButton').onclick=async()=>{history=[];save();localStorage.removeItem(CONTEXT_KEY);await runtime.clearCache();render();addBubble('assistant','Chatgegevens gewist. Het lokale AI-model is behouden.')};
+          $('removeModelButton').onclick=async()=>{if(!confirm('AI-model verwijderen?'))return;try{await runtime.removeModel();await refreshStatus()}catch(e){alert(e.message||e)}};
+          $('backButton').onclick=()=>location.href='../../index.html';$('fullButton').onclick=openFull;if(embedded)$('fullButton').style.display='inline-block';
+          window.addEventListener('storage',theme);theme();load();render();quick();refreshStatus();
+          if('serviceWorker'in navigator&&!location.protocol.startsWith('file'))navigator.serviceWorker.register('../../sw.js').catch(()=>{});
+          if(!history.length)addBubble('assistant',currentTool?`Je gebruikt de kleine Assistent voor ${TOOL_REGISTRY[currentTool]?.name||'deze tool'}.`:'Waar kan ik je mee helpen?');
+          JS
+
+          # Add the small Assistant loader to every tool without changing its existing functions.
+          for f in tools/kopermetingen/index.html tools/tv-codes/index.html tools/value-fiber-route/index.html tools/pop-checklist/index.html; do
+            grep -q '../../shared/assistant-mini.js' "$f" || sed -i 's#</body>#<script src="../../shared/assistant-mini.js"></script></body>#' "$f"
+          done
+
+          # Build the web source used by Capacitor.
+          rm -rf www
+          mkdir -p www
+          cp index.html www/index.html
+          cp -R tools www/tools
+          cp -R shared www/shared
+
+          # Service worker: app shell/runtime stays available offline after first load.
+          python3 <<'PY'
+          from pathlib import Path
+          files=[]
+          for p in Path('www').rglob('*'):
+              if p.is_file() and p.stat().st_size < 12_000_000:
+                  files.append('./'+p.relative_to('www').as_posix())
+          body="const CACHE='toolsapk-v3';\nconst ASSETS="+repr(files).replace("'",'"')+";\nself.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));\nself.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));\nself.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{const y=x.clone();caches.open(CACHE).then(c=>c.put(e.request,y));return x}).catch(()=>r))) });\n"
+          Path('www/sw.js').write_text(body)
+          Path('sw.js').write_text(body)
+          PY
+          cp sw.js www/sw.js
+
+          cat > package.json <<'JSON'
+          {
+            "name":"toolsapk",
+            "version":"1.0.0",
+            "private":true,
+            "scripts":{"sync":"npx cap sync android","android":"npx cap open android"},
+            "dependencies":{
+              "@capacitor/android":"^8.4.0",
+              "@capacitor/cli":"^8.4.0",
+              "@capacitor/core":"^8.4.0",
+              "@capacitor/filesystem":"^8.1.2",
+              "@capacitor/share":"^8.0.1"
+            }
+          }
+          JSON
+          cat > capacitor.config.json <<'JSON'
+          {"appId":"nl.tools.app","appName":"Tools","webDir":"www"}
+          JSON
+
+          npm install --no-audit --no-fund
+
+          rm -rf android
+          npx cap add android
+          npx cap sync android
+
+          mkdir -p android/app/src/main/java/nl/tools/app android/app/src/main/cpp
+          cp /tmp/HioScanActivity.java android/app/src/main/java/nl/tools/app/HioScanActivity.java
+
+          cat > android/app/src/main/java/nl/tools/app/NativeLlama.java <<'JAVA'
+          package nl.tools.app;
+          public final class NativeLlama {
+              private static final boolean AVAILABLE;
+              static { boolean ok; try { System.loadLibrary("tools_llama"); ok=true; } catch(Throwable ignored){ ok=false; } AVAILABLE=ok; }
+              private NativeLlama(){}
+              public static boolean isAvailable(){return AVAILABLE;}
+              public static native String generate(String modelPath,String[] roles,String[] contents,int maxTokens,float temperature);
+              public static native void unloadModel();
+          }
+          JAVA
+
+          cat > android/app/src/main/java/nl/tools/app/LlamaBridge.java <<'JAVA'
+          package nl.tools.app;
+          import android.app.Activity;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebView;
+          import org.json.JSONArray;
+          import org.json.JSONObject;
+          import java.io.*;
+          import java.net.HttpURLConnection;
+          import java.net.URL;
+          import java.security.MessageDigest;
+          import java.util.Locale;
+          import java.util.concurrent.ExecutorService;
+          import java.util.concurrent.Executors;
+          public final class LlamaBridge {
+              private final WebView webView; private final ExecutorService executor=Executors.newSingleThreadExecutor();
+              private final File modelDir,modelFile;
+              public LlamaBridge(Activity activity,WebView webView){this.webView=webView;modelDir=new File(activity.getFilesDir(),"ai/models");modelFile=new File(modelDir,"assistant-qwen3-1.7b-q4_k_m.gguf");}
+              @JavascriptInterface public String getRuntimeInfo(){try{return new JSONObject().put("engine","llama.cpp").put("nativeAvailable",NativeLlama.isAvailable()).put("modelPath",modelFile.getAbsolutePath()).put("installed",modelFile.isFile()).toString();}catch(Exception e){return "{}";}}
+              @JavascriptInterface public boolean isModelInstalled(){return NativeLlama.isAvailable()&&modelFile.isFile()&&modelFile.length()>100_000_000L;}
+              @JavascriptInterface public void downloadModel(String url,String expectedSha256,String requestId){executor.execute(()->{File tmp=new File(modelDir,modelFile.getName()+".part");try{if(!modelDir.exists()&&!modelDir.mkdirs())throw new IOException("Modelmap kon niet worden gemaakt");HttpURLConnection c=(HttpURLConnection)new URL(url).openConnection();c.setInstanceFollowRedirects(true);c.setConnectTimeout(20000);c.setReadTimeout(60000);c.setRequestProperty("User-Agent","ToolsAPK/1.0");c.connect();if(c.getResponseCode()<200||c.getResponseCode()>=300)throw new IOException("Download HTTP "+c.getResponseCode());long total=c.getContentLengthLong(),done=0;MessageDigest digest=MessageDigest.getInstance("SHA-256");byte[] buf=new byte[1024*1024];try(InputStream in=new BufferedInputStream(c.getInputStream());OutputStream out=new BufferedOutputStream(new FileOutputStream(tmp))){int n,last=-1;while((n=in.read(buf))>0){out.write(buf,0,n);digest.update(buf,0,n);done+=n;if(total>0){int p=(int)(done*100/total);if(p!=last){last=p;progress(requestId,p);}}}}String sha=hex(digest.digest());if(expectedSha256!=null&&!expectedSha256.isEmpty()&&!sha.equalsIgnoreCase(expectedSha256))throw new IOException("SHA-256 controle mislukt");if(modelFile.exists()&&!modelFile.delete())throw new IOException("Oud model kon niet worden vervangen");if(!tmp.renameTo(modelFile))throw new IOException("Model kon niet worden geplaatst");callback(requestId,new JSONObject().put("ok",true).put("bytes",modelFile.length()).toString());}catch(Exception e){tmp.delete();callback(requestId,error(e));}});}
+              @JavascriptInterface public void generate(String requestJson,String requestId){executor.execute(()->{try{if(!NativeLlama.isAvailable())throw new IllegalStateException("Native llama.cpp is niet beschikbaar");if(!isModelInstalled())throw new IllegalStateException("AI-model is niet geïnstalleerd");JSONObject req=new JSONObject(requestJson);JSONArray a=req.getJSONArray("messages");String[] roles=new String[a.length()],contents=new String[a.length()];for(int i=0;i<a.length();i++){JSONObject m=a.getJSONObject(i);roles[i]=m.optString("role","user");contents[i]=m.optString("content","");}String text=NativeLlama.generate(modelFile.getAbsolutePath(),roles,contents,req.optInt("max_tokens",500),(float)req.optDouble("temperature",0.35));if(text!=null&&text.startsWith("__ERROR__:"))throw new RuntimeException(text.substring(10));callback(requestId,new JSONObject().put("ok",true).put("text",text==null?"":text).toString());}catch(Exception e){callback(requestId,error(e));}});}
+              @JavascriptInterface public void removeModel(String requestId){executor.execute(()->{try{if(NativeLlama.isAvailable())NativeLlama.unloadModel();if(modelFile.exists()&&!modelFile.delete())throw new IOException("Model kon niet worden verwijderd");callback(requestId,"{\"ok\":true}");}catch(Exception e){callback(requestId,error(e));}});}
+              @JavascriptInterface public void clearAssistantCache(String requestId){callback(requestId,"{\"ok\":true}");}
+              private void progress(String id,int p){webView.post(()->webView.evaluateJavascript("window.__toolsNativeLlamaProgress&&window.__toolsNativeLlamaProgress("+JSONObject.quote(id)+","+p+");",null));}
+              private void callback(String id,String payload){webView.post(()->webView.evaluateJavascript("window.__toolsNativeLlamaCallback&&window.__toolsNativeLlamaCallback("+JSONObject.quote(id)+","+JSONObject.quote(payload)+");",null));}
+              private static String error(Exception e){try{return new JSONObject().put("ok",false).put("error",e.getMessage()==null?e.getClass().getSimpleName():e.getMessage()).toString();}catch(Exception ignored){return "{\"ok\":false,\"error\":\"Onbekende fout\"}";}}
+              private static String hex(byte[] bytes){StringBuilder s=new StringBuilder();for(byte b:bytes)s.append(String.format(Locale.US,"%02x",b));return s.toString();}
+          }
+          JAVA
+
+          cat > android/app/src/main/java/nl/tools/app/WebSearchBridge.java <<'JAVA'
+          package nl.tools.app;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebView;
+          import org.json.JSONArray;
+          import org.json.JSONObject;
+          import java.io.*;
+          import java.net.*;
+          import java.nio.charset.StandardCharsets;
+          import java.util.*;
+          import java.util.concurrent.*;
+          import java.util.regex.*;
+          public final class WebSearchBridge {
+              private final WebView webView; private final ExecutorService executor=Executors.newFixedThreadPool(2);
+              public WebSearchBridge(WebView webView){this.webView=webView;}
+              @JavascriptInterface public void search(String query,String requestId){executor.execute(()->{try{JSONObject out=runSearch(query);out.put("ok",true);callback(requestId,out.toString());}catch(Exception e){try{callback(requestId,new JSONObject().put("ok",false).put("error",String.valueOf(e.getMessage())).toString());}catch(Exception ignored){}}});}
+              private JSONObject runSearch(String query)throws Exception{
+                  String html=get("https://html.duckduckgo.com/html/?q="+URLEncoder.encode(query,"UTF-8"),12000,900000);
+                  Pattern p=Pattern.compile("class=\\\"result__a\\\"[^>]*href=\\\"([^\\\"]+)\\\"",Pattern.CASE_INSENSITIVE);
+                  Matcher m=p.matcher(html);LinkedHashSet<String> urls=new LinkedHashSet<>();
+                  while(m.find()&&urls.size()<5){String u=decodeUrl(m.group(1));if(u.startsWith("http://")||u.startsWith("https://"))urls.add(u);}
+                  JSONArray src=new JSONArray();StringBuilder ctx=new StringBuilder();
+                  for(String u:urls){try{String page=get(u,10000,700000);String text=clean(page);if(text.length()>4000)text=text.substring(0,4000);src.put(u);ctx.append("BRON: ").append(u).append("\n").append(text).append("\n\n");}catch(Exception ignored){}}
+                  return new JSONObject().put("context",ctx.toString()).put("sources",src);
+              }
+              private static String decodeUrl(String raw)throws Exception{
+                  String s=raw.replace("&amp;","&");
+                  if(s.startsWith("//"))s="https:"+s;
+                  try{URL u=new URL(s);String q=u.getQuery();if(q!=null)for(String part:q.split("&"))if(part.startsWith("uddg="))return URLDecoder.decode(part.substring(5),"UTF-8");}catch(Exception ignored){}
+                  return s;
+              }
+              private static String get(String url,int timeout,int max)throws Exception{
+                  HttpURLConnection c=(HttpURLConnection)new URL(url).openConnection();c.setConnectTimeout(timeout);c.setReadTimeout(timeout);c.setInstanceFollowRedirects(true);c.setRequestProperty("User-Agent","Mozilla/5.0 ToolsAPK/1.0");c.setRequestProperty("Accept-Language","nl,en;q=0.8");
+                  InputStream in=c.getResponseCode()>=400?c.getErrorStream():c.getInputStream();if(in==null)throw new IOException("HTTP "+c.getResponseCode());
+                  ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[8192];int n,total=0;while((n=in.read(b))>0&&total<max){out.write(b,0,n);total+=n;}in.close();return out.toString(StandardCharsets.UTF_8.name());
+              }
+              private static String clean(String html){return html.replaceAll("(?is)<script.*?</script>"," ").replaceAll("(?is)<style.*?</style>"," ").replaceAll("(?is)<[^>]+>"," ").replace("&nbsp;"," ").replace("&amp;","&").replace("&quot;","\"").replaceAll("\\s+"," ").trim();}
+              private void callback(String id,String payload){webView.post(()->webView.evaluateJavascript("window.__toolsWebSearchCallback&&window.__toolsWebSearchCallback("+JSONObject.quote(id)+","+JSONObject.quote(payload)+");",null));}
+          }
+          JAVA
+
+          cat > android/app/src/main/java/nl/tools/app/MainActivity.java <<'JAVA'
+          package nl.tools.app;
+          import android.content.Intent;
+          import android.os.Bundle;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebView;
+          import androidx.activity.OnBackPressedCallback;
+          import com.getcapacitor.BridgeActivity;
+          public class MainActivity extends BridgeActivity {
+              private static final int HIO_SCAN_REQUEST=3914; private boolean bridgesAttached=false;
+              @Override protected void onCreate(Bundle savedInstanceState){super.onCreate(savedInstanceState);getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){@Override public void handleOnBackPressed(){if(goToToolsHomeIfNeeded())return;finish();}});}
+              @Override public void onStart(){super.onStart();attachBridges();}
+              private boolean goToToolsHomeIfNeeded(){if(getBridge()==null)return false;WebView webView=getBridge().getWebView();if(webView==null)return false;String currentUrl=webView.getUrl();if(currentUrl==null||!currentUrl.toLowerCase().contains("/tools/"))return false;String homeUrl=getBridge().getAppUrl();if(homeUrl==null||homeUrl.trim().isEmpty())homeUrl="https://localhost";final String targetUrl=homeUrl;webView.post(()->{webView.loadUrl(targetUrl);webView.postDelayed(webView::clearHistory,350);});return true;}
+              private void attachBridges(){if(bridgesAttached||getBridge()==null)return;WebView webView=getBridge().getWebView();if(webView==null)return;webView.addJavascriptInterface(new HioBridge(),"Android");webView.addJavascriptInterface(new WebSearchBridge(webView),"ToolsWebSearch");if(NativeLlama.isAvailable())webView.addJavascriptInterface(new LlamaBridge(this,webView),"ToolsNativeLlama");bridgesAttached=true;}
+              public class HioBridge {@JavascriptInterface public void startHioScan(String contextJson){runOnUiThread(()->{Intent intent=new Intent(MainActivity.this,HioScanActivity.class);intent.putExtra("hioContext",contextJson==null?"":contextJson);startActivityForResult(intent,HIO_SCAN_REQUEST);});}}
+              @Override protected void onActivityResult(int requestCode,int resultCode,Intent data){if(requestCode==HIO_SCAN_REQUEST){if(resultCode==RESULT_OK&&data!=null){String json=data.getStringExtra("hioResult");if(json!=null&&getBridge()!=null&&getBridge().getWebView()!=null)getBridge().getWebView().post(()->getBridge().getWebView().evaluateJavascript("window.receiveHioScanResult&&window.receiveHioScanResult("+json+");",null));}return;}super.onActivityResult(requestCode,resultCode,data);}
+          }
+          JAVA
+
+          cat > android/app/src/main/cpp/CMakeLists.txt <<'CMAKE'
+          cmake_minimum_required(VERSION 3.22.1)
+          project(tools_llama LANGUAGES C CXX)
+          set(CMAKE_CXX_STANDARD 17)
+          set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+          set(LLAMA_BUILD_COMMON OFF CACHE BOOL "" FORCE)
+          set(LLAMA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+          set(LLAMA_BUILD_SERVER OFF CACHE BOOL "" FORCE)
+          set(LLAMA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+          set(GGML_OPENMP OFF CACHE BOOL "" FORCE)
+          set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
+          add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../../../llama.cpp ${CMAKE_BINARY_DIR}/llama EXCLUDE_FROM_ALL)
+          add_library(tools_llama SHARED llama_jni.cpp)
+          target_include_directories(tools_llama PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../../llama.cpp/include)
+          target_link_libraries(tools_llama PRIVATE llama log android)
+          CMAKE
+
+          cat > android/app/src/main/cpp/llama_jni.cpp <<'CPP'
+          #include <jni.h>
+          #include <algorithm>
+          #include <mutex>
+          #include <string>
+          #include <vector>
+          #include "llama.h"
+          static std::mutex g_mutex; static llama_model *g_model=nullptr; static std::string g_model_path;
+          static std::string jstr(JNIEnv *e,jstring s){if(!s)return{};const char*p=e->GetStringUTFChars(s,nullptr);std::string o=p?p:"";if(p)e->ReleaseStringUTFChars(s,p);return o;}
+          static void unload_locked(){if(g_model){llama_model_free(g_model);g_model=nullptr;}g_model_path.clear();}
+          static bool ensure_model(const std::string&p,std::string&err){if(g_model&&g_model_path==p)return true;unload_locked();llama_model_params mp=llama_model_default_params();mp.n_gpu_layers=0;g_model=llama_model_load_from_file(p.c_str(),mp);if(!g_model){err="model laden mislukt";return false;}g_model_path=p;return true;}
+          extern "C" JNIEXPORT jstring JNICALL Java_nl_tools_app_NativeLlama_generate(JNIEnv*e,jclass,jstring jp,jobjectArray jr,jobjectArray jc,jint jm,jfloat jt){std::lock_guard<std::mutex>l(g_mutex);std::string err,p=jstr(e,jp);if(!ensure_model(p,err))return e->NewStringUTF(("__ERROR__:"+err).c_str());jsize n=e->GetArrayLength(jr);if(n!=e->GetArrayLength(jc)||n<=0)return e->NewStringUTF("__ERROR__:ongeldige berichten");std::vector<std::string>roles,contents;for(jsize i=0;i<n;i++){auto r=(jstring)e->GetObjectArrayElement(jr,i),c=(jstring)e->GetObjectArrayElement(jc,i);roles.push_back(jstr(e,r));contents.push_back(jstr(e,c));e->DeleteLocalRef(r);e->DeleteLocalRef(c);}std::vector<llama_chat_message>msgs;for(jsize i=0;i<n;i++)msgs.push_back({roles[i].c_str(),contents[i].c_str()});const char*tmpl=llama_model_chat_template(g_model,nullptr);std::vector<char>f(8192);int fl=llama_chat_apply_template(tmpl,msgs.data(),msgs.size(),true,f.data(),f.size());if(fl>(int)f.size()){f.resize(fl+1);fl=llama_chat_apply_template(tmpl,msgs.data(),msgs.size(),true,f.data(),f.size());}if(fl<0)return e->NewStringUTF("__ERROR__:chat template mislukt");std::string prompt(f.data(),fl);const llama_vocab*v=llama_model_get_vocab(g_model);int np=-llama_tokenize(v,prompt.c_str(),prompt.size(),nullptr,0,true,true);if(np<=0)return e->NewStringUTF("__ERROR__:tokenisatie mislukt");std::vector<llama_token>tok(np);if(llama_tokenize(v,prompt.c_str(),prompt.size(),tok.data(),tok.size(),true,true)<0)return e->NewStringUTF("__ERROR__:tokenisatie mislukt");llama_context_params cp=llama_context_default_params();cp.n_ctx=4096;cp.n_batch=std::min<int>(4096,std::max<int>(256,np));llama_context*ctx=llama_init_from_model(g_model,cp);if(!ctx)return e->NewStringUTF("__ERROR__:context maken mislukt");llama_sampler*s=llama_sampler_chain_init(llama_sampler_chain_default_params());llama_sampler_chain_add(s,llama_sampler_init_top_k(40));llama_sampler_chain_add(s,llama_sampler_init_top_p(0.92f,1));llama_sampler_chain_add(s,llama_sampler_init_temp(std::max(0.05f,(float)jt)));llama_sampler_chain_add(s,llama_sampler_init_dist(LLAMA_DEFAULT_SEED));llama_batch b=llama_batch_get_one(tok.data(),tok.size());if(llama_decode(ctx,b)!=0){llama_sampler_free(s);llama_free(ctx);return e->NewStringUTF("__ERROR__:prompt decode mislukt");}std::string out;int max=std::max(1,std::min(1024,(int)jm));for(int i=0;i<max;i++){llama_token t=llama_sampler_sample(s,ctx,-1);if(llama_vocab_is_eog(v,t))break;char buf[512];int k=llama_token_to_piece(v,t,buf,sizeof(buf),0,true);if(k>0)out.append(buf,k);b=llama_batch_get_one(&t,1);if(llama_decode(ctx,b)!=0)break;}llama_sampler_free(s);llama_free(ctx);return e->NewStringUTF(out.c_str());}
+          extern "C" JNIEXPORT void JNICALL Java_nl_tools_app_NativeLlama_unloadModel(JNIEnv*,jclass){std::lock_guard<std::mutex>l(g_mutex);unload_locked();}
+          CPP
+
+          LLAMA_REF='790b5713ca94e30f6c604daf79716f26111d20e8'
+          git clone -q https://github.com/ggml-org/llama.cpp.git /tmp/llama.cpp
+          git -C /tmp/llama.cpp checkout -q "$LLAMA_REF"
+          rm -rf /tmp/llama.cpp/.git
+          rm -rf android/llama.cpp
+          mv /tmp/llama.cpp android/llama.cpp
+
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('android/app/build.gradle')
+          s=p.read_text()
+          s=s.replace('testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"','testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"\n        ndk { abiFilters "arm64-v8a" }\n        externalNativeBuild { cmake { cppFlags "-std=c++17" } }',1)
+          s=s.replace('    buildTypes {','    externalNativeBuild { cmake { path file("src/main/cpp/CMakeLists.txt"); version "3.22.1" } }\n    buildTypes {',1)
+          needle="    implementation project(':capacitor-cordova-android-plugins')"
+          add=needle+"\n    def camerax_version = '1.4.2'\n    implementation \"androidx.camera:camera-camera2:$camerax_version\"\n    implementation \"androidx.camera:camera-lifecycle:$camerax_version\"\n    implementation \"androidx.camera:camera-view:$camerax_version\"\n    implementation 'com.google.mlkit:text-recognition:16.0.1'"
+          s=s.replace(needle,add,1)
+          p.write_text(s)
+          m=Path('android/app/src/main/AndroidManifest.xml')
+          x=m.read_text()
+          if 'android.permission.INTERNET' not in x:
+              x=x.replace('<manifest ','<manifest ',1).replace('>','>\n    <uses-permission android:name="android.permission.INTERNET" />',1)
+          m.write_text(x)
+          PY
+
+          npx cap sync android
+
+          cat > .gitignore <<'EOF'
+          node_modules/
+          .gradle/
+          **/build/
+          .idea/
+          .DS_Store
+          android/local.properties
+          *.iml
+          EOF
+
+          cat > README.md <<'MD'
+          # ToolsAPK
+          Broncode voor de Tools-app en GitHub Pages.
+
+          Web: index.html, tools/ en shared/.
+          Android: Capacitor-project onder android/.
+          De Assistent gebruikt lokaal wllama/WASM in de browser en native llama.cpp in Android. Het GGUF-model wordt één keer geïnstalleerd en kan daarna offline worden gebruikt. Wanneer internet beschikbaar is kan de Assistent actuele webbronnen raadplegen.
+          MD
+
+          mkdir -p .github/workflows
+          cat > .github/workflows/pages.yml <<'YAML'
+          name: Deploy GitHub Pages
+          on:
+            push:
+              branches: [main]
+            workflow_dispatch:
+          permissions:
+            contents: read
+            pages: write
+            id-token: write
+          concurrency:
+            group: pages
+            cancel-in-progress: true
+          jobs:
+            deploy:
+              environment:
+                name: github-pages
+                url: ${{ steps.deployment.outputs.page_url }}
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                - uses: actions/configure-pages@v5
+                - uses: actions/upload-pages-artifact@v3
+                  with:
+                    path: .
+                - name: Deploy
+                  id: deployment
+                  uses: actions/deploy-pages@v4
+          YAML
+
+          rm -rf .source
+          rm -f .github/workflows/bootstrap.yml
+          rm -rf node_modules
+          touch .nojekyll
+
+      - name: Verify normal final files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f tools/kopermetingen/index.html
+          test -f tools/tv-codes/index.html
+          test -f tools/value-fiber-route/index.html
+          test -f tools/pop-checklist/index.html
+          test -f tools/pop-checklist/template.xlsx
+          test -f tools/assistant/index.html
+          test -f tools/assistant/web-search.js
+          test -f tools/assistant/vendor/wllama/wasm/wllama.wasm
+          test -f android/app/src/main/java/nl/tools/app/HioScanActivity.java
+          test -f android/app/src/main/java/nl/tools/app/LlamaBridge.java
+          test -f android/app/src/main/java/nl/tools/app/WebSearchBridge.java
+          test -f android/llama.cpp/CMakeLists.txt
+          ! test -d .source
+
+      - name: Commit final repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Restore complete ToolsAPK source'
+          git push origin HEAD:main
