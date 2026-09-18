@@ -530,11 +530,13 @@ gradle.write_text(s)
 
 manifest=Path('android/app/src/main/AndroidManifest.xml')
 x=manifest.read_text()
-head=x.find('>')
+manifest_start=x.find('<manifest')
+if manifest_start<0: raise SystemExit('manifest root not found')
+head=x.find('>',manifest_start)
 for perm in ['android.permission.INTERNET','android.permission.CAMERA']:
     if perm not in x:
         x=x[:head+1]+f'\n    <uses-permission android:name="{perm}" />'+x[head+1:]
-        head=x.find('>')
+        head=x.find('>',manifest_start)
 if '.HioScanActivity' not in x:
     marker='</application>'
     activity='        <activity android:name=".HioScanActivity" android:screenOrientation="portrait" android:exported="false" />\n    '
