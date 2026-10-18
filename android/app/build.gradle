@@ -55,6 +55,8 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    androidTestImplementation "androidx.test:rules:1.7.0"
+    androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
     implementation project(':capacitor-cordova-android-plugins')
     def camerax_version = '1.4.2'
     implementation "androidx.camera:camera-camera2:$camerax_version"
