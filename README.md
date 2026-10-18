@@ -62,3 +62,7 @@ Formulieren, foto's en chat blijven in de lokale opslag van het betreffende appa
 ## Verificatie
 
 `npm test` controleert JavaScript-syntaxis, lokale assets, toolpaden, de Excel-template en Excel-/ZIP-inhoud na export. Zie `VERIFICATIE.md` voor de uitgevoerde controles en resterende apparaattests.
+
+## Meetrapporten
+
+Metingen staan per Service ID bij elkaar en worden daarbinnen gegroepeerd op meetpositie en richting naar dezelfde verdeler. De oorspronkelijke metingnummers blijven behouden. LCL blijft gekoppeld aan de opgeslagen positie; dezelfde dikader mag voor meerdere Service IDs worden gekozen. Bestaande meetgegevens worden niet gewist.

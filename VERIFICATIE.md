@@ -1,41 +1,37 @@
 # Verificatie — 18 oktober 2026
 
-Deze herstelkopie is gebaseerd op de lokale ToolsAPK 2/3-broncode. Die versies waren inhoudelijk gelijk, afgezien van macOS-metadata. De oorspronkelijke projectmappen zijn niet aangepast.
+Herstelkopie van ToolsAPK 2/3. De oorspronkelijke projectmappen zijn niet aangepast.
 
-## Uitgevoerd
+## Geslaagd
 
-- Android `assembleDebug` en `testDebugUnitTest`: succesvol.
-- Vijf nieuwe Java-tests voor lokale startpagina's, alle toolpaden, onbekende/foutadressen, externe adressen en projectsubpaden: geslaagd. Deze testen de adresherkenning, niet het fysieke swipegebaar.
-- Negen Node-tests voor HTML/JavaScript, lokale assets, toolpaden, Excel-template en Excel-/ZIP-exportinhoud: geslaagd.
-- Alle webbronbestanden vergeleken met de gekopieerde Android-assets: gelijk.
-- APK-inhoud gecontroleerd: TV-codes, Kopermetingen, Fiber Route, PoP en Assistent aanwezig; GOF/EOF afwezig.
-- Browser: TV-codes opent, browser-terug keert terug naar de startpagina, tandwiel opent en gedeeld Light/Dark-thema werkt bij paginanavigatie.
-- Browser: Fiber Route-link, ingebouwde assistent en openen van de volledige assistent getest.
-- Browser: HIO-tekst met fictieve routegegevens omgezet naar controleerbare velden en bestaand overnamebevestigingsvenster.
-- Browser: PoP-checklist ingevuld met fictieve gegevens; ZIP met Excel gemaakt. Excel-/ZIP-inhoud aanvullend automatisch gecontroleerd.
-- Browser: Qwen3-1.7B-model gedownload en geladen; echte lokale antwoordtest leverde `test geslaagd` op.
-- Publicatieversie getest onder `/ToolsAPK/`; Fiber Route herlaadt uit de offline cache nadat de testserver is gestopt.
+- 21 Node-tests: scripts en lokale assets, startschermlinks, Excel/ZIP-exportinhoud, HIO A/B/AA/AD, telefoonnummer-overname, ongeldige identifiers, LCL per service en positie, hergebruik van dikaders en groepering per meetrichting.
+- Android `:app:assembleDebug`, `:app:assembleDebugAndroidTest` en `:app:testDebugUnitTest` bouwen lokaal succesvol.
+- Java-tests voor navigatieadressen en native HIO-identifiers slagen.
+- Alle 33 webbestanden komen overeen met de Android-assets na `npm run sync:android`.
+- Browser: HIO-overname A/B/AA/AD inclusief posities, bevestiging en bewaren na herladen gecontroleerd met fictieve gegevens.
+- Browser: LCL op KVD B opgeslagen, correcte positie in rapport. Gegroepeerde rapporten gecontroleerd met een afzonderlijke testfixture met fictieve gegevens.
+- Browser: TV-codes, Fiber Route, PoP Excel/ZIP-export, thema, browser-terug en assistent gecontroleerd.
+- Assistent: Qwen3-1.7B-model daadwerkelijk gedownload, geladen en antwoord gegenereerd op de Mac.
+- Offline publicatie onder `/ToolsAPK/` gecontroleerd door de testserver te stoppen en opnieuw te laden.
+- GitHub Pages is gepubliceerd: https://miltonminecraft-afk.github.io/ToolsAPK/
+- GitHub-workflows voor Pages en APK hebben succesvol gedraaid. De laatste codeversie `c788ed8` slaagt in beide workflows. Pages gebruikt uitsluitend GitHub Actions; de oude branchpublicatie is uitgeschakeld.
+- GOF/EOF verwijderd uit bron, startscherm en APK-assets.
 - `npm audit --omit=dev`: geen gemelde kwetsbaarheden.
-- Native `HioScanActivity.java` is byte-identiek aan ToolsAPK 2; meetparser, TV-codelijsten en Excel-routeparser zijn niet herschreven.
 
-## Navigatiewijziging
+## Gewijzigd gedrag
 
-`MainActivity.java` verwerkt Android-terug via AndroidX OnBackPressedDispatcher. Alleen het lokale startadres of `index.html` met dezelfde origin telt als startpagina. Iedere andere of onbekende pagina gaat naar het expliciete lokale `index.html`. Terwijl die terugnavigatie loopt, worden dubbele events genegeerd. WebView-historie wordt gewist na het daadwerkelijk laden van de startpagina, zonder vaste timer.
+Rapporten groeperen eerst per Service ID, daarna per meetpositie en richting. Omgekeerde richtingen blijven apart. Oorspronkelijke meetnummers blijven behouden. LCL bewaart de gekozen routepositie en wordt bij een bijbehorende meting weergegeven. Reeds opgeslagen LCL-routegegevens blijven behouden; ontbrekende oude routegegevens worden afgeleid uit de route van de juiste service. Dikaders mogen bij meerdere Service IDs worden gebruikt.
 
-De oude JavaScript App-pluginlisteners, Cordova-backlisteners en kunstmatige history-items zijn verwijderd uit de drie hoofdtools en de startpagina. De browser gebruikt zijn gewone terugnavigatie. De App-plugin is niet nodig voor de native handler.
+Native HIO accepteert compacte KVD A/B en verwerpt te lange puntnamen in plaats van ze af te kappen. De web-overname accepteert A/B/AA/AD en voegt een al opgenomen telefoonnummer niet opnieuw toe. De bestaande meetparser en oorspronkelijke OG-routes zijn behouden.
 
-## Nog op Android controleren
+Android-terug gebruikt OnBackPressedDispatcher: vanuit tools terug naar het expliciete lokale startadres; vanaf de geladen startpagina sluit de app. Tijdens terugnavigatie worden dubbele events genegeerd. Een tijdens emulatortests gevonden Android-afwijking in URI-resolve is hersteld door het startpad expliciet op te bouwen.
 
-Er was geen Android-apparaat aangesloten en geen emulator-image beschikbaar. Daarom zijn onderstaande apparaattests nog niet uitgevoerd:
+## Apparaattests en beperkingen
 
-1. Open elke tool en doe één terug-swipe: de startpagina moet verschijnen.
-2. Swipe terug op de startpagina: de APK moet sluiten.
-3. Start HIO en kies Annuleren of swipe terug: Kopermetingen moet blijven staan.
-4. Controleer camera-toestemming, Argus/LCL-scans, native HIO-herkenning en de Android-deelmenu's.
-5. Controleer hoorbaar Dark Side (één piep) en Light Side (twee piepjes), inclusief de audiofallback.
+GitHub Actions voert tests uit op Android API 35 en 36: hardware-terug, teruggebaar, sluiten op startpagina, HIO openen/annuleren en HIO-overname met behoud van een andere serviceroute. Beide jobs slagen: zeven tests op API 35 en zeven tests op API 36 (run 39120186502). Het API 36 XML-rapport bevestigt nul fouten, nul mislukkingen en nul overgeslagen tests.
 
-De web-HIO-foto-OCR is beschikbaar, maar is nog niet met echte HIO-foto's gevalideerd. De APK gebruikt bij ontbrekend native llama.cpp de WASM-AI-runtime; AI-geheugengebruik en snelheid zijn nog niet op een telefoon gemeten.
+De lokale Mac-emulator crasht vóór het opstarten van Android; daarom worden Linux-emulators op GitHub gebruikt. Er is geen fysieke telefoon aangesloten.
 
-## GitHub
+Echte HIO-fotoherkenning, camera/QR-scans, Android-deelmenu's, pieptonen en AI-snelheid/geheugengebruik op een telefoon zijn nog niet fysiek gevalideerd. De APK gebruikt de WASM-runtime wanneer de optionele native llama.cpp ontbreekt. Het modelbestand wordt apart gedownload en staat niet in Git.
 
-Workflows voor Pages en Android zijn opgenomen. Er is nog niets naar GitHub gepusht en er is geen live publicatie geactiveerd. De Pages- en Android-workflows zijn lokaal voorbereid; uitvoering op GitHub Actions is nog niet geverifieerd.
+GitHub-controles: [apparaatcontroles](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186502), [APK-build](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186483), [Pages-publicatie](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186501). De live Kopermetingen-HTML is byte voor byte vergeleken met de lokaal geteste bron.
