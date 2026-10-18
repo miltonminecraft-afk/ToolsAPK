@@ -35,3 +35,7 @@ De lokale Mac-emulator crasht vóór het opstarten van Android; daarom worden Li
 Echte HIO-fotoherkenning, camera/QR-scans, Android-deelmenu's, pieptonen en AI-snelheid/geheugengebruik op een telefoon zijn nog niet fysiek gevalideerd. De APK gebruikt de WASM-runtime wanneer de optionele native llama.cpp ontbreekt. Het modelbestand wordt apart gedownload en staat niet in Git.
 
 GitHub-controles: [apparaatcontroles](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186502), [APK-build](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186483), [Pages-publicatie](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186501). De live Kopermetingen-HTML is byte voor byte vergeleken met de lokaal geteste bron.
+
+## Compacte tekstcorrectie
+
+De meettrajectkoppen en decoratieve scheidingslijnen zijn verwijderd. Isolatie en capaciteit staan elk op één regel. Groepering, oorspronkelijke meetnummers, posities, meetwaarden en LCL-koppelingen blijven behouden. De 21 Node-tests slagen opnieuw.
