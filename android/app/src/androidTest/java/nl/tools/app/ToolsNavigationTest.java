@@ -18,6 +18,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import static org.junit.Assert.*;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -129,4 +134,44 @@ public class ToolsNavigationTest {
         device.pressBack();
         awaitPage("/tools/kopermetingen/index.html");
     }
+    private String javascript(String script) throws Exception {
+        CountDownLatch done = new CountDownLatch(1);
+        AtomicReference<String> result = new AtomicReference<>();
+        scenario.onActivity(activity -> activity.getBridge().getWebView().evaluateJavascript(script, value -> {
+            result.set(value);
+            done.countDown();
+        }));
+        assertTrue("JavaScript callback timed out", done.await(15, TimeUnit.SECONDS));
+        return result.get();
+    }
+
+    @Test public void confirmedHioTransferPreservesSingleLettersPositionsAndOtherRoutes() throws Exception {
+        openTool("kopermetingen");
+        javascript("ensureStoredServiceId('KEEP12345');"
+                + "state.services['KEEP12345']='dik2';"
+                + "storeRouteForService('KEEP12345',{hvd:'OLD',kvds:['X'],routeLengths:{hvd:'',kvds:['']}});"
+                + "captureOgOriginalRoute('KEEP12345',false);"
+                + "window.hioOriginalOG=JSON.stringify(state.ogOriginalRoutes['KEEP12345']);");
+        JSONArray points = new JSONArray();
+        String[] names = {"A", "B", "AA", "AD"};
+        for (int i = 0; i < names.length; i++) {
+            points.put(new JSONObject().put("type", "kvd").put("name", names[i])
+                    .put("vStijl", String.valueOf(i + 1)).put("vStift", String.valueOf(i + 11)));
+        }
+        JSONObject scan = new JSONObject().put("serviceId", "CJF12345").put("dikader", "1").put("items", points);
+        javascript("window.receiveHioScanResult(" + scan + ")");
+        assertEquals("true", javascript("document.getElementById('confirmModal').classList.contains('open')"));
+        javascript("document.getElementById('acceptConfirmButton').click()");
+        assertEquals("true", javascript("state.serviceRoutes['CJF12345'].kvds.join(',')==='A,B,AA,AD'"));
+        assertEquals("true", javascript("state.serviceRouteInfo['CJF12345'].kvds[0].vStijl==='001'"
+                + " && state.serviceRouteInfo['CJF12345'].kvds[3].vStift==='014'"));
+        assertEquals("true", javascript("JSON.stringify(state.ogOriginalRoutes['KEEP12345'])===window.hioOriginalOG"
+                + " && state.serviceRoutes['KEEP12345'].kvds.join(',')==='X'"));
+        screenshot("hio-single-letter-transfer");
+        // Reload the HTML document to exercise the existing localStorage format.
+        openTool("kopermetingen");
+        assertEquals("true", javascript("state.serviceRoutes['CJF12345'].kvds.join(',')==='A,B,AA,AD'"
+                + " && state.serviceRoutes['KEEP12345'].kvds.join(',')==='X'"));
+    }
+
 }

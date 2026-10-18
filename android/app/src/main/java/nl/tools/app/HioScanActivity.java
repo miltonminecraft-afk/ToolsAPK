@@ -1527,9 +1527,9 @@ public class HioScanActivity extends AppCompatActivity {
 
             String[] patterns = {
                     "(?i)\\bKVD\\b\\s*([A-Z0-9]{1,6})",
-                    "(?i)\\bKVD([A-Z0-9]{2})\\b",
+                    "(?i)\\bKVD([A-Z0-9]{1,2})\\b",
                     "(?i)\\bK[VY][D0OQ]\\b\\s*([A-Z0-9]{1,6})",
-                    "(?i)\\bK[VY][D0OQ]([A-Z0-9]{2})\\b"
+                    "(?i)\\bK[VY][D0OQ]([A-Z0-9]{1,2})\\b"
             };
 
             for (String pattern : patterns) {
