@@ -1,7 +1,16 @@
 node_modules/
-.gradle/
-**/build/
-.idea/
+dist/
 .DS_Store
+.idea/
+android/.gradle/
+android/build/
+android/app/build/
 android/local.properties
-*.iml
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Reproducible third-party binaries are downloaded and hash checked at build time.
+www/vendor/*
+!www/vendor/README.md

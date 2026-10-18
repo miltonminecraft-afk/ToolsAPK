@@ -490,7 +490,7 @@ public class HioScanActivity extends AppCompatActivity {
                     out.add(copy);
                 }
 
-                if (item.type.equals("kvd") && item.name.matches("[A-Z]{2}")) {
+                if (item.type.equals("kvd") && item.name.matches("[A-Z]{1,2}")) {
                     out.add(item.copy());
                 }
             }
@@ -636,7 +636,7 @@ public class HioScanActivity extends AppCompatActivity {
 
                 if (clean.equals("HVD")) continue;
 
-                if (clean.matches("[A-Z]{2}") && !lockedKvdOrder.contains(clean)) {
+                if (clean.matches("[A-Z]{1,2}") && !lockedKvdOrder.contains(clean)) {
                     lockedKvdOrder.add(clean);
                 }
             }
@@ -1638,9 +1638,9 @@ public class HioScanActivity extends AppCompatActivity {
 
             String name = sb.toString().replaceAll("[^A-Z]", "");
 
-            if (name.length() < 2) return "";
+            if (name.length() < 1) return "";
             if (name.length() > 2) name = name.substring(0, 2);
-            if (!name.matches("[A-Z]{2}")) return "";
+            if (!name.matches("[A-Z]{1,2}")) return "";
 
             return name;
         }

@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Value Fiber Route</title>
+<script src="../../vendor/xlsx.full.min.js"></script>
+<style>
+:root{
+--bg:#f4f6fa;
+--panel:#fff;
+--panel2:#eef4f0;
+--text:#10141d;
+--muted:#667085;
+--border:#d6dbe6;
+--accent:#00c300;
+--danger:#c91d1d;
+--success:#148a42;
+--input:#fff;
+--shadow:0 12px 30px rgba(16,24,40,.14);
+--accentSoft:rgba(0,195,0,.12);
+--laserOff:#cbd3ce;
+--laserGlow:rgba(0,195,0,.48)
+}
+
+body.dark{
+--bg:#07090d;
+--panel:#11151d;
+--panel2:#0c0f15;
+--text:#f4f6fb;
+--muted:#a8afbd;
+--border:#2a303c;
+--accent:#e02020;
+--danger:#e02020;
+--success:#159947;
+--input:#090c12;
+--shadow:0 16px 38px rgba(0,0,0,.42);
+--accentSoft:rgba(224,32,32,.16);
+--laserOff:#3b424c;
+--laserGlow:rgba(224,32,32,.52)
+}
+
+*{box-sizing:border-box}
+
+html,body{
+margin:0;
+width:100%;
+max-width:100%;
+min-height:100%;
+overflow-x:hidden;
+background:var(--bg);
+color:var(--text);
+font-family:Arial,Helvetica,sans-serif
+}
+
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+
+.app{
+width:100%;
+max-width:520px;
+min-height:100vh;
+margin:0 auto;
+overflow-x:hidden;
+background:var(--bg);
+padding-bottom:82px
+}
+
+.header{
+position:sticky;
+top:0;
+z-index:20;
+width:100%;
+background:var(--accent);
+color:#fff;
+padding:20px 18px 18px;
+box-shadow:var(--shadow);
+border-radius:0 0 18px 18px
+}
+
+.header-row{
+display:grid;
+grid-template-columns:minmax(0,1fr) 46px;
+align-items:center;
+gap:12px
+}
+
+.header-title{
+font-size:22px;
+font-weight:900;
+line-height:1.1;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis
+}
+
+.header-subtitle{
+margin-top:5px;
+font-size:14px;
+opacity:.9;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis
+}
+
+.icon-bar{
+position:relative;
+display:grid;
+place-items:center
+}
+
+.header-button{
+width:46px;
+height:46px;
+padding:0;
+border:1px solid rgba(255,255,255,.22);
+border-radius:15px;
+background:rgba(255,255,255,.18);
+color:#fff;
+display:grid;
+place-items:center;
+line-height:0
+}
+
+.settings-gear{
+width:30px;
+height:30px;
+display:block;
+color:currentColor
+}
+
+.settings{
+display:none;
+position:absolute;
+right:0;
+top:54px;
+width:min(310px,calc(100vw - 32px));
+background:var(--panel);
+border:1px solid var(--border);
+border-radius:12px;
+padding:14px;
+z-index:50;
+box-shadow:0 18px 40px rgba(0,0,0,.35);
+color:var(--text)
+}
+
+.settings.open{display:block}
+.settings h3{margin:0 0 10px}
+
+.settings-section{
+margin-top:12px;
+padding-top:12px;
+border-top:1px solid var(--border);
+color:var(--accent);
+font-weight:900
+}
+
+.setting-row{
+display:flex;
+justify-content:space-between;
+padding:10px;
+border-radius:8px;
+cursor:pointer;
+font-weight:800
+}
+
+.setting-row:hover{background:var(--panel2)}
+
+.content{
+width:100%;
+padding:16px;
+overflow-x:hidden
+}
+
+.view{
+display:none;
+width:100%
+}
+
+.view.active{display:block}
+
+.card{
+width:100%;
+background:var(--panel);
+border:1px solid var(--border);
+border-radius:18px;
+box-shadow:var(--shadow);
+padding:16px;
+margin-bottom:14px
+}
+
+.card-soft{
+background:var(--panel2);
+box-shadow:none
+}
+
+h2{
+margin:0 0 14px;
+color:var(--accent);
+font-size:20px
+}
+
+.title{
+font-size:17px;
+font-weight:900;
+overflow-wrap:anywhere
+}
+
+.title-small{
+min-width:0;
+font-size:14px;
+font-weight:900;
+overflow-wrap:anywhere
+}
+
+.small,.note{
+margin-top:4px;
+color:var(--muted);
+font-size:13px;
+line-height:1.4;
+overflow-wrap:anywhere
+}
+
+.label{
+color:var(--muted);
+font-size:12px;
+font-weight:900;
+text-transform:uppercase;
+letter-spacing:.5px
+}
+
+.row{
+display:flex;
+align-items:center;
+gap:12px;
+min-width:0
+}
+
+.row>div:first-child{min-width:0}
+.between{justify-content:space-between}
+.stack{display:grid;gap:12px}
+
+button{
+border:0;
+border-radius:8px;
+padding:13px 14px;
+font-size:16px;
+font-weight:900
+}
+
+.primary{
+width:100%;
+min-height:48px;
+background:var(--accent);
+color:#fff;
+border-radius:14px
+}
+
+.chip{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+min-height:28px;
+padding:5px 10px;
+border-radius:999px;
+background:var(--accentSoft);
+color:var(--accent);
+font-size:12px;
+font-weight:900;
+white-space:nowrap;
+flex:0 0 auto
+}
+
+.distance-box{
+min-width:88px;
+border-radius:14px;
+background:var(--accentSoft);
+color:var(--accent);
+padding:7px 9px;
+text-align:right;
+font-weight:900
+}
+
+.distance-label{
+font-size:10px;
+line-height:1.1;
+opacity:.85
+}
+
+.distance-main{
+font-size:13px;
+line-height:1.25
+}
+
+.distance-sub{
+margin-top:3px;
+font-size:11px;
+line-height:1.15;
+color:var(--muted)
+}
+
+.file-input{display:none}
+
+.nav{
+position:fixed;
+left:50%;
+bottom:0;
+z-index:15;
+width:min(520px,100%);
+transform:translateX(-50%);
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:4px;
+background:var(--panel);
+border-top:1px solid var(--border);
+padding:8px
+}
+
+.nav button{
+border:0;
+border-radius:14px;
+background:transparent;
+color:var(--muted);
+padding:10px 2px;
+font-size:12px;
+font-weight:900
+}
+
+.nav button.active{
+background:var(--accentSoft);
+color:var(--accent)
+}
+
+.timeline{
+position:relative;
+display:grid;
+gap:12px
+}
+
+.timeline::before{
+content:"";
+position:absolute;
+left:17px;
+top:16px;
+bottom:16px;
+width:3px;
+border-radius:999px;
+background:var(--accentSoft)
+}
+
+.step{
+position:relative;
+display:grid;
+grid-template-columns:38px minmax(0,1fr);
+gap:10px
+}
+
+.step-dot{
+z-index:1;
+width:38px;
+height:38px;
+border-radius:14px;
+border:2px solid var(--accent);
+background:var(--panel);
+color:var(--accent);
+display:grid;
+place-items:center;
+font-size:12px;
+font-weight:900
+}
+
+.step-card{
+min-width:0;
+background:var(--panel);
+border:1px solid var(--border);
+border-radius:17px;
+box-shadow:var(--shadow);
+padding:13px
+}
+
+.step-title{
+font-size:14px;
+font-weight:900;
+line-height:1.25;
+overflow-wrap:anywhere
+}
+
+.details{
+margin-top:4px;
+color:var(--muted);
+font-size:12.5px;
+line-height:1.35;
+overflow-wrap:anywhere
+}
+
+.room{
+overflow:hidden;
+border:1px solid var(--border);
+border-radius:16px;
+margin-top:12px
+}
+
+.room-head{
+background:var(--panel2);
+padding:12px
+}
+
+.room-body{
+display:grid;
+gap:10px;
+padding:12px
+}
+
+.cabinet,.info-box,.outside-row{
+min-width:0;
+border:1px solid var(--border);
+border-radius:15px;
+background:var(--panel);
+padding:12px
+}
+
+.info-box{background:var(--panel2)}
+.map-hint{margin-top:6px}
+
+.map-link{
+width:auto;
+min-height:0;
+margin:0;
+padding:0;
+border:0;
+border-radius:0;
+background:transparent;
+color:var(--accent);
+font-size:12px;
+font-weight:900;
+line-height:1.4;
+text-align:left
+}
+
+.empty{
+border:1px dashed var(--border);
+border-radius:18px;
+padding:18px;
+color:var(--muted);
+text-align:center
+}
+
+.error{
+margin-top:8px;
+color:var(--danger);
+font-size:13px;
+line-height:1.4
+}
+
+details{margin-top:12px}
+
+summary{
+cursor:pointer;
+color:var(--accent);
+font-weight:900
+}
+
+.outside-details{
+border-top:1px solid var(--border);
+padding-top:10px
+}
+
+.outside-list{
+display:grid;
+gap:8px;
+margin-top:10px;
+max-height:360px;
+overflow:auto
+}
+
+.test-layout{
+position:relative;
+width:100%;
+padding-top:54px;
+padding-right:50px
+}
+
+.test-axis{
+position:absolute;
+right:19px;
+top:0;
+bottom:0;
+width:4px;
+border-radius:999px;
+background:var(--laserOff);
+z-index:1;
+pointer-events:none
+}
+
+.test-axis-active{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:0;
+border-radius:999px;
+background:var(--accent);
+box-shadow:
+0 0 7px var(--accent),
+0 0 16px var(--laserGlow),
+0 0 26px var(--laserGlow);
+transition:top .2s ease,height .2s ease
+}
+
+.test-marker-layer{
+position:absolute;
+inset:0;
+z-index:5;
+pointer-events:none
+}
+
+.test-marker{
+position:absolute;
+left:calc(100% - 19px);
+top:0;
+transform:translate(-50%,-50%);
+pointer-events:auto
+}
+
+.laser-button{
+width:40px;
+height:40px;
+padding:0;
+border:2px solid var(--border);
+border-radius:13px;
+background:var(--panel);
+color:var(--muted);
+display:grid;
+place-items:center
+}
+
+.laser-button.active{
+border-color:var(--accent);
+background:var(--accentSoft);
+color:var(--accent);
+box-shadow:
+0 0 8px var(--accent),
+0 0 17px var(--laserGlow)
+}
+
+.laser-symbol{
+width:27px;
+height:27px;
+display:block;
+fill:none;
+stroke:currentColor;
+stroke-width:1.8;
+stroke-linecap:round;
+stroke-linejoin:round
+}
+
+.test-location-card{
+position:relative;
+width:100%;
+background:var(--panel);
+border:1px solid var(--border);
+border-radius:18px;
+box-shadow:var(--shadow);
+padding:14px;
+margin-bottom:12px
+}
+
+.test-room{
+width:100%;
+overflow:hidden;
+border:1px solid var(--border);
+border-radius:16px;
+margin-top:12px
+}
+
+.test-room-head{
+background:var(--panel2);
+padding:11px
+}
+
+.test-room-body{
+display:grid;
+gap:10px;
+padding:11px
+}
+
+.test-position-card{
+position:relative;
+width:100%;
+min-height:94px;
+border:1px solid var(--border);
+border-radius:14px;
+background:var(--panel);
+padding:11px
+}
+
+.test-position-card.not-testable{
+opacity:.72
+}
+
+.test-check{
+width:36px;
+height:36px;
+padding:0;
+border:2px solid var(--border);
+border-radius:50%;
+background:var(--panel);
+color:transparent;
+display:grid;
+place-items:center;
+font-size:21px;
+line-height:1
+}
+
+.test-check.checked{
+border-color:var(--accent);
+background:var(--accent);
+color:#fff;
+box-shadow:
+0 0 7px var(--accent),
+0 0 15px var(--laserGlow)
+}
+
+.test-check.current{
+outline:4px solid var(--accentSoft)
+}
+
+@media(max-width:380px){
+.content{padding:12px}
+.header-title{font-size:20px}
+
+.distance-box{
+min-width:76px;
+padding:6px 7px
+}
+
+.distance-main{font-size:12px}
+.distance-sub{font-size:10px}
+
+.test-layout{
+padding-top:50px;
+padding-right:44px
+}
+
+.test-axis{right:17px}
+
+.test-marker{
+left:calc(100% - 17px)
+}
+
+.laser-button{
+width:36px;
+height:36px
+}
+
+.test-check{
+width:32px;
+height:32px
+}
+}
+</style>
+<link rel="manifest" href="../../manifest.webmanifest">
+<meta name="theme-color" content="#148a42">
+<script src="../../shared/platform.js" defer></script>
+</head>
+<body class="dark">
+<div class="app">
+<header class="header">
+<div class="header-row">
+<div>
+<div class="header-title">Value Fiber Route</div>
+<div class="header-subtitle" id="headerSubtitle">Excel-koppelbon importeren</div>
+</div>
+
+<div class="icon-bar">
+<button class="header-button" id="settingsButton" type="button">
+<svg class="settings-gear" viewBox="0 0 24 24" aria-hidden="true">
+<path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.52.52 0 0 0 14 2h-4a.52.52 0 0 0-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.52.52 0 0 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z" fill="currentColor"/>
+<circle cx="12" cy="12" r="3.2" fill="var(--panel)"/>
+</svg>
+</button>
+
+<div class="settings" id="settingsPanel">
+<h3>Instellingen</h3>
+<div class="setting-row" id="darkModeButton"><span>Dark Side</span><span id="darkCheck">✓</span></div>
+<div class="setting-row" id="lightModeButton"><span>Light Side</span><span id="lightCheck"></span></div>
+<div class="settings-section">Import</div>
+<div class="setting-row" id="clearDataButton"><span>Gegevens legen</span><span>×</span></div>
+</div>
+</div>
+</div>
+</header>
+
+<main class="content">
+<section class="view active" id="viewImport">
+<div class="card">
+<h2>Excel invoer</h2>
+<input class="file-input" id="fileInput" type="file" accept=".xlsx,.xls,.xlsm">
+<button class="primary" id="fileButton" type="button">Excel-koppelbon kiezen</button>
+</div>
+
+<div class="card card-soft">
+<h2>Importstatus</h2>
+<div class="note" id="importStatus">Nog geen bestand geladen.</div>
+<div class="error" id="importError"></div>
+</div>
+</section>
+
+<section class="view" id="viewRoute">
+<div id="routeOutput"></div>
+</section>
+
+<section class="view" id="viewLocations">
+<div id="locationsOutput"></div>
+</section>
+
+<section class="view" id="viewTest">
+<div id="testOutput"></div>
+</section>
+</main>
+
+<nav class="nav">
+<button class="active" type="button" data-view="Import">Import</button>
+<button type="button" data-view="Route">Route</button>
+<button type="button" data-view="Locations">Locaties</button>
+<button type="button" data-view="Test">Testen</button>
+</nav>
+</div>
+
+<script>
+let appData={
+fileName:"",
+meta:{},
+items:[],
+cabinets:[],
+locations:[]
+};
+
+let laserDirection="start";
+let laserTargetIndex=1;
+
+const firstTestableIndex=1;
+const firstStartCheckIndex=2;
+
+const fileInput=document.getElementById("fileInput");
+const fileButton=document.getElementById("fileButton");
+const settingsButton=document.getElementById("settingsButton");
+const settingsPanel=document.getElementById("settingsPanel");
+const darkModeButton=document.getElementById("darkModeButton");
+const lightModeButton=document.getElementById("lightModeButton");
+const darkCheck=document.getElementById("darkCheck");
+const lightCheck=document.getElementById("lightCheck");
+const clearDataButton=document.getElementById("clearDataButton");
+const importStatus=document.getElementById("importStatus");
+const importError=document.getElementById("importError");
+const headerSubtitle=document.getElementById("headerSubtitle");
+const routeOutput=document.getElementById("routeOutput");
+const locationsOutput=document.getElementById("locationsOutput");
+const testOutput=document.getElementById("testOutput");
+
+fileButton.onclick=()=>fileInput.click();
+
+settingsButton.onclick=event=>{
+event.stopPropagation();
+settingsPanel.classList.toggle("open");
+};
+
+document.addEventListener("click",event=>{
+if(!settingsPanel.contains(event.target)&&!settingsButton.contains(event.target)){
+settingsPanel.classList.remove("open");
+}
+});
+
+darkModeButton.onclick=()=>setTheme("dark",true);
+lightModeButton.onclick=()=>setTheme("light",true);
+clearDataButton.onclick=clearData;
+
+window.addEventListener("storage",event=>{
+if(event.key==="toolsTheme"&&(event.newValue==="dark"||event.newValue==="light")){
+setTheme(event.newValue,false);
+}
+});
+
+window.addEventListener("resize",()=>{
+if(document.getElementById("viewTest").classList.contains("active")){
+requestAnimationFrame(positionTestMarkers);
+}
+});
+
+fileInput.onchange=event=>{
+const file=event.target.files[0];
+if(file)readExcel(file);
+};
+
+document.querySelectorAll(".nav button").forEach(button=>{
+button.onclick=()=>openView(button.dataset.view);
+});
+
+function playFallbackThemeBeep(theme){
+try{
+const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+if(!AudioContextClass)return;
+
+const count=theme==="light"?2:1;
+const frequency=theme==="light"?720:320;
+
+for(let index=0;index<count;index++){
+setTimeout(()=>{
+try{
+const context=new AudioContextClass();
+const oscillator=context.createOscillator();
+const gain=context.createGain();
+
+oscillator.frequency.value=frequency;
+gain.gain.setValueAtTime(.0001,context.currentTime);
+gain.gain.exponentialRampToValueAtTime(.14,context.currentTime+.012);
+gain.gain.exponentialRampToValueAtTime(.0001,context.currentTime+.14);
+
+oscillator.connect(gain);
+gain.connect(context.destination);
+oscillator.start();
+oscillator.stop(context.currentTime+.16);
+
+setTimeout(()=>context.close(),250);
+}catch(error){}
+},index*190);
+}
+}catch(error){}
+}
+
+function playThemeSound(theme){
+const source=theme==="dark"?"../../audio/dark-side.mp3":"../../audio/light-side.mp3";
+
+try{
+const audio=new Audio(source);
+let started=false;
+
+const fallback=()=>{
+if(started)return;
+started=true;
+playFallbackThemeBeep(theme);
+};
+
+const timer=setTimeout(fallback,450);
+
+audio.addEventListener("playing",()=>{
+started=true;
+clearTimeout(timer);
+},{once:true});
+
+audio.addEventListener("error",()=>{
+clearTimeout(timer);
+fallback();
+},{once:true});
+
+const result=audio.play();
+
+if(result&&result.catch){
+result.catch(()=>{
+clearTimeout(timer);
+fallback();
+});
+}
+}catch(error){
+playFallbackThemeBeep(theme);
+}
+}
+
+function setTheme(theme,playSound=false){
+document.body.classList.toggle("dark",theme==="dark");
+darkCheck.textContent=theme==="dark"?"✓":"";
+lightCheck.textContent=theme==="light"?"✓":"";
+localStorage.setItem("toolsTheme",theme);
+
+if(playSound)playThemeSound(theme);
+
+requestAnimationFrame(positionTestMarkers);
+}
+
+function loadTheme(){
+setTheme(localStorage.getItem("toolsTheme")||"dark",false);
+}
+
+function openView(name){
+document.querySelectorAll(".nav button").forEach(button=>{
+button.classList.toggle("active",button.dataset.view===name);
+});
+
+document.querySelectorAll(".view").forEach(view=>view.classList.remove("active"));
+document.getElementById("view"+name).classList.add("active");
+
+if(name==="Test")renderTest();
+}
+
+function clearData(){
+if(!confirm("Weet je zeker dat je de ingelezen route wilt legen?"))return;
+
+appData={
+fileName:"",
+meta:{},
+items:[],
+cabinets:[],
+locations:[]
+};
+
+laserDirection="start";
+laserTargetIndex=firstTestableIndex;
+
+headerSubtitle.textContent="Excel-koppelbon importeren";
+importStatus.textContent="Nog geen bestand geladen.";
+importError.textContent="";
+fileInput.value="";
+settingsPanel.classList.remove("open");
+
+renderRoute();
+renderLocations();
+renderTest();
+openView("Import");
+}
+
+function readExcel(file){
+importStatus.textContent="Bestand wordt gelezen...";
+importError.textContent="";
+
+if(!window.XLSX){
+importStatus.textContent="Niet gelukt.";
+importError.textContent="Excel-bibliotheek is niet geladen.";
+return;
+}
+
+const reader=new FileReader();
+
+reader.onload=event=>{
+try{
+const workbook=XLSX.read(new Uint8Array(event.target.result),{type:"array"});
+applyData(parseWorkbook(workbook,file.name));
+}catch(error){
+importStatus.textContent="Niet gelukt.";
+importError.textContent=error.message;
+}
+};
+
+reader.onerror=()=>{
+importStatus.textContent="Niet gelukt.";
+importError.textContent="Het bestand kon niet worden gelezen.";
+};
+
+reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook(workbook,fileName){
+const sheets=workbook.SheetNames.map(sheetName=>({
+sheetName,
+rows:XLSX.utils.sheet_to_json(workbook.Sheets[sheetName],{
+header:1,
+raw:false,
+defval:""
+})
+}));
+
+const meta=extractMeta(sheets,fileName);
+const items=extractItems(sheets);
+
+if(!items.length){
+throw new Error("Geen routetabel gevonden.");
+}
+
+meta.totalLength=Math.max(...items.map(item=>item.distance),0);
+meta.routeName=meta.routeName||deriveRouteName(items)||fileName.replace(/\.[^.]+$/,"");
+
+return{fileName,meta,items};
+}
+
+function extractMeta(sheets,fileName){
+const rows=sheets.flatMap(sheet=>sheet.rows);
+const text=rows.flat().map(clean).filter(Boolean).join(" ");
+const wosNumbers=uniqueMatches(text,/WOS\d{5,}/gi);
+const ipNumbers=uniqueMatches(text,/IP\d{5,}/gi);
+
+return{
+baannr:findLabelValue(rows,["Baannr","Baan nr","IP nummer","IP-nummer"])||ipNumbers[0]||firstMatch(fileName,/IP\d{5,}/i),
+klantopdracht:findLabelValue(rows,["Klantopdrachtnr","Klantopdracht","P-loc","P loc"])||wosNumbers[0]||firstMatch(fileName,/WOS\d{5,}/i),
+klantnodeLabel:findLabelValue(rows,["Klantnode labelen met","Klantnode label","Labelen met"])||wosNumbers[1]||"",
+dftsId:firstMatch(text,/DFTS\d+/i)||firstMatch(fileName,/DFTS\d+/i),
+ftid:firstMatch(text,/FT\d{4,}/i),
+routeName:findLabelValue(rows,["DFS Naam","DFS Name","BCS/DFS Name","BCS DFS Name"])
+};
+}
+
+function extractItems(sheets){
+const items=[];
+
+sheets.forEach(sheet=>{
+findTables(sheet.rows).forEach(table=>{
+let emptyRows=0;
+let runningDistance=0;
+
+for(let rowIndex=table.start+1;rowIndex<sheet.rows.length;rowIndex++){
+const row=sheet.rows[rowIndex];
+const type=clean(cell(row,table.typeIndex));
+const names=table.nameIndexes.map(index=>clean(cell(row,index))).filter(Boolean);
+const gps=clean(cell(row,table.gpsIndex));
+const length=numberValue(cell(row,table.lengthIndex));
+const totalLength=numberValue(cell(row,table.totalIndex));
+
+if(!type&&!names.length&&!gps&&!length&&!totalLength){
+emptyRows++;
+if(emptyRows>=8)break;
+continue;
+}
+
+emptyRows=0;
+
+if(totalLength>0){
+runningDistance=totalLength;
+}else if(length>0){
+runningDistance+=length;
+}
+
+items.push(normalizeItem({
+type,
+name:names.join(" / "),
+gps,
+length,
+distance:totalLength||runningDistance,
+outside:outsideValue(cell(row,table.outsideIndex))
+}));
+}
+});
+});
+
+return compactItems(items);
+}
+
+function findTables(rows){
+const tables=[];
+
+rows.forEach((row,index)=>{
+const headers=row.map(headerKey);
+const typeIndex=headers.findIndex(header=>header.includes("FEATURE_TYPE"));
+
+const nameIndexes=headers
+.map((header,column)=>header==="NAME"||header.endsWith("_NAME")?column:-1)
+.filter(column=>column>=0);
+
+if(typeIndex>=0&&nameIndexes.length){
+tables.push({
+start:index,
+typeIndex,
+nameIndexes,
+gpsIndex:findHeader(headers,header=>header.includes("GPS")),
+lengthIndex:findHeader(headers,header=>header.includes("LENGTH")&&!header.includes("TOT")&&!header.includes("TOTAL")),
+totalIndex:findHeader(headers,header=>header.includes("TOT_LENGTH")||header.includes("TOTAL_LENGTH")),
+outsideIndex:findHeader(headers,header=>header.includes("OUTSIDE"))
+});
+}
+});
+
+return tables;
+}
+
+function normalizeItem(item){
+const map={
+BUILDING:"Building",
+ADDRESS:"Address",
+RACK:"Rack",
+SHELF:"Shelf",
+CARD:"Card",
+PORT:"Port",
+CABLE:"Cable",
+CONNECTION:"Connection",
+FSE:"FSE",
+NU:"NU"
+};
+
+item.type=map[clean(item.type).toUpperCase()]||clean(item.type);
+return item;
+}
+
+function compactItems(items){
+const result=[];
+
+items.forEach(item=>{
+const previous=result[result.length-1];
+
+if(
+!previous||
+previous.type!==item.type||
+previous.name!==item.name||
+previous.distance!==item.distance
+){
+result.push(item);
+}
+});
+
+return result;
+}
+
+function applyData(parsed){
+appData.fileName=parsed.fileName;
+appData.meta=parsed.meta;
+appData.items=parsed.items;
+appData.cabinets=buildCabinets(parsed.items);
+appData.locations=buildLocations(parsed.items,appData.cabinets);
+
+laserDirection="start";
+laserTargetIndex=firstTestableIndex;
+
+headerSubtitle.textContent=appData.meta.routeName;
+
+importStatus.textContent=
+`${appData.items.length} route-regels gevonden. `+
+`${appData.cabinets.length} kastposities herkend.`;
+
+renderRoute();
+renderLocations();
+renderTest();
+openView("Route");
+}
+
+function buildCabinets(items){
+return items.map((item,index)=>{
+if(item.type!=="Rack")return null;
+
+const parts=clean(item.name).split("/");
+const equipment=findEquipment(items,index);
+
+return{
+rack:item.name,
+location:parts[0]||"",
+room:parts[1]||"Ruimte onbekend",
+row:parts.length>=2?parts[parts.length-2]:"",
+cabinet:parts.length?parts[parts.length-1]:"",
+shelf:equipment.shelf,
+card:equipment.card,
+port:equipment.port,
+distance:item.distance
+};
+}).filter(Boolean);
+}
+
+function findEquipment(items,index){
+const forward=scanEquipment(items,index+1,1);
+const backward=scanEquipment(items,index-1,-1);
+
+return{
+shelf:forward.shelf||backward.shelf,
+card:forward.card||backward.card,
+port:forward.port||backward.port
+};
+}
+
+function scanEquipment(items,start,direction){
+const result={
+shelf:"",
+card:"",
+port:""
+};
+
+for(let cursor=start;cursor>=0&&cursor<items.length;cursor+=direction){
+const item=items[cursor];
+
+if(["Rack","Building","Cable","Connection","FSE","NU"].includes(item.type)){
+break;
+}
+
+if(item.type==="Shelf"&&!result.shelf)result.shelf=item.name;
+if(item.type==="Card"&&!result.card)result.card=item.name;
+if(item.type==="Port"&&!result.port)result.port=item.name;
+
+if(result.shelf&&result.card&&result.port)break;
+}
+
+return result;
+}
+
+function buildLocations(items,cabinets){
+const locations=new Map();
+
+items.forEach((item,index)=>{
+if(item.type!=="Building")return;
+
+locations.set(item.name,{
+name:item.name,
+address:findAddress(items,index),
+distance:item.distance,
+gps:item.gps,
+rooms:new Map()
+});
+});
+
+cabinets.forEach(cabinet=>{
+const name=
+cabinet.location||
+findBuildingAtDistance(items,cabinet.distance)||
+"Onbekende locatie";
+
+if(!locations.has(name)){
+locations.set(name,{
+name,
+address:"",
+distance:cabinet.distance,
+gps:"",
+rooms:new Map()
+});
+}
+
+const location=locations.get(name);
+
+if(!location.rooms.has(cabinet.room)){
+location.rooms.set(cabinet.room,[]);
+}
+
+location.rooms.get(cabinet.room).push(cabinet);
+});
+
+return Array.from(locations.values()).map(location=>({
+name:location.name,
+address:location.address,
+distance:location.distance,
+gps:location.gps,
+rooms:Array.from(location.rooms.entries()).map(([name,cabinets])=>({
+name,
+cabinets
+}))
+}));
+}
+
+function renderRoute(){
+if(!appData.items.length){
+routeOutput.innerHTML=emptyHtml("Nog geen route geladen.");
+return;
+}
+
+const overview=buildOverview();
+
+routeOutput.innerHTML=`
+<div class="card">
+<div class="row between">
+<div>
+<div class="label">Route</div>
+<div class="title">${safe(appData.meta.routeName||"-")}</div>
+</div>
+<div class="chip">${meters(appData.meta.totalLength)}</div>
+</div>
+
+<div style="height:14px"></div>
+
+<div class="stack">
+${infoBox("Baannr",appData.meta.baannr)}
+${infoBox("Klantopdrachtnr",appData.meta.klantopdracht)}
+${infoBox("Klantnode label",appData.meta.klantnodeLabel)}
+</div>
+
+<details>
+<summary>Overige nummers</summary>
+
+<div class="stack" style="margin-top:12px">
+${infoBox("DFTS",appData.meta.dftsId)}
+${infoBox("FTID",appData.meta.ftid)}
+${infoBox("Bestand",appData.fileName)}
+</div>
+</details>
+</div>
+
+<div class="timeline">
+${overview.map(renderRouteStep).join("")}
+</div>
+`;
+}
+
+function infoBox(label,value){
+return`
+<div class="info-box">
+<div class="label">${safe(label)}</div>
+<div class="title">${safe(value||"-")}</div>
+</div>
+`;
+}
+
+function buildOverview(){
+const overview=[];
+const buildings=appData.items.filter(item=>item.type==="Building");
+const outsideItems=appData.items.filter(item=>item.outside||item.type==="FSE");
+
+if(buildings[0]){
+overview.push({
+mark:"ST",
+title:`Startlocatie ${buildings[0].name}`,
+details:findAddress(appData.items,appData.items.indexOf(buildings[0])),
+distance:buildings[0].distance,
+gps:buildings[0].gps
+});
+}
+
+appData.cabinets.forEach(cabinet=>{
+overview.push({
+mark:"K",
+title:`Kast ${cabinet.rack}`,
+details:[cabinet.shelf,cabinet.card,cabinet.port].filter(Boolean).join(" • "),
+distance:cabinet.distance
+});
+});
+
+if(outsideItems.length){
+const distances=outsideItems
+.map(item=>item.distance)
+.filter(value=>value>0);
+
+overview.push({
+mark:"BR",
+title:"Buitenroute",
+details:`${outsideItems.filter(item=>item.type==="FSE").length} FSE-punten`,
+distance:distances.length?Math.min(...distances):0,
+distanceEnd:distances.length?Math.max(...distances):0,
+outsideItems,
+type:"outside"
+});
+}
+
+if(buildings.length>1){
+const building=buildings[buildings.length-1];
+
+overview.push({
+mark:"E",
+title:`Eindlocatie ${building.name}`,
+details:findAddress(appData.items,appData.items.indexOf(building)),
+distance:building.distance||appData.meta.totalLength,
+gps:building.gps
+});
+}
+
+let previous=0;
+
+return overview.map(item=>{
+const end=item.distanceEnd??item.distance;
+item.segmentDistance=Math.max(end-previous,0);
+previous=end;
+return item;
+});
+}
+
+function renderRouteStep(item,index){
+return`
+<div class="step">
+<div class="step-dot">${safe(item.mark)}</div>
+
+<div class="step-card">
+<div class="row between">
+<div>
+<div class="step-title">${index+1}. ${safe(item.title)}</div>
+<div class="details">${safe(item.details||"")}</div>
+${mapLink(item.gps,item.details)}
+</div>
+
+<div class="distance-box">
+<div class="distance-label">Vanaf begin</div>
+<div class="distance-main">
+${item.distanceEnd?`${item.distance}–${item.distanceEnd} m`:meters(item.distance)}
+</div>
+<div class="distance-sub">
+Vorig object: ${meters(item.segmentDistance)}
+</div>
+</div>
+</div>
+
+${item.type==="outside"?renderOutside(item.outsideItems):""}
+</div>
+</div>
+`;
+}
+
+function renderOutside(items){
+return`
+<details class="outside-details">
+<summary>Buitenroute uitklappen</summary>
+
+<div class="outside-list">
+${items.map(item=>`
+<div class="outside-row">
+<div class="row between">
+<div>
+<div class="title-small">${safe(item.type)}: ${safe(item.name)}</div>
+${mapLink(item.gps,item.name)}
+</div>
+
+<div class="chip">${meters(item.distance)}</div>
+</div>
+</div>
+`).join("")}
+</div>
+</details>
+`;
+}
+
+function locationCardsHtml(){
+if(!appData.locations.length){
+return emptyHtml("Nog geen locaties geladen.");
+}
+
+return appData.locations.map(location=>`
+<div class="card">
+${locationHeader(location)}
+
+${location.rooms.map(room=>`
+<div class="room">
+<div class="room-head">
+<div class="row between">
+<div class="title-small">Ruimte ${safe(room.name)}</div>
+
+<div class="chip">
+${room.cabinets.length}
+kast${room.cabinets.length===1?"":"en"}
+</div>
+</div>
+</div>
+
+<div class="room-body">
+${room.cabinets.map(cabinet=>cabinetHtml(cabinet)).join("")}
+</div>
+</div>
+`).join("")}
+</div>
+`).join("");
+}
+
+function locationHeader(location){
+return`
+<div class="row between">
+<div>
+<div class="title">Locatie ${safe(location.name)}</div>
+<div class="small">${safe(location.address||"Adres niet gevonden")}</div>
+${mapLink(location.gps,location.address)}
+</div>
+
+<div class="chip">${meters(location.distance)}</div>
+</div>
+`;
+}
+
+function cabinetDisplayName(cabinet){
+const row=cabinet.row||"-";
+const cabinetNumber=cabinet.cabinet||"-";
+return`Rij ${row} • Kast ${cabinetNumber}`;
+}
+
+function cabinetHtml(cabinet){
+return`
+<div class="cabinet">
+<div class="row between">
+<div class="title-small">${safe(cabinetDisplayName(cabinet))}</div>
+<div class="chip">${meters(cabinet.distance)}</div>
+</div>
+
+<div class="details">
+${safe(
+[cabinet.shelf,cabinet.card,cabinet.port]
+.filter(Boolean)
+.join(" • ")||
+"Niet compleet herkend"
+)}
+</div>
+</div>
+`;
+}
+
+function renderLocations(){
+locationsOutput.innerHTML=locationCardsHtml();
+}
+
+function flattenCabinets(){
+const result=[];
+
+appData.locations.forEach(location=>{
+location.rooms.forEach(room=>{
+room.cabinets.forEach(cabinet=>{
+result.push({
+index:result.length,
+location,
+room,
+cabinet
+});
+});
+});
+});
+
+return result;
+}
+
+function isTestable(index){
+return index>=firstTestableIndex;
+}
+
+function isChecked(index,endPointIndex){
+if(!isTestable(index))return false;
+
+if(laserDirection==="start"){
+return index>=firstStartCheckIndex&&index<=laserTargetIndex;
+}
+
+return index>=laserTargetIndex&&index<endPointIndex;
+}
+
+function isEndPointChecked(endPointIndex){
+return laserDirection==="start"&&laserTargetIndex===endPointIndex;
+}
+
+function laserSymbol(){
+return`
+<svg class="laser-symbol" viewBox="0 0 24 24" aria-hidden="true">
+<path d="M12 3 22 21H2L12 3Z"/>
+<circle cx="12" cy="14" r="2.2"/>
+<path d="M12 8v2"/>
+<path d="M12 18v1"/>
+<path d="M7.7 11.1 9.2 12"/>
+<path d="m14.8 16 1.5.9"/>
+<path d="M7 15h2"/>
+<path d="M15 15h2"/>
+<path d="m7.7 18.9 1.5-.9"/>
+<path d="m14.8 12 1.5-.9"/>
+</svg>
+`;
+}
+
+function renderTest(){
+if(!appData.locations.length){
+testOutput.innerHTML=emptyHtml("Nog geen locaties geladen.");
+return;
+}
+
+const items=flattenCabinets();
+
+if(items.length<=firstTestableIndex){
+testOutput.innerHTML=emptyHtml("Geen testbaar vezeltraject gevonden.");
+return;
+}
+
+const endPointIndex=items.length;
+const lastIndex=items.length-1;
+const lastLocation=appData.locations[appData.locations.length-1];
+
+if(laserDirection==="start"){
+laserTargetIndex=Math.max(
+firstTestableIndex,
+Math.min(laserTargetIndex,endPointIndex)
+);
+}else{
+laserTargetIndex=Math.max(
+firstTestableIndex,
+Math.min(laserTargetIndex,lastIndex)
+);
+}
+
+const locationsHtml=appData.locations.map(location=>{
+const isLastLocation=location===lastLocation;
+
+return`
+<div
+class="test-location-card"
+${isLastLocation?'data-end-location="true"':""}
+>
+${locationHeader(location)}
+
+${location.rooms.map(room=>`
+<div class="test-room">
+<div class="test-room-head">
+<div class="row between">
+<div class="title-small">Ruimte ${safe(room.name)}</div>
+
+<div class="chip">
+${room.cabinets.length}
+kast${room.cabinets.length===1?"":"en"}
+</div>
+</div>
+</div>
+
+<div class="test-room-body">
+${room.cabinets.map(cabinet=>{
+const item=items.find(entry=>entry.cabinet===cabinet);
+const testable=isTestable(item.index);
+
+return`
+<div
+class="test-position-card${testable?"":" not-testable"}"
+data-position-index="${item.index}"
+${testable?`data-route-point="${item.index}"`:""}
+>
+<div class="row between">
+<div class="title-small">${safe(cabinetDisplayName(cabinet))}</div>
+<div class="chip">${meters(cabinet.distance)}</div>
+</div>
+
+<div class="details">
+${safe(
+[cabinet.shelf,cabinet.card,cabinet.port]
+.filter(Boolean)
+.join(" • ")||
+"Niet compleet herkend"
+)}
+</div>
+</div>
+`;
+}).join("")}
+</div>
+</div>
+`).join("")}
+</div>
+`;
+}).join("");
+
+testOutput.innerHTML=`
+<div class="test-layout" id="testLayout">
+<div class="test-axis" id="testAxis">
+<div class="test-axis-active" id="testAxisActive"></div>
+</div>
+
+<div class="test-marker-layer" id="testMarkerLayer"></div>
+
+${locationsHtml}
+</div>
+`;
+
+requestAnimationFrame(positionTestMarkers);
+}
+
+function positionTestMarkers(){
+const layout=document.getElementById("testLayout");
+const layer=document.getElementById("testMarkerLayer");
+const axis=document.getElementById("testAxis");
+const active=document.getElementById("testAxisActive");
+const endLocation=document.querySelector('[data-end-location="true"]');
+
+if(!layout||!layer||!axis||!active||!endLocation){
+return;
+}
+
+const items=flattenCabinets();
+
+if(items.length<=firstTestableIndex)return;
+
+const endPointIndex=items.length;
+const layoutRect=layout.getBoundingClientRect();
+
+layer.innerHTML="";
+
+const startLaserY=24;
+const endLocationRect=endLocation.getBoundingClientRect();
+const endLaserY=endLocationRect.bottom-layoutRect.top-22;
+const laserRadius=20;
+const axisStart=startLaserY+laserRadius;
+const axisEnd=Math.max(axisStart+4,endLaserY-laserRadius);
+const endCheckY=endLaserY-48;
+
+axis.style.top=`${axisStart}px`;
+axis.style.bottom=`${Math.max(layoutRect.height-axisEnd,0)}px`;
+
+layer.appendChild(
+createLaserButton(
+"start",
+startLaserY,
+laserDirection==="start"
+)
+);
+
+layer.appendChild(
+createLaserButton(
+"end",
+endLaserY,
+laserDirection==="end"
+)
+);
+
+document.querySelectorAll("[data-route-point]").forEach(element=>{
+const index=Number(element.dataset.routePoint);
+
+if(!Number.isInteger(index)||index<firstTestableIndex){
+return;
+}
+
+if(laserDirection==="start"&&index<firstStartCheckIndex){
+return;
+}
+
+const y=getCenterY(element,layoutRect);
+const checked=isChecked(index,endPointIndex);
+const current=laserTargetIndex===index;
+
+layer.appendChild(
+createCheckButton(index,y,checked,current)
+);
+});
+
+if(laserDirection==="start"){
+layer.appendChild(
+createCheckButton(
+endPointIndex,
+endCheckY,
+isEndPointChecked(endPointIndex),
+laserTargetIndex===endPointIndex
+)
+);
+}
+
+updateActiveLaserLine(
+axisStart,
+axisEnd,
+endCheckY,
+layoutRect
+);
+}
+
+function createLaserButton(direction,y,active){
+const button=document.createElement("button");
+
+button.type="button";
+button.className=`test-marker laser-button${active?" active":""}`;
+button.style.top=`${y}px`;
+button.setAttribute(
+"aria-label",
+direction==="start"
+?"Laser vanaf startlocatie"
+:"Laser vanaf eindlocatie"
+);
+button.innerHTML=laserSymbol();
+
+button.onclick=()=>{
+const items=flattenCabinets();
+
+if(items.length<=firstTestableIndex)return;
+
+if(direction==="start"){
+laserDirection="start";
+laserTargetIndex=firstTestableIndex;
+}else{
+laserDirection="end";
+laserTargetIndex=items.length-1;
+}
+
+renderTest();
+};
+
+return button;
+}
+
+function createCheckButton(index,y,checked,current){
+const button=document.createElement("button");
+
+button.type="button";
+button.className=
+`test-marker test-check${checked?" checked":""}${current?" current":""}`;
+
+button.style.top=`${y}px`;
+button.dataset.testIndex=String(index);
+button.setAttribute(
+"aria-label",
+"Laser zichtbaar tot deze positie"
+);
+button.textContent="✓";
+
+button.onclick=()=>{
+laserTargetIndex=index;
+renderTest();
+};
+
+return button;
+}
+
+function updateActiveLaserLine(axisStart,axisEnd,endCheckY,layoutRect){
+const active=document.getElementById("testAxisActive");
+
+if(!active)return;
+
+const items=flattenCabinets();
+const endPointIndex=items.length;
+
+let targetY;
+
+if(
+laserDirection==="start"&&
+laserTargetIndex===endPointIndex
+){
+targetY=endCheckY;
+}else{
+const targetElement=document.querySelector(
+`[data-route-point="${laserTargetIndex}"]`
+);
+
+if(!targetElement){
+active.style.top="0";
+active.style.height="0";
+return;
+}
+
+targetY=getCenterY(targetElement,layoutRect);
+}
+
+const axisHeight=Math.max(axisEnd-axisStart,0);
+const targetRelative=Math.max(
+0,
+Math.min(targetY-axisStart,axisHeight)
+);
+
+if(laserDirection==="start"){
+active.style.top="0";
+active.style.height=`${Math.max(targetRelative,4)}px`;
+}else{
+active.style.top=`${targetRelative}px`;
+active.style.height=`${Math.max(axisHeight-targetRelative,4)}px`;
+}
+}
+
+function getCenterY(element,layoutRect){
+const rect=element.getBoundingClientRect();
+
+return rect.top+rect.height/2-layoutRect.top;
+}
+
+function mapLink(gpsValue,address){
+const gps=parseGps(gpsValue);
+const query=clean(address);
+
+if(!gps&&!query)return"";
+
+return`
+<div class="map-hint">
+<button
+class="map-link"
+type="button"
+data-map-lat="${gps?safe(gps.lat):""}"
+data-map-lon="${gps?safe(gps.lon):""}"
+data-map-query="${safe(query)}"
+onclick="openMap(this)"
+>
+Tik om Maps te openen
+</button>
+</div>
+`;
+}
+
+function openMap(button){
+const lat=button.dataset.mapLat;
+const lon=button.dataset.mapLon;
+const query=button.dataset.mapQuery;
+
+if(lat&&lon){
+window.location.href=`geo:${lat},${lon}?q=${lat},${lon}`;
+return;
+}
+
+if(query){
+window.location.href=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+}
+
+function parseGps(value){
+const match=clean(value)
+.replace(";",",")
+.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+
+if(!match)return null;
+
+const lat=Number(match[1]);
+const lon=Number(match[2]);
+
+if(!Number.isFinite(lat)||!Number.isFinite(lon))return null;
+if(Math.abs(lat)>90||Math.abs(lon)>180)return null;
+
+return{
+lat:String(lat),
+lon:String(lon)
+};
+}
+
+function findAddress(items,index){
+for(let cursor=index+1;cursor<Math.min(items.length,index+10);cursor++){
+if(items[cursor].type==="Address")return items[cursor].name;
+if(items[cursor].type==="Building")break;
+}
+
+for(let cursor=index-1;cursor>=Math.max(0,index-6);cursor--){
+if(items[cursor].type==="Address")return items[cursor].name;
+if(items[cursor].type==="Building")break;
+}
+
+return"";
+}
+
+function findBuildingAtDistance(items,distance){
+let current="";
+
+items.forEach(item=>{
+if(item.type==="Building"&&item.distance<=distance){
+current=item.name;
+}
+});
+
+return current;
+}
+
+function deriveRouteName(items){
+const buildings=items
+.filter(item=>item.type==="Building")
+.map(item=>item.name);
+
+if(buildings.length>=2){
+return`${buildings[0]} → ${buildings[buildings.length-1]}`;
+}
+
+return buildings[0]||"";
+}
+
+function findHeader(headers,test){
+const index=headers.findIndex(test);
+return index>=0?index:-1;
+}
+
+function findLabelValue(rows,labels){
+const needles=labels.map(label=>label.toLowerCase());
+
+for(const row of rows){
+for(let index=0;index<row.length;index++){
+const value=clean(row[index]).toLowerCase();
+
+if(!needles.some(label=>value.includes(label))){
+continue;
+}
+
+for(let next=index+1;next<Math.min(row.length,index+6);next++){
+const candidate=clean(row[next]);
+
+if(
+candidate&&
+!needles.some(label=>candidate.toLowerCase().includes(label))
+){
+return candidate;
+}
+}
+}
+}
+
+return"";
+}
+
+function uniqueMatches(text,regex){
+return[
+...new Set(
+(clean(text).match(regex)||[])
+.map(value=>value.toUpperCase())
+)
+];
+}
+
+function firstMatch(text,regex){
+const match=clean(text).match(regex);
+return match?match[0].toUpperCase():"";
+}
+
+function outsideValue(value){
+return[
+"true",
+"yes",
+"ja",
+"1",
+"outside"
+].includes(clean(value).toLowerCase());
+}
+
+function headerKey(value){
+return clean(value)
+.toUpperCase()
+.replace(/[\s-]+/g,"_");
+}
+
+function cell(row,index){
+return index>=0?row[index]:"";
+}
+
+function numberValue(value){
+const match=clean(value)
+.replace(",",".")
+.match(/-?\d+(\.\d+)?/);
+
+return match?Number(match[0]):0;
+}
+
+function meters(value){
+return`${Math.round(numberValue(value))} m`;
+}
+
+function clean(value){
+return String(value??"")
+.replace(/\s+/g," ")
+.trim();
+}
+
+function safe(value){
+return clean(value)
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+}
+
+function emptyHtml(text){
+return`<div class="empty">${safe(text)}</div>`;
+}
+
+loadTheme();
+renderRoute();
+renderLocations();
+renderTest();
+
+</script>
+<script src="../../shared/assistant-mini.js" defer></script>
+</body>
+</html>

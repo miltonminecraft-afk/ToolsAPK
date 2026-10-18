@@ -1,0 +1,57 @@
+[
+  {
+    "path": "www/vendor/xlsx.full.min.js",
+    "url": "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js",
+    "sha256": "cc015130aa8521e7f088f88898eba949ccdcbfb38df0bd129b44b7273c3a6f41"
+  },
+  {
+    "path": "www/vendor/html5-qrcode.min.js",
+    "url": "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js",
+    "sha256": "660b12437b1d747e3e68b8be0685c08cb728140110ad213f167b14b66f8b1d8e"
+  },
+  {
+    "path": "www/vendor/wllama.js",
+    "url": "https://cdn.jsdelivr.net/npm/@wllama/wllama@3.5.1/esm/index.js",
+    "sha256": "2ed031e8d61cebd1d4c7d4956a6350f5afc7fa7c678c3a324d66f6df958f67db"
+  },
+  {
+    "path": "www/vendor/wllama.wasm",
+    "url": "https://cdn.jsdelivr.net/npm/@wllama/wllama@3.5.1/esm/wasm/wllama.wasm",
+    "sha256": "4197ce6d3dc9240c42ee52b4197dc99638875a06b0083901f8a57767338a0cfa"
+  },
+  {
+    "path": "www/vendor/wllama-compat/wllama.js",
+    "url": "https://cdn.jsdelivr.net/npm/@wllama/wllama-compat@3.5.1/wasm/wllama.js",
+    "sha256": "011e11f2c2a4a94d1764a4f45993e01ae5c48f72d78d59464972b26606afd6ac"
+  },
+  {
+    "path": "www/vendor/wllama-compat/wllama.wasm",
+    "url": "https://cdn.jsdelivr.net/npm/@wllama/wllama-compat@3.5.1/wasm/wllama.wasm",
+    "sha256": "9ea153d9396db12c385d53e9a8330b1638ca3e8805159a762ce8859d92d2ac8b"
+  },
+  {
+    "path": "www/vendor/tesseract/tesseract.min.js",
+    "url": "https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js",
+    "sha256": "10fff78484067759c43028a02a72d76d0b90eb17302bb23b58a9ec5410bc928b"
+  },
+  {
+    "path": "www/vendor/tesseract/worker.min.js",
+    "url": "https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js",
+    "sha256": "38645599043239c0eb6db08a6504a92dcdc292200535f3e9339cd77c4443b842"
+  },
+  {
+    "path": "www/vendor/tesseract/tesseract-core-lstm.wasm.js",
+    "url": "https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-lstm.wasm.js",
+    "sha256": "775a35df6f2ae100e02609443e6bd5cafcd07983dd6175454ca4a432a7730687"
+  },
+  {
+    "path": "www/vendor/tesseract/tesseract-core-simd-lstm.wasm.js",
+    "url": "https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-simd-lstm.wasm.js",
+    "sha256": "9d7c43fb206dc9f48475228b46bf35f888fa9e6259da2e67d5a75c77049f2dc7"
+  },
+  {
+    "path": "www/vendor/tesseract/eng.traineddata.gz",
+    "url": "https://tessdata.projectnaptha.com/4.0.0/eng.traineddata.gz",
+    "sha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
+  }
+]
