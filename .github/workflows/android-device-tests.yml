@@ -47,7 +47,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated
           script: |
             adb shell cmd overlay enable --user 0 com.android.internal.systemui.navbar.gestural
-            cd android && ./gradlew connectedDebugAndroidTest --no-daemon
+            cd android && ./gradlew :app:connectedDebugAndroidTest --no-daemon
       - name: Collect screenshots
         if: always()
         run: |
