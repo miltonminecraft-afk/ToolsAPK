@@ -1,0 +1,6 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'../www/tools/kopermetingen/index.html'),'utf8'),ctx={};vm.createContext(ctx);
+for(const name of ['kpnReportText','sanitizePlainText'])vm.runInContext(html.split('\n').find(line=>line.startsWith('function '+name+'(')),ctx);
+test('KPN reports preserve electrical units and comparison signs using ASCII',()=>{const input='AB ≥100 MΩ | AG 5 kΩ | BG 2 Ω\nC: 0,5 µF / 1 μF | Δ C ≤2%\nKVD A → HVD −1 V ±0,5 V';const text=ctx.kpnReportText(input);assert.equal(text,'AB >=100 Mohm | AG 5 kohm | BG 2 ohm\nC: 0,5 uF / 1 uF | Delta C <=2%\nKVD A --> HVD -1 V +/-0,5 V');assert.match(text,/^[\x00-\x7f]*$/)});
+test('copy and share cleanup keeps ASCII reports and regular line breaks',()=>{const text=ctx.sanitizePlainText('  Meting ééń\r\nR:\t∞ Ω\u200b  \r\n“test”  ');assert.equal(text,'Meting een\nR: oneindig ohm\n"test"');assert.equal(ctx.sanitizePlainText(text),text)});
+test('unknown symbols remain traceable instead of silently losing information',()=>{assert.equal(ctx.kpnReportText('10 Ж'),'10 [U+416]');for(const name of ['documentOutput','shortDocumentOneOutput','shortDocumentTwoOutput'])assert.match(html,new RegExp(name+'\\.value=kpnReportText\\('))});

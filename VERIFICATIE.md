@@ -39,3 +39,7 @@ GitHub-controles: [apparaatcontroles](https://github.com/miltonminecraft-afk/Too
 ## Compacte tekstcorrectie
 
 De meettrajectkoppen en decoratieve scheidingslijnen zijn verwijderd. Isolatie en capaciteit staan elk op één regel. Groepering, oorspronkelijke meetnummers, posities, meetwaarden en LCL-koppelingen blijven behouden. De 21 Node-tests slagen opnieuw.
+
+## KPN-tekstrapporten
+
+Alle drie tekstdocumenten en kopieer-/deelfuncties zetten meeteenheden om naar gewone ASCII-tekst: ohm, uF, >=, <=, --> en Delta. Meetwaarden in opslag blijven ongewijzigd. Onbekende tekens blijven traceerbaar als een ASCII-codevermelding. De 24 Node-tests slagen.
