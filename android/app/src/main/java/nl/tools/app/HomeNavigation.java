@@ -9,7 +9,11 @@ final class HomeNavigation {
     static String landingUrl(String appUrl) {
         String base = appUrl == null || appUrl.trim().isEmpty()
                 ? "https://localhost/" : appUrl;
-        return URI.create(base).resolve("./index.html").toString();
+        URI uri = URI.create(base);
+        String path = uri.getRawPath();
+        if (path == null || path.isEmpty()) path = "/";
+        if (!path.endsWith("/")) path = path.substring(0, path.lastIndexOf('/') + 1);
+        return uri.getScheme() + "://" + uri.getRawAuthority() + path + "index.html";
     }
 
     static boolean isLandingPage(String currentUrl, String appUrl) {
@@ -22,7 +26,7 @@ final class HomeNavigation {
                     || !home.getScheme().equalsIgnoreCase(current.getScheme())
                     || !home.getHost().equalsIgnoreCase(current.getHost())
                     || effectivePort(current) != effectivePort(home)) return false;
-            String directory = home.resolve("./").getPath();
+            String directory = home.getPath().substring(0, home.getPath().lastIndexOf('/') + 1);
             String path = current.getPath();
             return home.getPath().equals(path) || directory.equals(path)
                     || ("/".equals(directory) && (path == null || path.isEmpty()));
