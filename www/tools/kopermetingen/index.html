@@ -719,7 +719,7 @@ function hioMergeItem(target,item){if(!target.name&&item.name)target.name=item.n
 function hioItemRank(item){if(item.type==="sip"||item.type==="hvd")return 0;if(item.type==="kvd")return 10+item.index;return 999}
 function hioCleanPhoneValue(value){const raw=String(value||"").trim();if(!raw)return"";const digits=raw.replace(/[^0-9]/g,"");if(!digits)return"";return raw.startsWith("+")?"+"+digits:digits}
 function hioPhoneFromResult(result){if(!result)return"";const keys=["tel","Tel","telephone","Telephone","telefoon","Telefoon","phone","Phone","phoneNumber","PhoneNumber","telephoneNumber","TelephoneNumber","telNumber","TelNumber","telefoonnummer","Telefoonnummer","telefoonNummer","TelefoonNummer","telNr","TelNr","telefoonNr","TelefoonNr"];for(const key of keys){const value=hioCleanPhoneValue(result[key]);if(value)return value}return""}
-function hioServiceIdFromResult(result){if(!result)return"";const service=String(result.serviceId||result.serviceID||result.service_id||result.ServiceId||result.ServiceID||"").trim().toUpperCase();const tel=hioPhoneFromResult(result);if(service&&tel&&service!==tel)return service+" "+tel;return service||tel}
+function hioServiceIdFromResult(result){if(!result)return"";const service=String(result.serviceId||result.serviceID||result.service_id||result.ServiceId||result.ServiceID||"").trim().toUpperCase();const tel=hioPhoneFromResult(result);if(service&&tel&&service!==tel&&!service.endsWith(" "+tel))return service+" "+tel;return service||tel}
 function normalizeHioScanResult(result){
 if(!result)return{serviceId:"",dikader:"",items:[]};
 const out={serviceId:hioServiceIdFromResult(result),dikader:normalizeDikaderValue(result.dikader),items:[]};

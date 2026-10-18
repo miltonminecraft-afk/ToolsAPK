@@ -15,4 +15,10 @@ public class HioIdentifierTest {
         assertEquals("B", HioScanActivity.HioParser.kvdNameFromLine("KVDB"));
         assertEquals("AB", HioScanActivity.HioParser.kvdNameFromLine("KVDAB"));
     }
+    @Test public void overlongOcrTokensCannotCreateDifferentKvdNames() {
+        assertEquals("", HioScanActivity.HioParser.cleanKvdNameToken("ABC"));
+        assertEquals("", HioScanActivity.HioParser.kvdNameFromLine("KVD ABC"));
+        assertEquals("", HioScanActivity.HioParser.kvdNameFromLine("KVDABCD"));
+    }
+
 }

@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: android-devices-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   navigation:
     runs-on: ubuntu-latest
@@ -45,15 +48,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated
-          script: |
-            adb shell cmd overlay enable --user 0 com.android.internal.systemui.navbar.gestural
-            cd android && ./gradlew :app:connectedDebugAndroidTest --no-daemon
-      - name: Collect screenshots
-        if: always()
-        run: |
-          mkdir -p device-results
-          adb pull /sdcard/Android/data/nl.tools.app/files/screenshots device-results/ || true
-          adb logcat -d > device-results/logcat.txt || true
+          script: bash scripts/test-device.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:

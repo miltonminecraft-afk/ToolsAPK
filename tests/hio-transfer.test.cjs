@@ -31,3 +31,13 @@ test('SIP, HVD and cassette letters survive normalization with single-letter KVD
  assert.deepEqual(Array.from(result.items,i=>i.type),['hvd','sip','kvd']);
  assert.equal(result.items[0].hRij,'A');assert.equal(result.items[0].vRij,'B');assert.equal(result.items[2].name,'A');
 });
+
+test('native combined service ID and telephone number are not duplicated during transfer',()=>{
+ const c=context();
+ assert.equal(c.hioServiceIdFromResult({serviceId:'CJF12345 0612345678',phone:'0612345678'}),'CJF12345 0612345678');
+ assert.equal(c.hioServiceIdFromResult({serviceId:'CJF12345',phone:'0612345678'}),'CJF12345 0612345678');
+ assert.equal(c.hioServiceIdFromResult({serviceId:'CJF12345 +31612345678',phone:'+31612345678'}),'CJF12345 +31612345678');
+ const once=c.normalizeHioScanResult({serviceId:'CJF12345 0612345678',phone:'0612345678',items:[{type:'kvd',name:'A'}]});
+ assert.equal(once.serviceId,'CJF12345 0612345678');
+ assert.equal(c.normalizeHioScanResult(once).serviceId,once.serviceId);
+});

@@ -53,6 +53,7 @@ public class ToolsNavigationTest {
     private void awaitPage(String suffix) {
         long deadline = SystemClock.uptimeMillis() + 20000;
         AtomicBoolean ready = new AtomicBoolean();
+        AtomicReference<String> diagnostic = new AtomicReference<>("no WebView observation");
         while (SystemClock.uptimeMillis() < deadline) {
             assertNotEquals("App closed while navigating", Lifecycle.State.DESTROYED, scenario.getState());
             scenario.onActivity(activity -> {
@@ -60,12 +61,17 @@ public class ToolsNavigationTest {
                 boolean matching = suffix == null
                         ? HomeNavigation.isLandingPage(url, activity.getBridge().getAppUrl())
                         : url != null && url.endsWith(suffix);
-                ready.set(matching && activity.getBridge().getWebView().getProgress() == 100);
+                int progress = activity.getBridge().getWebView().getProgress();
+                diagnostic.set("url=" + url + " appUrl=" + activity.getBridge().getAppUrl()
+                        + " home=" + HomeNavigation.landingUrl(activity.getBridge().getAppUrl())
+                        + " progress=" + progress + " matching=" + matching);
+                ready.set(matching && progress == 100);
             });
             if (ready.get()) { device.waitForIdle(); return; }
             SystemClock.sleep(100);
         }
-        fail("Page did not load: " + suffix);
+        screenshot("failed-page-load");
+        fail("Page did not load: " + suffix + " (" + diagnostic.get() + ")");
     }
 
     private void screenshot(String name) {

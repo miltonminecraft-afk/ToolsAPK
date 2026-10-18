@@ -1639,7 +1639,7 @@ public class HioScanActivity extends AppCompatActivity {
             String name = sb.toString().replaceAll("[^A-Z]", "");
 
             if (name.length() < 1) return "";
-            if (name.length() > 2) name = name.substring(0, 2);
+            if (name.length() > 2) return "";
             if (!name.matches("[A-Z]{1,2}")) return "";
 
             return name;
