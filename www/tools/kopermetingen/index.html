@@ -1255,6 +1255,7 @@ function renderCurrentRoute(){if(!currentRouteOutput)return;const ids=currentRou
 hvdInput.addEventListener("input",()=>{state.hvd=hvdInput.value.trim().toUpperCase();storeCurrentRouteForActiveService();refreshRouteOptions();renderRouteInfo();refreshDocument();saveState()});
 loadState();normalizeOgOriginalStores();const sharedTheme=localStorage.getItem("toolsTheme");if(sharedTheme==="dark"||sharedTheme==="light")state.theme=sharedTheme;else localStorage.setItem("toolsTheme",state.theme==="light"?"light":"dark");hvdInput.value=state.hvd||"";fillMeasurementServiceIfAvailable(false);renderServiceClear();renderHvdLength();renderKvds();renderServiceIdsList();renderSectionVisibility();renderRouteInfo();refreshRouteOptions();setLocationToFirstRouteItem();refreshServices();setTheme(state.theme,false);setPageLayout(state.pageLayout);applyKeyboardModeToInputs();updateNewPositionLayout();prefillNewPositionFromService(true);bindDocumentCardSelection();refreshDocument();
 </script>
-<script src="../../shared/assistant-mini.js" defer></script>
+<link rel="stylesheet" href="../../shared/tool-info.css">
+<script type="module" src="../../shared/tool-info.js"></script>
 </body>
 </html>

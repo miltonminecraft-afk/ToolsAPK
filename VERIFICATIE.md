@@ -32,7 +32,7 @@ GitHub Actions voert tests uit op Android API 35 en 36: hardware-terug, teruggeb
 
 De lokale Mac-emulator crasht vóór het opstarten van Android; daarom worden Linux-emulators op GitHub gebruikt. Er is geen fysieke telefoon aangesloten.
 
-Echte HIO-fotoherkenning, camera/QR-scans, Android-deelmenu's, pieptonen en AI-snelheid/geheugengebruik op een telefoon zijn nog niet fysiek gevalideerd. De APK gebruikt de WASM-runtime wanneer de optionele native llama.cpp ontbreekt. Het modelbestand wordt apart gedownload en staat niet in Git.
+Echte HIO-fotoherkenning, camera/QR-scans, Android-deelmenu's, en pieptonen op een telefoon zijn nog niet fysiek gevalideerd.
 
 GitHub-controles: [apparaatcontroles](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186502), [APK-build](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186483), [Pages-publicatie](https://github.com/miltonminecraft-afk/ToolsAPK/actions/runs/39120186501). De live Kopermetingen-HTML is byte voor byte vergeleken met de lokaal geteste bron.
 
@@ -44,12 +44,8 @@ De meettrajectkoppen en decoratieve scheidingslijnen zijn verwijderd. Isolatie e
 
 Alle drie tekstdocumenten en kopieer-/deelfuncties zetten meeteenheden om naar gewone ASCII-tekst: ohm, uF, >=, <=, --> en Delta. Meetwaarden in opslag blijven ongewijzigd. Onbekende tekens blijven traceerbaar als een ASCII-codevermelding. De 24 Node-tests slagen.
 
-## Assistent, 25 oktober 2026
+## Info over onderdelen, 25 oktober 2026
 
-32 Node-tests slagen, waaronder ontbrekend offline model zonder download, gedeeld laden uit cache, GPU-terugval naar CPU, HIO-gesprek zonder herhaalde intake, veilige bronadressen en keuzeknoppen. De Android debug-APK en unit-tests bouwen lokaal met succes.
+De assistent is vervangen door statische uitleg per onderdeel. De startschermlink opent Info over onderdelen; ieder onderdeel bevat uitklapbare uitleg direct onder de kop. De oude assistentlink opent de informatiepagina. AI-modeldownloads, runtime, native bridge en bronservercode zijn verwijderd.
 
-In de browser zijn het gedownloade Qwen3-1.7B-model en de antwoordknoppen daadwerkelijk gebruikt. De online Cloudflare-dienst haalt actuele openbare KPN-pagina's op en geeft een antwoord van Qwen3-30B-A3B met bronlinks, ook in een nieuwe browseropslag zonder lokaal model. De ontvangstbevestiging verschijnt vóór het brononderzoek. Een tweede AI-controle toetst het conceptantwoord aan de opgehaalde bronnen; dit is geen garantie dat ieder antwoord foutloos is. De dienst onderzoekt KPN-servicepagina's, geen volledige internetindex.
-
-Eerdere API 35/36-resultaten hierboven horen bij de vermelde eerdere commit. Nieuwe fysieke Android-camera- en AI-prestatietests zijn niet uitgevoerd.
-
-De web-app is opnieuw geladen nadat de lokale server was gestopt: de app-cache en de gecontroleerde HIO-uitleg bleven werken. Een regressietest blokkeert niet-onderbouwde aansluitdetails en herhaalde intake na een gemaakte keuze.
+25 Node-tests slagen, inclusief verwijzingen naar lokale bestanden en de bestaande tests voor HIO, LCL, rapporten en Excel-export. Android-navigatietests bezoeken nu de informatiepagina.

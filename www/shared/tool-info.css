@@ -1,0 +1,5 @@
+
+.parts-help{margin:12px 0 18px;padding:14px 16px;border:1px solid var(--border,#d6dbe6);border-radius:12px;background:var(--panel,#fff);color:var(--text,#10141d);font:16px/1.55 Arial,Helvetica,sans-serif;text-align:left}
+.parts-help summary{cursor:pointer;font-weight:700;padding:3px 0}.parts-help summary:focus-visible,.parts-link:focus-visible{outline:3px solid var(--accent,#148a42);outline-offset:4px}
+.parts-help h3{font-size:17px;margin:20px 0 6px}.parts-help p{margin:10px 0}.parts-help ol{padding-left:24px;margin:8px 0}.parts-help li{margin:8px 0}.parts-help .parts-note{padding:10px 12px;background:var(--panel2,#eef1f7);border-radius:8px}
+.parts-link{color:var(--text,#10141d);text-decoration:underline;text-underline-offset:3px}.parts-help a{color:inherit}

@@ -82,7 +82,7 @@ public class ToolsNavigationTest {
     }
 
     @Test public void hardwareBackFromEveryToolReturnsToHome() {
-        for (String path : new String[]{"kopermetingen", "tv-codes", "fiber%20route", "pop-checklist", "assistant"}) {
+        for (String path : new String[]{"kopermetingen", "tv-codes", "fiber%20route", "pop-checklist", "info"}) {
             openTool(path);
             device.pressBack();
             awaitPage(null);

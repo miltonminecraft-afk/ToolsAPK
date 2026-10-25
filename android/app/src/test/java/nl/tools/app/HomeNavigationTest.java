@@ -15,7 +15,7 @@ public class HomeNavigationTest {
     }
 
     @Test public void toolsAlwaysReturnHome() {
-        for (String tool : new String[]{"kopermetingen", "tv-codes", "fiber%20route", "pop-checklist", "assistant"}) {
+        for (String tool : new String[]{"kopermetingen", "tv-codes", "fiber%20route", "pop-checklist", "info"}) {
             assertFalse(tool, HomeNavigation.isLandingPage(APP + "/tools/" + tool + "/index.html", APP));
         }
     }

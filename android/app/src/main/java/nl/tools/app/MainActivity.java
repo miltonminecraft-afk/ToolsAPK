@@ -72,9 +72,6 @@ public class MainActivity extends BridgeActivity {
         WebView webView = getBridge().getWebView();
         if (webView == null) return;
         webView.addJavascriptInterface(new HioBridge(), "Android");
-        if (NativeLlama.isAvailable()) {
-            webView.addJavascriptInterface(new LlamaBridge(this, webView), "ToolsNativeLlama");
-        }
         bridgesAttached = true;
     }
 

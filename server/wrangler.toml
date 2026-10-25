@@ -1,8 +1,0 @@
-name = "toolsapk-research"
-main = "research.mjs"
-compatibility_date = "2026-10-25"
-workers_dev = true
-account_id = "23217eb4cb1fb582ac906763d3ecf96e"
-
-[ai]
-binding = "AI"

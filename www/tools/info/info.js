@@ -1,0 +1,4 @@
+import {PARTS} from '../../shared/tool-info-content.js';
+import {sectionMarkup} from '../../shared/tool-info.js';
+const theme=()=>document.body.classList.toggle('dark',(localStorage.getItem('toolsTheme')||'dark')==='dark');theme();window.addEventListener('storage',theme);
+for(const [key,part] of Object.entries(PARTS)){const nav=document.createElement('a');nav.href='#'+key;nav.textContent=part.title;document.getElementById('parts-nav').appendChild(nav);const section=document.createElement('section');section.id=key;section.className='parts-help';const title=document.createElement('h2');title.textContent=part.title;section.appendChild(title);const body=document.createElement('div');body.innerHTML=sectionMarkup(part);section.appendChild(body);const open=document.createElement('a');open.className='open-tool';open.href=part.path;open.textContent='Open '+part.title;section.appendChild(open);document.getElementById('parts').appendChild(section);}

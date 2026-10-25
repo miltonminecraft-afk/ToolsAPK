@@ -1,6 +1,6 @@
 # Tools — Android en GitHub Pages
 
-Eén broncode in `www/` voor Android (Capacitor) en de browser. De app bevat Kopermetingen, TV-codes, Value Fiber Route, Checklist PoP en de lokale AI-assistent.
+Eén broncode in `www/` voor Android (Capacitor) en de browser. De app bevat Kopermetingen, TV-codes, Value Fiber Route, Checklist PoP en uitleg per onderdeel.
 
 ## Lokaal starten
 
@@ -27,7 +27,7 @@ npm run build
 node scripts/serve.cjs --dist
 ```
 
-Dit test de publicatieversie lokaal. De serviceworker bewaart appbestanden voor offline gebruik nadat de eerste installatie volledig is afgerond. Op een volgende start wordt een nieuwe versie opgehaald; sluit andere geopende Tools-tabbladen om een wachtende update te activeren. De ontwikkelserver gebruikt geen offline cache.
+Dit test de publicatieversie lokaal. De serviceworker bewaart appbestanden voor offline gebruik nadat de eerste installatie volledig is afgerond. Op een volgende start wordt een nieuwe versie opgehaald; herlaad de pagina nadat de nieuwe versie is opgehaald. De ontwikkelserver gebruikt geen offline cache.
 
 ## Android
 
@@ -51,13 +51,11 @@ APK: `android/app/build/outputs/apk/debug/app-debug.apk`. Op Windows gebruik je 
 | Argus- en LCL-QR | Camera via HTTPS/localhost en toestemming | WebView-camera |
 | HIO | Foto of schermafbeelding herkennen; tekst en route handmatig corrigeren | CameraX + ML Kit |
 | Delen | Browser-deelmenu als ondersteund; download als terugvaloptie | Capacitor Share / Filesystem |
-| AI | Online Qwen3-30B-A3B met KPN-bronnen; offline Qwen3-1.7B na download | Dezelfde online dienst; offline native llama.cpp indien aanwezig, anders WASM |
+| Uitleg per onderdeel | Lokaal, ook beschikbaar in de offline cache | In de APK gebundeld |
 
-De meegeleverde Android-bron bevat geen `android/llama.cpp`. Daarom gebruikt deze APK de WASM-terugvaloptie voor AI. De optionele C++-integratie is bewaard maar niet meegebouwd of getest.
+QR, Excel en OCR zijn lokaal gebundeld. HIO-fotoherkenning gebeurt op het apparaat; controleer de herkende posities. De webparser herkent gelabelde H/V-velden en kan minder gegevens automatisch invullen dan de native Android-parser.
 
-Het AI-model Qwen3-1.7B Q4_K_M wordt apart opgehaald van Hugging Face wanneer je **Offline model installeren** kiest (ongeveer 1,28 GB). Het vereist voldoende opslag en werkgeheugen. Dit bestand gaat niet naar GitHub. QR, Excel, OCR, wllama en WASM zijn lokaal gebundeld. HIO-fotoherkenning gebeurt op het apparaat; controleer altijd de herkende posities. De webparser herkent gelabelde H/V-velden en kan minder gegevens automatisch invullen dan de native Android-parser.
-
-Formulieren, foto's en opgeslagen chat blijven in de lokale opslag van het betreffende apparaat en de betreffende website. Ze worden niet automatisch tussen APK en browser gesynchroniseerd. Wissen van browsergegevens kan deze gegevens verwijderen. In de online assistent wordt alleen de huidige vraag (en bij een antwoordkeuze de bijbehorende vraag) naar de Cloudflare-worker verstuurd. Die haalt openbare KPN-pagina's op en gebruikt Workers AI voor het antwoord en een tweede broncontrole. De volledige chat en formuliergegevens worden niet meegestuurd. De knop Zoek actuele KPN-info opent een externe zoekpagina. Beide vereisen internet.
+Formulieren en foto's blijven op het betreffende apparaat. Ze worden niet automatisch tussen APK en browser gesynchroniseerd. Maak een export voordat je browsergegevens wist.
 
 ## Verificatie
 
@@ -75,10 +73,8 @@ De actuele test-APK staat in de projectmap als `Tools.apk`. Dit is dezelfde vers
 
 Open `Testdocument QR en HIO.pdf` in deze projectmap. De actuele set bevat 21 paginas, vier HIO-routes, achttien Argus-codes en twaalf LCL-codes. Alle losse afbeeldingen, HIO-tekst, JSON en QR-payloads staan in `Testgegevens/`. De onafhankelijke decoder en de huidige app-parsers hebben alle testgegevens gecontroleerd; zie `Testgegevens/controle.json`. Kies voor elke scan zelf de velden die boven de code staan. Gebruik fictieve testgegevens in een afzonderlijke sessie.
 
-## Technische assistent
+## Info over onderdelen
 
-Kies **Online onderzoek met KPN voorrang** voor brononderzoek en Qwen3-30B-A3B. Er verschijnt direct een ontvangstbevestiging. Antwoorden zijn kort, technisch en voorzien van bronlinks. Essentiële vervolgkeuzes verschijnen als knoppen. De online dienst onderzoekt momenteel openbare KPN-servicepagina's; een bredere internetzoekopdracht kan via de zoekknop worden geopend. De dienst blijft afhankelijk van bereikbaarheid en de Workers AI-limiet van het Cloudflare-account. Er is geen betaald abonnement ingeschakeld.
+Open **Info over onderdelen** op het startscherm voor de uitleg van Kopermetingen, TV codes, Value Fiber Route en Checklist PoP. In ieder onderdeel staat direct onder de kop een uitklapbare **Uitleg** met dezelfde gebruiksstappen. De uitleg werkt zonder modeldownload of online dienst.
 
-Kies **Offline lokaal** voor Qwen3-1.7B op het apparaat. Installeer eerst het model terwijl internet beschikbaar is en open de web-app eenmaal volledig voor de offline cache. Model laden en beantwoorden gebruiken daarna het opgeslagen model; een ontbrekend model wordt nooit stilzwijgend gedownload. Dit kleine model kan fouten maken. App-procedures voor HIO, Argus en LCL komen daarom uit een gecontroleerde lokale handleiding.
-
-De bronserver staat in `server/research.mjs`; de browserconfiguratie in `www/tools/assistant/config.js`. Publiceren: `npx wrangler deploy --config server/wrangler.toml`, met eigen Cloudflare-aanmelding. Er staan geen publicatierechten of API-sleutels in de webbron.
+De assistent, modelruntime, native AI-bridge en bronservercode zijn verwijderd. De oude assistentlink verwijst naar de informatiepagina. De bestaande meetgegevens zijn behouden.

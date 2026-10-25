@@ -1,1 +1,0 @@
-export function splitChoices(text){let choices=[];const clean=String(text||'').replace(/\[KEUZES:([^\]\n]{1,300})\]/g,(_all,values)=>{if(!choices.length)choices=[...new Set(values.split('|').map(v=>v.trim()).filter(v=>v&&v.length<=70))].slice(0,4);return '';});return {text:clean.trim(),choices};}
