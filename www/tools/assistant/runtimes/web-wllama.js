@@ -1,57 +1,43 @@
-const VERSION='3.5.1';
 const MODEL={repo:'ggml-org/Qwen3-1.7B-GGUF',file:'Qwen3-1.7B-Q4_K_M.gguf',name:'Qwen3-1.7B Q4_K_M'};
-const FLAG='toolsAssistantModelInstalledV1';
-let modulePromise=null;
-
-async function loadWllamaModule(){
-  if(!modulePromise){
-    modulePromise=import('../../../vendor/wllama.js').then(core=>({core,wasm:{default:new URL('../../../vendor/wllama.wasm',import.meta.url).href}})).catch(e=>{modulePromise=null;throw e});
-  }
-  return modulePromise;
-}
-
+let modulePromise;
+async function coreModule(){if(!modulePromise)modulePromise=import('../../../vendor/wllama.js').catch(e=>{modulePromise=null;throw e});return modulePromise;}
 export class WebWllamaRuntime {
-  constructor(){ this.wllama=null; this.manager=null; this.loading=null; }
+  constructor(){this.wllama=null;this.manager=null;this.creating=null;this.loading=null;this.gpu=false;}
   async _create(){
-    if(this.wllama) return;
-    const {core,wasm}=await loadWllamaModule();
-    this.manager=new core.ModelManager({allowOffline:true});
-    this.wllama=new core.Wllama(wasm,{allowOffline:true,parallelDownloads:3,logger:core.LoggerWithoutDebug,modelManager:this.manager});
-    this.wllama.setCompat({worker:new URL('../../../vendor/wllama-compat/wllama.js',import.meta.url).href,wasm:new URL('../../../vendor/wllama-compat/wllama.wasm',import.meta.url).href});
+    if(this.wllama)return;if(this.creating)return this.creating;
+    this.creating=(async()=>{const core=await coreModule();this.manager=new core.ModelManager({allowOffline:true});this._instance(core);})().finally(()=>this.creating=null);return this.creating;
   }
-  async info(){
-    await this._create();
-    return {type:'web',label:`Browser lokaal · llama.cpp/WASM${this.wllama.isSupportWebGPU()?' + WebGPU':''}`,model:MODEL.name,webgpu:this.wllama.isSupportWebGPU()};
+  _instance(core){this.wllama=new core.Wllama({default:new URL('../../../vendor/wllama.wasm',import.meta.url).href},{allowOffline:true,parallelDownloads:3,logger:core.LoggerWithoutDebug,modelManager:this.manager});this.wllama.setCompat({worker:new URL('../../../vendor/wllama-compat/wllama.js',import.meta.url).href,wasm:new URL('../../../vendor/wllama-compat/wllama.wasm',import.meta.url).href});}
+  modelUrl(){return `https://huggingface.co/${MODEL.repo}/resolve/main/${MODEL.file}`;}
+  async info(){await this._create();return {type:'web',label:'Lokaal · Qwen3 via '+(this.gpu?'WebGPU':'WASM'),model:MODEL.name};}
+  async _cached(){await this._create();return (await this.manager.getModels()).find(m=>m.url===this.modelUrl()&&m.validate()==='valid');}
+  async isModelInstalled(){return !!(await this._cached());}
+  async _load(onProgress,download=false){
+    await this._create();if(this.wllama.isModelLoaded())return;if(this.loading)return this.loading;
+    this.loading=(async()=>{
+      let model=await this._cached();
+      if(!model){if(!download)throw Error('Geen lokaal model opgeslagen. Installeer het model eenmalig terwijl je online bent.');if(!navigator.onLine)throw Error('Voor de eerste modelinstallatie is internet nodig.');model=await this.manager.downloadModel({url:this.modelUrl()},{progressCallback:({loaded,total})=>onProgress?.(total?Math.round(loaded/total*100):0)});}
+      onProgress?.(100);
+      try{this.gpu=!!(navigator.gpu&&await navigator.gpu.requestAdapter());}catch{this.gpu=false;}
+      const options={n_ctx:4096,n_batch:64,n_gpu_layers:this.gpu?99:0};
+      try{await this.wllama.loadModel(await model.open(),options);}
+      catch(first){
+        try{await this.wllama.exit();}catch{}
+        this._instance(await coreModule());
+        if(!this.gpu)throw first;
+        this.gpu=false;
+        try{await this.wllama.loadModel(await model.open(),{...options,n_gpu_layers:0});}
+        catch(error){try{await this.wllama.exit();}catch{}this._instance(await coreModule());throw Error('Model kan niet worden geladen op dit apparaat: '+(error.message||error));}
+      }
+    })().finally(()=>this.loading=null);return this.loading;
   }
-  async isModelInstalled(){
-    await this._create();
-    const models=await this.manager.getModels();
-    return models.some(m=>m.url===this.modelUrl() && m.validate()==='valid');
-  }
-  modelUrl(){return `https://huggingface.co/${MODEL.repo}/resolve/main/${MODEL.file}`} 
-  async _load(onProgress){
-    await this._create();
-    if(this.wllama.isModelLoaded()) return;
-    if(this.loading) return this.loading;
-    this.loading=this.wllama.loadModelFromUrl({url:this.modelUrl()},{
-      useCache:true,n_ctx:4096,n_batch:256,n_gpu_layers:this.wllama.isSupportWebGPU()?99:0,
-      progressCallback:onProgress?({loaded,total})=>onProgress(total?Math.round(loaded/total*100):0):undefined
-    }).finally(()=>{this.loading=null});
-    return this.loading;
-  }
-  async installModel(onProgress){ await this._load(onProgress); localStorage.setItem(FLAG,'1'); return {ok:true}; }
-  async removeModel(){
-    await this._create();
-    try{ if(this.wllama.isModelLoaded()) await this.wllama.exit(); }catch(e){}
-    await this.manager.clear(); localStorage.removeItem(FLAG); this.wllama=null; this.manager=null; return {ok:true};
-  }
-  async clearCache(){ return {ok:true}; }
+  async installModel(progress){await this._load(progress,true);return {ok:true};}
+  async removeModel(){await this._create();if(this.loading)throw Error('Wacht tot het model klaar is met laden.');try{await this.wllama.exit();}finally{await this.manager.clear();this.wllama=null;this.manager=null;}return {ok:true};}
+  async clearCache(){return {ok:true};}
   async generate(messages,options={}){
-    try{ await this._load(); }
-    catch(e){ localStorage.removeItem(FLAG); throw new Error('AI-model ontbreekt of kon niet uit de browsercache worden geladen. Installeer het model opnieuw.'); }
-    const response=await this.wllama.createChatCompletion({
-      messages,max_tokens:options.maxTokens||420,temperature:options.temperature??0.35,top_k:40,top_p:0.92,chat_template_kwargs:{enable_thinking:false}
-    });
-    return response?.choices?.[0]?.message?.content||'';
+    await this._load();let text='';const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),180000);
+    try{await this.wllama.createChatCompletion({messages,max_tokens:options.maxTokens||240,temperature:options.temperature??.2,top_k:40,top_p:.92,chat_template_kwargs:{enable_thinking:false},stream:true,abortSignal:controller.signal,onData:chunk=>{const part=chunk?.choices?.[0]?.delta?.content;if(part){text+=part;options.onToken?.(text);}}});return text;}
+    catch(error){if(controller.signal.aborted)throw Error('Het lokale model reageert te langzaam op dit apparaat. Probeer een kortere vraag.');throw error;}
+    finally{clearTimeout(timeout);}
   }
 }

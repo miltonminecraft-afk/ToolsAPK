@@ -37,7 +37,7 @@
     shell.append(top,frame); overlay.appendChild(shell); document.body.appendChild(overlay);
 
     const open=()=>{ if(!frame.hasAttribute('src')) frame.src=frame.dataset.src; overlay.style.display='flex'; try{panel.classList.remove('open')}catch(e){} };
-    const hide=()=>{ overlay.style.display='none'; };
+    const hide=()=>{ overlay.style.display='none'; frame.removeAttribute('src'); };
     row.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open()});
     close.addEventListener('click',hide);
     overlay.addEventListener('click',e=>{if(e.target===overlay)hide()});

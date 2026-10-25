@@ -43,3 +43,11 @@ De meettrajectkoppen en decoratieve scheidingslijnen zijn verwijderd. Isolatie e
 ## KPN-tekstrapporten
 
 Alle drie tekstdocumenten en kopieer-/deelfuncties zetten meeteenheden om naar gewone ASCII-tekst: ohm, uF, >=, <=, --> en Delta. Meetwaarden in opslag blijven ongewijzigd. Onbekende tekens blijven traceerbaar als een ASCII-codevermelding. De 24 Node-tests slagen.
+
+## Assistent, 25 oktober 2026
+
+31 Node-tests slagen, waaronder ontbrekend offline model zonder download, gedeeld laden uit cache, GPU-terugval naar CPU, HIO-gesprek zonder herhaalde intake, veilige bronadressen en keuzeknoppen. De Android debug-APK en unit-tests bouwen lokaal met succes.
+
+In de browser zijn het gedownloade Qwen3-1.7B-model en de antwoordknoppen daadwerkelijk gebruikt. De online Cloudflare-dienst haalt actuele openbare KPN-pagina's op en geeft een antwoord van Qwen3-30B-A3B met bronlinks, ook in een nieuwe browseropslag zonder lokaal model. De ontvangstbevestiging verschijnt vóór het brononderzoek. Een tweede AI-controle toetst het conceptantwoord aan de opgehaalde bronnen; dit is geen garantie dat ieder antwoord foutloos is. De dienst onderzoekt KPN-servicepagina's, geen volledige internetindex.
+
+Eerdere API 35/36-resultaten hierboven horen bij de vermelde eerdere commit. Nieuwe fysieke Android-camera- en AI-prestatietests zijn niet uitgevoerd.
