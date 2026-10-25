@@ -46,8 +46,10 @@ Alle drie tekstdocumenten en kopieer-/deelfuncties zetten meeteenheden om naar g
 
 ## Assistent, 25 oktober 2026
 
-31 Node-tests slagen, waaronder ontbrekend offline model zonder download, gedeeld laden uit cache, GPU-terugval naar CPU, HIO-gesprek zonder herhaalde intake, veilige bronadressen en keuzeknoppen. De Android debug-APK en unit-tests bouwen lokaal met succes.
+32 Node-tests slagen, waaronder ontbrekend offline model zonder download, gedeeld laden uit cache, GPU-terugval naar CPU, HIO-gesprek zonder herhaalde intake, veilige bronadressen en keuzeknoppen. De Android debug-APK en unit-tests bouwen lokaal met succes.
 
 In de browser zijn het gedownloade Qwen3-1.7B-model en de antwoordknoppen daadwerkelijk gebruikt. De online Cloudflare-dienst haalt actuele openbare KPN-pagina's op en geeft een antwoord van Qwen3-30B-A3B met bronlinks, ook in een nieuwe browseropslag zonder lokaal model. De ontvangstbevestiging verschijnt vóór het brononderzoek. Een tweede AI-controle toetst het conceptantwoord aan de opgehaalde bronnen; dit is geen garantie dat ieder antwoord foutloos is. De dienst onderzoekt KPN-servicepagina's, geen volledige internetindex.
 
 Eerdere API 35/36-resultaten hierboven horen bij de vermelde eerdere commit. Nieuwe fysieke Android-camera- en AI-prestatietests zijn niet uitgevoerd.
+
+De web-app is opnieuw geladen nadat de lokale server was gestopt: de app-cache en de gecontroleerde HIO-uitleg bleven werken. Een regressietest blokkeert niet-onderbouwde aansluitdetails en herhaalde intake na een gemaakte keuze.
