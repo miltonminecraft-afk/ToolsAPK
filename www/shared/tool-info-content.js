@@ -2,14 +2,14 @@ export const PARTS = {
   "kopermetingen": {
     "title": "Kopermetingen TXT",
     "path": "../kopermetingen/index.html",
-    "intro": "Neem aansluitgegevens en meetwaarden over en maak compacte tekstrapporten per Service ID.",
+    "intro": "Vul aansluitgegevens handmatig in of neem ze over met een HIO-scan. Voeg meetgegevens toe en maak compacte tekstrapporten per Service ID.",
     "sections": [
       [
-        "HIO: route en aansluitpunten",
+        "Route en posities: handmatig of scannen",
         [
-          "Kies Scan vanaf HIO. Scan op Android het HIO-scherm; kies in de browser een foto of plak de HIO-tekst.",
-          "Controleer Service ID, HVD/KVD, stijl, cassette en stift. Ook KVD A en B zijn mogelijk. Kies Overnemen.",
-          "Vul routeafstanden apart in. HIO neemt aansluitgegevens over; het voert geen elektrische meting uit."
+          "Handmatig: vul de route, Service ID en aansluitposities in de bijbehorende velden in. Een HIO-scan is niet nodig.",
+          "Scannen: kies Scan vanaf HIO. Scan het HIO-scherm op Android, of kies in de browser een foto of plak HIO-tekst. Controleer de herkenning en kies Overnemen.",
+          "Controleer bij beide manieren Service ID, HVD/KVD, stijl, cassette en stift. Vul de routeafstanden in. HIO neemt aansluitgegevens over; het voert geen elektrische meting uit."
         ]
       ],
       [
@@ -24,7 +24,7 @@ export const PARTS = {
         "LCL: koppelen aan de meetpositie",
         [
           "Kies bij LCL-METING de juiste Service ID en meetlocatie. Controleer de getoonde richting.",
-          "Scan LCL QR-code of vul de LCL-waarde in. Kies Opslaan LCL.",
+          "Kies één van beide: scan de LCL QR-code of vul de LCL-waarde handmatig in. Kies daarna Opslaan LCL.",
           "Controleer in het document of de LCL bij de juiste positie en meting staat."
         ]
       ],
